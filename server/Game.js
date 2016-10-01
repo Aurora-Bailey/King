@@ -6,6 +6,7 @@ var http = require('http'),
   server = http.createServer(),
   db = require('./MongoDB').getDb(),
   Lib = require('./Lib'),
+  GV = require('./Globalvar'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
@@ -22,10 +23,12 @@ function handleMessage(ws, d) {// websocket client messages
   // << get ready
   /* server reset */
   // >> ready
+  /* set game id */
 
   /* wait for all players to join queue */
 
   // << list of users (username, user id, gameroom id)
+  /* pull name and rank from mongodb */
   /* add players and start the game loop */
   // >> game is running
   /* players will start joining and claiming their spot */
@@ -66,6 +69,7 @@ function handleMessage(ws, d) {// websocket client messages
   // >> you lasted 1 minute 12 seconds
   // >> list of players rank and alive status and playtime
   /* player can still watch game but can't make moves*/
+  /* add game stats to mongodb {{game id, num players, finish place, killer, playtime}, win ratio, rank, points} {points from looser to killer} */
   // << exit game/ close connection
   /* user is sent back to the home screen*/
 
@@ -99,6 +103,7 @@ module.exports.setup = function (p) {
   WORKER_PORT = process.env.WORKER_PORT;
   NODE_ENV = process.env.NODE_ENV;
   log('Hi I\'m worker ' + WORKER_INDEX + ' running as a game room.');
+  log('Version: ' + GV.version);
 
   process.on('message', function (m, c) {// process server messages
     // messages from the process node

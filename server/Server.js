@@ -6,6 +6,7 @@ var http = require('http'),
   server = http.createServer(),
   db = require('./MongoDB').getDb(),
   Lib = require('./Lib'),
+  GV = require('./Globalvar'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
@@ -20,13 +21,15 @@ function handleMessage(ws, d) {// websocket client messages
 
   // << hi
   // >> hi
-  // << version compatible
+  // << version compatible Lib.version()
   // >> true/false
-  // << unique cookie id
+  // << unique cookie id/ lack of cookie
+  /* if no cookie, make one and store it in mondodb, then send it to the user*/
   // >> user stats
   /*logged in*/
 
   // << join game request
+  // << set/update name
   /* add user to waiting queue, ignore if already in queue or playing*/
   // >> give update on num players and timeout
 
@@ -72,6 +75,7 @@ module.exports.setup = function (p) {
   WORKER_PORT = process.env.WORKER_PORT;
   NODE_ENV = process.env.NODE_ENV;
   log('Hi I\'m worker ' + WORKER_INDEX + ' running as a server.');
+  log('Version: ' + GV.version);
 
   process.on('message', function (m, c) {// process server messages
     if(m.m == 'getroom'){
