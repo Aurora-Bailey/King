@@ -18,6 +18,35 @@ function handleMessage(ws, d) {// websocket client messages
 
   }
 
+  // << hi
+  // >> hi
+  // << version compatible
+  // >> true/false
+  // << unique cookie id
+  // >> user stats
+  /*logged in*/
+
+  // << join game request
+  /* add user to waiting queue, ignore if already in queue or playing*/
+  // >> give update on num players and timeout
+
+  /* when all spots are filled or timeout is hit */
+  /* send master list of unique ids and user ids, master sends game room list of unique ids*/
+  /* game room will return with 'running' when ready */
+  // >> ip address with port, unique id string specific to game room
+  /* set user to playing */
+
+  // << game over
+  // >> send new stats
+  /* set user to not playing*/
+
+  // >> broadcast message to all users, display as banner
+
+
+  /* admin commands*/
+  // << {m: 'broadcast', pass: 'l3rd9uwb', message: 'server will restart in 10 minutes', level: 'warn'}
+  /* send to master, master sends to server nodes, server broadcasts */
+
 
 //ws.sendObj(d);
 

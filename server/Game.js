@@ -18,6 +18,62 @@ function handleMessage(ws, d) {// websocket client messages
 
   }
 
+  /* Message from master from server*/
+  // << get ready
+  /* server reset */
+  // >> ready
+
+  /* wait for all players to join queue */
+
+  // << list of users (username, user id, gameroom id)
+  /* add players and start the game loop */
+  // >> game is running
+  /* players will start joining and claiming their spot */
+
+  /* messages from usersr */
+  // << hi
+  // >> hi
+  // << my cookie id, and game room user id
+  /* link user ws to that player id */
+
+  /* client game setup*/
+  // >> list of players {name, color, game id}
+  // >> map
+  // >> player locations and unit numbers
+  // >> king position
+
+
+  /* game running messages */
+  // >> update block numbers
+  // >> update block colors
+  // >> update king positions
+
+  // << move/attack units {x,y,percent,direction}
+  /* client waits until move is made */
+  /* calculate attack and move separately */
+  // >> move done
+  /* maybe allow player to queue up a few moves */
+  /* allow player to make another move */
+
+  // << chat message
+  /* sanatize */
+  /* block spam */
+  // >> broadcast to room
+
+
+  // >> you've been taken over by "player" / you win
+  // >> you came in rank x out of y
+  // >> you lasted 1 minute 12 seconds
+  // >> list of players rank and alive status and playtime
+  /* player can still watch game but can't make moves*/
+  // << exit game/ close connection
+  /* user is sent back to the home screen*/
+
+  /* last player alive triggers a 15 second timeout to kick everyone from server*/
+  /* server resets */
+
+
+
 
 //ws.sendObj(d);
 
