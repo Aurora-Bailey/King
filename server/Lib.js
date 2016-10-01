@@ -1,4 +1,5 @@
 'use strict';
+var crypto = require('crypto');
 
 class Lib {
   static  randString(length, lower, upper, numbers) {
@@ -27,6 +28,9 @@ class Lib {
 
   static deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
+  }
+  static md5(string) {
+    return crypto.createHash('md5').update('' + string).digest('hex');
   }
 }
 

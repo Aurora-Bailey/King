@@ -12,11 +12,11 @@ function workerMessage(worker, message, handle) {
     worker = undefined;
   }
 
-  if(message.m == 'ready'){
+  if(message.m === 'ready'){
     worker.ready = true;
   }
 
-  if(message.m == 'getroom'){
+  if(message.m === 'getroom'){
     var room = false;
 
     for(let i=0; i<workers.length; i++){
@@ -35,6 +35,26 @@ function workerMessage(worker, message, handle) {
 
     room.open = false;
     worker.send({m: 'getroom', port: room.port, id: room.wid});
+  }
+
+  if(message.m === 'pass'){
+    if(message.to === 'server'){ // braodcast to all servers
+      workers.forEach((e,i)=>{
+        if(e.type === 'server')
+          e.send(message.data);
+      });
+    }else if(message.to === 'game'){ // broadcast to all game rooms
+      workers.forEach((e,i)=>{
+        if(e.type === 'game')
+          e.send(message.data);
+      });
+    }else if(message.to === 'all'){
+      workers.forEach((e,i)=>{
+        e.send(message.data);
+      });
+    }else{
+      workers[message.to].send(message.data);
+    }
   }
 
   log('Worker ' + worker.wid + ': ' + JSON.stringify(message));

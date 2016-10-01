@@ -107,6 +107,7 @@ module.exports.setup = function (p) {
 
   process.on('message', function (m, c) {// process server messages
     // messages from the process node
+    log(m);
   });
 
   wss.on('connection', function connection(ws) {
