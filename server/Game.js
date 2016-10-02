@@ -21,7 +21,10 @@ class Game {
     this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + 'game';
     this.allowplayers = {};
     this.players = [];
-    this.map = [];
+    this.map = {};
+    this.map.solid = [];
+    this.map.units = [];
+    this.map.owner = [];
 
     this.running = false;
     this.loopdelay = GV.game.loopdelay;
@@ -40,9 +43,13 @@ class Game {
     this.maptotalsize = this.mapusersize * this.mapcellsize;
     // build map
     for(let y=0; y<this.maptotalsize; y++){
-      this.map[y] = [];
+      this.map.solid[y] = [];
+      this.map.units[y] = [];
+      this.map.owner[y] = [];
       for(let x=0; x<this.maptotalsize; x++){
-        this.map[y][x] = {solid: Math.round(Math.random()), units: 0, owner: -1};
+        this.map.solid[y][x] = Math.round(Math.random());
+        this.map.units[y][x] = 0;
+        this.map.owner[y][x] = -1;
       }
     }
     // rearrange solid blocks
@@ -62,9 +69,9 @@ class Game {
         var toty = offsety + randcelly;
 
         if(typeof this.players[pindex] !== 'undefined'){
-          this.map[toty][totx].solid = 0;
-          this.map[toty][totx].units = 2;
-          this.map[toty][totx].owner = pindex;
+          this.map.solid[toty][totx] = 0;
+          this.map.units[toty][totx] = 2;
+          this.map.owner[toty][totx] = pindex;
           this.players[pindex].kingloc = {x: toty,y: totx};
         }
         pindex++;
@@ -83,35 +90,34 @@ class Game {
     let numsolid = 0;
     for(let c=0; c<this.maptotalsize; c++){
       for(let d=0; d<this.maptotalsize; d++) {
-        if (this.map[c][d].solid == 1) numsolid++;
+        if (this.map.solid[c][d] == 1) numsolid++;
       }
     }
 
     for(let y=0; y<this.maptotalsize; y++){
       for(let x=0; x<this.maptotalsize; x++){
         let n = 0;
-        let current = this.map[y][x];
 
         // count neighbors
         for(let a=-1; a<=1; a++){
           for(let b=-1; b<=1; b++){
             if(a == 0 && b == 0) continue;// current block
-            if(typeof this.map[y+a] === 'undefined') continue;
-            if(typeof this.map[y+a][x+b] === 'undefined') continue;
-            if(this.map[y+a][x+b].solid == 1) n++;
+            if(typeof this.map.solid[y+a] === 'undefined') continue;
+            if(typeof this.map.solid[y+a][x+b] === 'undefined') continue;
+            if(this.map.solid[y+a][x+b] == 1) n++;
           }
         }
 
         // live and die
         if(n < 1){// die
-          if(current.solid == 1) numsolid--;
-          current.solid = 0;
+          if(this.map.solid[y][x] == 1) numsolid--;
+          this.map.solid[y][x] = 0;
         }else if(n > 2){// die
-          if(current.solid == 1) numsolid--;
-          current.solid = 0;
+          if(this.map.solid[y][x] == 1) numsolid--;
+          this.map.solid[y][x] = 0;
         }else if(n === 2 && numsolid < maxnumsolid){// live
-          if(current.solid == 0) numsolid++;
-          current.solid = 1;
+          if(this.map.solid[y][x] == 0) numsolid++;
+          this.map.solid[y][x] = 1;
         }
 
       }
