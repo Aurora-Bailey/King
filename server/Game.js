@@ -76,6 +76,7 @@ class Game {
           this.map.units[toty][totx] = 2;
           this.map.owner[toty][totx] = pindex;
           this.players[pindex].kingloc = {x: toty,y: totx};
+          this.playerarray[pindex].kingloc = this.players[pindex].kingloc;
         }
         pindex++;
       }
@@ -150,6 +151,26 @@ class Game {
       }
     }
 
+    // process user moves
+
+    // process attacks
+
+    // process moves
+
+
+
+
+
+    /* game running messages */
+    // >> update block numbers
+    // >> update block colors
+    // >> update king positions?
+    // send changes to players
+    this.players.forEach((e,i)=>{
+      e.ws.sendObj({m: 'map', type: 'units', data: Game.map.units});
+      e.ws.sendObj({m: 'map', type: 'owner', data: Game.map.owner});
+    });
+
     this.loopcount++;
   }
 
@@ -203,17 +224,10 @@ function handleMessage(ws, d) {// websocket client messages
         ws.lastchat = Date.now();
 
         ws.sendObj({m: 'map', type: 'solid', data: Game.map.solid});
-        ws.sendObj({m: 'players', data: Game.playerarray});// id name color
+        ws.sendObj({m: 'players', data: Game.playerarray});// id name color king location
       }
     }
 
-
-
-
-    /* game running messages */
-    // >> update block numbers
-    // >> update block colors
-    // >> update king positions
 
     // << move/attack units {x,y,percent,direction}
     /* client waits until move is made */
@@ -221,12 +235,22 @@ function handleMessage(ws, d) {// websocket client messages
     // >> move done
     /* maybe allow player to queue up a few moves */
     /* allow player to make another move */
+    if (d.m === 'move' && ws.playing) {
+      if(typeof m.data !== 'array') return false;
+
+      Game.players[ws.pid].makemove = {
+        x: parseInt(d.data[0]),
+        y: parseInt(d.data[1]),
+        percent: parseInt(d.data[2]),
+        direction: parseInt(d.data[3])
+      };
+    }
 
     // << chat message
     /* sanatize */
     /* block spam */
     // >> broadcast to room
-    if (d.m === 'chat'){
+    if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 5000){// longer than 5 seconds ago
         var msg = d.message.slice(0,144);
         broadcast({m: 'chat', from: ws.pid, message: msg});
@@ -278,8 +302,8 @@ module.exports.setup = function (p) {
       /* add player spots and start the game loop */
       /* players will start joining and claiming their spot */
       let pid = Game.players.length;
-      Game.players[pid] = {connected: false, pid: pid, name: m.name, color: Math.floor(Math.random() * 360)};// server version
-      Game.playerarray.push({pid: pid, name: name, color: Game.players[pid].color});// version that will be sent to player
+      Game.players[pid] = {connected: false, pid: pid, name: m.name, color: Math.floor(Math.random() * 360), makemove: false};// server version
+      Game.playerarray[pid] = {pid: pid, name: name, color: Game.players[pid].color};// version that will be sent to player
       Game.allowplayers[m.uid] = {secret: m.secret, pid: pid};
     }
     if(m.m === 'start'){
