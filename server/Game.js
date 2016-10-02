@@ -14,6 +14,13 @@ var http = require('http'),
   WORKER_INDEX = false,
   NODE_ENV = false;
 
+
+function broadcast(obj) {
+  wss.clients.forEach(function each(client) {
+    client.sendObj(obj);
+  });
+};
+
 function handleMessage(ws, d) {// websocket client messages
   if (d.m === 'login') {
 
@@ -107,6 +114,9 @@ module.exports.setup = function (p) {
 
   process.on('message', function (m, c) {// process server messages
     // messages from the process node
+    if(m.m === 'broadcast'){
+      broadcast(m);
+    }
     log(m);
   });
 

@@ -195,8 +195,16 @@ function handleMessage(ws, d) {// websocket client messages
     // >> send new stats
     /* set user to not playing*/
     if (d.m === 'gameover' && ws.loggedin){
-      ws.playing = false;
-      sendPlayerStats(ws);
+      db.collection('players').find({cookie: ws.data.cookie}).limit(1).toArray(function(err, docs) {
+        if (err) {
+          log('Error with mongodb refresh request');
+          log(err);
+        } else if (docs.length != 0) {
+          ws.data = docs[0];
+          sendPlayerStats(ws);
+          ws.playing = false;
+        }
+      });
     }
 
     /* admin commands*/
