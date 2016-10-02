@@ -63,7 +63,7 @@ class Queue {
     // hit max players
     // or hit timeout
 
-    // clear timer in case max players is hit befor timeout
+    // clear timer in case max players is hit before timeout
     clearTimeout(this.timer);
 
     // too few players?
@@ -82,17 +82,24 @@ class Queue {
       return false;
     }
 
+    // send player to gameroom
+    // send gameroom to player
     // set players to playing
     let keys = Object.keys(this.players);
     keys.forEach((e,i)=>{
+      let uid = this.players[e].id;
+      let secret = 's' + Lib.md5(Math.random() + Date.now()) + 'secret';
+      process.send({m: 'pass', to: gameRoom.id, data: {m: 'addplayer', uid: uid, secret: secret}});
+      this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, secret: secret});
       this.players[e].playing = true;
     });
 
     // reset for next round
-    //this.reset();
-    this.resetTimer();
+    this.reset();
+    //this.resetTimer();
 
     // forget room and request another
+    process.send({m: 'pass', to: gameRoom.id, data: {m: 'start'}});
     gameRoom = false;
     process.send({m: 'getroom'});
   }
@@ -111,7 +118,7 @@ function broadcast(obj) {
   wss.clients.forEach(function each(client) {
     client.sendObj(obj);
   });
-};
+}
 
 function handleMessage(ws, d) {// websocket client messages
   try{
@@ -214,7 +221,6 @@ function handleMessage(ws, d) {// websocket client messages
     // >> give update on num players and timeout
     /* when all spots are filled or timeout is hit */
     /* send master list of unique ids and user ids, master sends game room list of unique ids*/
-    /* game room will return with 'running' when ready */
     // >> ip address with port, unique id string specific to game room
     /* set user to playing */
     if (d.m === 'join' && ws.loggedin) {

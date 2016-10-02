@@ -19,7 +19,7 @@ function broadcast(obj) {
   wss.clients.forEach(function each(client) {
     client.sendObj(obj);
   });
-};
+}
 
 function handleMessage(ws, d) {// websocket client messages
   if (d.m === 'login') {
