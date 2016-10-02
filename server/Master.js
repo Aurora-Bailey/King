@@ -16,6 +16,10 @@ function workerMessage(worker, message, handle) {
     worker.ready = true;
   }
 
+  if(message.m === 'open'){
+    worker.open = true;
+  }
+
   if(message.m === 'getroom'){
     var room = false;
 

@@ -18,11 +18,37 @@ class Game {
   static setup(){
     this.allowplayers = {};
     this.players = [];
+
+    this.running = false;
+    this.loopdelay = 1000;
   }
 
   static start(){
+    this.running = true;
+    this.loop();
+  }
+
+  static loop(){
+    setTimeout(()=> {
+      setTimeout(()=> {
+        if(this.running)
+          this.loop()
+      }, 1);
+    }, this.loopdelay);
 
   }
+
+  static endgame(){
+    // kick all players
+    this.players.forEach((e,i)=>{
+      e.ws.close();
+    });
+    // reset the server
+    this.setup();
+    // mark as open
+    process.send({m: 'open'});
+  }
+
 }
 Game.setup();
 
@@ -142,7 +168,7 @@ module.exports.setup = function (p) {
     }
     if(m.m === 'addplayer'){
       let pid = Game.players.length;
-      Game.players[pid] = {connected: false};
+      Game.players[pid] = {connected: false, pid: pid, name: m.name};
       Game.allowplayers[m.uid] = {secret: m.secret, pid: pid};
     }
     if(m.m === 'start'){

@@ -96,8 +96,9 @@ class Queue {
     let keys = Object.keys(this.players);
     keys.forEach((e,i)=>{
       let uid = this.players[e].id;
+      let name = this.players[e].name;
       let secret = 's' + Lib.md5(Math.random() + Date.now()) + 'secret';
-      process.send({m: 'pass', to: gameRoom.id, data: {m: 'addplayer', uid: uid, secret: secret}});
+      process.send({m: 'pass', to: gameRoom.id, data: {m: 'addplayer', uid: uid, secret: secret, name: name}});
       this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, secret: secret});
       this.players[e].playing = true;
     });
