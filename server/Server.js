@@ -47,6 +47,14 @@ class Queue {
     }
   }
 
+  static removePlayer(ws){
+    if(typeof this.players[ws.data.id] !== 'undefined'){// player is already in queue
+      delete this.players[ws.data.id];
+      ws.sendObj({m: 'canceljoin', v: true});
+      this.updatePlayers();
+    }
+  }
+
   static numPlayers(){
     let keys = Object.keys(this.players);
     return keys.length;
@@ -226,6 +234,9 @@ function handleMessage(ws, d) {// websocket client messages
     if (d.m === 'join' && ws.loggedin) {
       Queue.addPlayer(ws);
     }
+    if (d.m === 'canceljoin' && ws.loggedin) {
+      Queue.removePlayer(ws);
+    }
 
     /*
     *
@@ -322,6 +333,7 @@ module.exports.setup = function (p) {
     });
 
     ws.on('close', function () {
+      Queue.removePlayer(ws);
       ws.connected = false;
     });
 
