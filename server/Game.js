@@ -19,8 +19,10 @@ class Game {
     // set or reset game room
     // start will be called when all player spots are accounted for
     this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + 'game';
+    log('Setup game ' + this.gameid);
     this.allowplayers = {};
     this.players = [];
+    this.playerarray = [];// a version of players that can be sent over the network
     this.map = {};
     this.map.solid = [];
     this.map.units = [];
@@ -28,6 +30,7 @@ class Game {
 
     this.running = false;
     this.loopdelay = GV.game.loopdelay;
+    this.loopcount = 0;
   }
 
   static start(){
@@ -136,6 +139,18 @@ class Game {
       }, 1);
     }, this.loopdelay);
 
+    // add units
+    if(this.loopcount % 10 == 0){// once every 10 loops
+      for(let y=0; y<this.maptotalsize; y++){
+        for(let x=0; x<this.maptotalsize; x++){
+          if(this.map.owner[y][x] != -1){
+            this.map.units[y][x]++;
+          }
+        }
+      }
+    }
+
+    this.loopcount++;
   }
 
   static endgame(){
@@ -152,7 +167,6 @@ class Game {
   }
 
 }
-Game.setup();
 
 /* Websockets */
 function broadcast(obj) {
@@ -162,6 +176,13 @@ function broadcast(obj) {
 }
 
 function handleMessage(ws, d) {// websocket client messages
+
+  // delay message if game is not running
+  if(!Game.running){
+    setTimeout(()=>{handleMessage(ws,d)}, 1000);
+    return false;
+  }
+
   try{
     // << hi
     // >> hi
@@ -175,10 +196,14 @@ function handleMessage(ws, d) {// websocket client messages
         let pid = Game.allowplayers[d.uid].pid;
         Game.players[pid].ws = ws;
         Game.players[pid].connected = true;
+        ws.playing = true;
         ws.pid = pid;
         ws.uid = d.uid;
         ws.secret = d.secret;
         ws.lastchat = Date.now();
+
+        ws.sendObj({m: 'map', type: 'solid', data: Game.map.solid});
+        ws.sendObj({m: 'players', data: Game.playerarray});// id name color
       }
     }
 
@@ -253,7 +278,8 @@ module.exports.setup = function (p) {
       /* add player spots and start the game loop */
       /* players will start joining and claiming their spot */
       let pid = Game.players.length;
-      Game.players[pid] = {connected: false, pid: pid, name: m.name};
+      Game.players[pid] = {connected: false, pid: pid, name: m.name, color: Math.floor(Math.random() * 360)};// server version
+      Game.playerarray.push({pid: pid, name: name, color: Game.players[pid].color});// version that will be sent to player
       Game.allowplayers[m.uid] = {secret: m.secret, pid: pid};
     }
     if(m.m === 'start'){
@@ -305,6 +331,9 @@ module.exports.setup = function (p) {
   server.listen(WORKER_PORT, function () {
     log( 'I\'m listening on port ' + server.address().port)
   });
+
+  // setup game
+  Game.setup();
 
   process.send({m: 'ready'});
 };
