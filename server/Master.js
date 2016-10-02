@@ -69,7 +69,7 @@ function makeWorker(id, type, port) {
   log('making worker ' + id);
   workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type});
   workers[id].ready = false;
-  workers[id].open = true;
+  workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
   workers[id].wid = id;
   workers[id].port = port;
   workers[id].type = type;
