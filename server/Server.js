@@ -185,9 +185,8 @@ function handleMessage(ws, d) {// websocket client messages
         cookie: freshCookie, // should be kept private, used for login
         id: uniqueId, // can be public
         name: 'Nameless',
-        avgplace: 0,
         rank: 0,
-        points: 1000,
+        points: 100000,
         numplays: 0,
         lastlogin: Date.now(),
         pastgames: []
