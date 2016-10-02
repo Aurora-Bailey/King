@@ -191,10 +191,18 @@ function handleMessage(ws, d) {// websocket client messages
       Queue.addPlayer(ws);
     }
 
+    /*
+    *
+    * Game loop runs between here
+    *
+    *
+    * */
+
     // << game over
     // >> send new stats
     /* set user to not playing*/
     if (d.m === 'gameover' && ws.loggedin){
+      // pull fresh copy of data, send it to user
       db.collection('players').find({cookie: ws.data.cookie}).limit(1).toArray(function(err, docs) {
         if (err) {
           log('Error with mongodb refresh request');
