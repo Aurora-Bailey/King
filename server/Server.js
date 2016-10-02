@@ -9,6 +9,7 @@ var http = require('http'),
   GV = require('./Globalvar'),
   wss = new WebSocketServer({server: server}),
   app = express(),
+  gameRoom = false,
   process = false,
   WORKER_PORT = false,
   WORKER_INDEX = false,
@@ -19,6 +20,12 @@ class Queue {
     this.timeout = Date.now() + GV.queue.maxwait;
     this.timer = setTimeout(()=>{this.startGame()}, GV.queue.maxwait);
     this.players = {};
+  }
+
+  static resetTimer(){
+    clearTimeout(this.timer);
+    this.timeout = Date.now() + GV.queue.maxwait;
+    this.timer = setTimeout(()=>{this.startGame()}, GV.queue.maxwait);
   }
 
   static addPlayer(ws){
@@ -35,6 +42,14 @@ class Queue {
     this.players[ws.data.id] = ws;
     ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers});
     this.updatePlayers();
+    if(this.numPlayers() >= GV.queue.maxplayers){
+      this.startGame();
+    }
+  }
+
+  static numPlayers(){
+    let keys = Object.keys(this.players);
+    return keys.length;
   }
 
   static updatePlayers(){
@@ -45,12 +60,15 @@ class Queue {
   }
 
   static startGame(){
+    // hit max players
+    // or hit timeout
+
+    // clear timer in case max players is hit befor timeout
     clearTimeout(this.timer);
-    let keys = Object.keys(this.players);
-    if(keys.length < GV.queue.minplayers){
-      // too few players
-      this.timeout = Date.now() + GV.queue.maxwait;// set the timer back
-      this.timer = setTimeout(()=>{this.startGame()}, GV.queue.maxwait);
+
+    // too few players?
+    if(this.numPlayers() < GV.queue.minplayers){
+      this.resetTimer();
       this.updatePlayers();
       return false;
     }
@@ -58,13 +76,25 @@ class Queue {
     // start game
     // send request
 
+    // maybe wait a second for a game room
+    if(gameRoom === false){
+      setTimeout(()=>{this.startGame()}, 1000);
+      return false;
+    }
+
     // set players to playing
+    let keys = Object.keys(this.players);
     keys.forEach((e,i)=>{
       this.players[e].playing = true;
     });
 
     // reset for next round
-    this.reset();
+    //this.reset();
+    this.resetTimer();
+
+    // forget room and request another
+    gameRoom = false;
+    process.send({m: 'getroom'});
   }
 }
 Queue.reset();
@@ -247,9 +277,9 @@ module.exports.setup = function (p) {
   log('Hi I\'m worker ' + WORKER_INDEX + ' running as a server.');
   log('Version: ' + GV.version);
 
-  process.on('message', function (m, c) {// process server messages
+  process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
-      log(m);
+      gameRoom = {port: m.port, id: m.id};
     }
     if(m.m === 'broadcast'){
       broadcast(m);
