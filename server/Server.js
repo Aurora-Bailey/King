@@ -134,7 +134,7 @@ function handleMessage(ws, d) {// websocket client messages
     // << hi
     // >> hi
     if (d.m === 'hi') {
-      ws.sendObj({m: 'hi'});
+      //ws.sendObj({m: 'hi'});
     }
 
     // << version compatible GV.version

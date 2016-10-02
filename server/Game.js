@@ -16,16 +16,110 @@ var http = require('http'),
 
 class Game {
   static setup(){
+    // set or reset game room
+    // start will be called when all player spots are accounted for
+    this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + 'game';
     this.allowplayers = {};
     this.players = [];
+    this.map = [];
 
     this.running = false;
-    this.loopdelay = 1000;
+    this.loopdelay = GV.game.loopdelay;
   }
 
   static start(){
+    // at this point all player spots are accounted for
+    // players may not have joined yet, but we know how many
+
+    // build map
+    // width and height of map in user blocks
+    this.mapusersize = Math.ceil(Math.sqrt(this.players.length));
+    // width and height guaranteed to each user in cell blocks
+    this.mapcellsize = Math.floor(Math.sqrt(GV.game.areaperplayer));
+    // total width and height in cells
+    this.maptotalsize = this.mapusersize * this.mapcellsize;
+    // build map
+    for(let y=0; y<this.maptotalsize; y++){
+      this.map[y] = [];
+      for(let x=0; x<this.maptotalsize; x++){
+        this.map[y][x] = {solid: Math.round(Math.random()), units: 0, owner: -1};
+      }
+    }
+    // rearrange solid blocks
+    this.mapGOL();
+
+    // place players in map
+    let pindex = 0;
+    for(let y=0; y<this.mapusersize; y++){
+      for(let x=0; x<this.mapusersize; x++){
+        var randcellx = Math.floor(Math.random() * this.mapcellsize);
+        var randcelly = Math.floor(Math.random() * this.mapcellsize);
+
+        var offsetx = x * this.mapcellsize;
+        var offsety = y * this.mapcellsize;
+
+        var totx = offsetx + randcellx;
+        var toty = offsety + randcelly;
+
+        if(typeof this.players[pindex] !== 'undefined'){
+          this.map[toty][totx].solid = 0;
+          this.map[toty][totx].units = 2;
+          this.map[toty][totx].owner = pindex;
+          this.players[pindex].kingloc = {x: toty,y: totx};
+        }
+        pindex++;
+      }
+    }
+
+    // start loop
     this.running = true;
     this.loop();
+  }
+
+  static mapGOL(){// game of life to rearrange the solid blocks
+
+    let maxnumsolid = (this.maptotalsize * this.maptotalsize / 4);
+
+    let numsolid = 0;
+    for(let c=0; c<this.maptotalsize; c++){
+      for(let d=0; d<this.maptotalsize; d++) {
+        if (this.map[c][d].solid == 1) numsolid++;
+      }
+    }
+
+    for(let y=0; y<this.maptotalsize; y++){
+      for(let x=0; x<this.maptotalsize; x++){
+        let n = 0;
+        let current = this.map[y][x];
+
+        // count neighbors
+        for(let a=-1; a<=1; a++){
+          for(let b=-1; b<=1; b++){
+            if(a == 0 && b == 0) continue;// current block
+            if(typeof this.map[y+a] === 'undefined') continue;
+            if(typeof this.map[y+a][x+b] === 'undefined') continue;
+            if(this.map[y+a][x+b].solid == 1) n++;
+          }
+        }
+
+        // live and die
+        if(n < 1){// die
+          if(current.solid == 1) numsolid--;
+          current.solid = 0;
+        }else if(n > 2){// die
+          if(current.solid == 1) numsolid--;
+          current.solid = 0;
+        }else if(n === 2 && numsolid < maxnumsolid){// live
+          if(current.solid == 0) numsolid++;
+          current.solid = 1;
+        }
+
+      }
+    }
+
+    if(numsolid != maxnumsolid){
+      this.mapGOL();
+    }
   }
 
   static loop(){
@@ -39,6 +133,8 @@ class Game {
   }
 
   static endgame(){
+    // save stats to database
+
     // kick all players
     this.players.forEach((e,i)=>{
       e.ws.close();
@@ -61,27 +157,12 @@ function broadcast(obj) {
 
 function handleMessage(ws, d) {// websocket client messages
   try{
-    /* Message from master from server*/
-    // << get ready
-    /* server reset */
-    // >> ready
-    /* set game id */
-
-    /* wait for all players to join queue */
-
-    // << list of users (username, user id, gameroom id)
-    /* pull name and rank from mongodb */
-    /* add players and start the game loop */
-    // >> game is running
-    /* players will start joining and claiming their spot */
-
-    /* messages from usersr */
     // << hi
     // >> hi
     if (d.m === 'hi') {
-      ws.sendObj({m: 'hi'});
+      //ws.sendObj({m: 'hi'});
     }
-    // << my cookie id, and game room user id
+    // << (m: 'joinroom, userid, secret)
     /* link user ws to that player id */
     if (d.m === 'joinroom'){
       if(Game.allowplayers[d.uid] !== 'undefined' && Game.allowplayers[d.uid].secret === d.secret){
@@ -95,11 +176,7 @@ function handleMessage(ws, d) {// websocket client messages
       }
     }
 
-    /* client game setup*/
-    // >> list of players {name, color, game id}
-    // >> map
-    // >> player locations and unit numbers
-    // >> king position
+
 
 
     /* game running messages */
@@ -167,6 +244,8 @@ module.exports.setup = function (p) {
       broadcast(m);
     }
     if(m.m === 'addplayer'){
+      /* add player spots and start the game loop */
+      /* players will start joining and claiming their spot */
       let pid = Game.players.length;
       Game.players[pid] = {connected: false, pid: pid, name: m.name};
       Game.allowplayers[m.uid] = {secret: m.secret, pid: pid};
