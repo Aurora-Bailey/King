@@ -41,7 +41,7 @@ class Queue {
     // player is eligible
     this.players[ws.data.id] = ws;
     ws.waiting = true;
-    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers});
+    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers, minplayers: GV.queue.minplayers});
     this.updatePlayers();
     if(this.numPlayers() >= GV.queue.maxplayers){
       this.startGame();

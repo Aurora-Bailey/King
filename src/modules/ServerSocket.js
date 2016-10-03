@@ -25,7 +25,7 @@ function start () {
   }
   ws.onclose = () => {
     Data.state.serverSocket = 'dead'
-    Data.state.allowJoin = false
+    Data.page = 'home'
     failStart++
     var timeout = 3000 * failStart
     setTimeout(start, timeout)
@@ -47,10 +47,35 @@ function handleMessage (d) {
   } else if (d.m === 'makecookie') {
     window.localStorage.cookie = d.cookie
     sendCookie()
+  } else if (d.m === 'badcookie') {
+    console.log('Bad Cookie')
+  } else if (d.m === 'setname') {
+    console.log('Set name? ' + d.v)
   } else if (d.m === 'stats') {
     Data.user = d.data
   } else if (d.m === 'ready') {
-    Data.state.allowJoin = true
+    console.log('ready')
+  } else if (d.m === 'join') {
+    if (d.v) {
+      Data.page = 'waiting'
+      Data.waiting.inqueue = true
+      Data.waiting.players = 0
+      Data.waiting.timeout = d.timeout
+      Data.waiting.maxplayers = d.maxplayers
+      Data.waiting.minplayers = d.minplayers
+    } else {
+      window.alert(d.msg)
+    }
+  } else if (d.m === 'joinupdate') {
+    Data.waiting.players = d.players
+    Data.waiting.timeout = d.timeout
+  } else if (d.m === 'canceljoin') {
+    if (d.v) { // value is true or false
+      Data.waiting = {}
+      Data.page = 'home'
+    }
+  } else if (d.m === 'joinroom') {
+    console.log('switch servers here')
   }
 
   if (typeof d.page !== 'undefined') {
