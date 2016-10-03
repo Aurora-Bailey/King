@@ -1,3 +1,4 @@
 export default {
-  page: 'home'
+  page: 'home',
+  user: {name: 'Guest'}
 }

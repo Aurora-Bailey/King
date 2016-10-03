@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <home v-show="page=='home'"></home>
+    <home :user="user" v-show="page=='home'"></home>
   </div>
 </template>
 
@@ -30,8 +30,8 @@
 
   /* Main styles*/
   #app {
-    background-color: $accent;
-    color: $accent-alt;
+    background-color: $base;
+    color: $base-alt;
     position: absolute;
     top: 0;
     left: 0;
