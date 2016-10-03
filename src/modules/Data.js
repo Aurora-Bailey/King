@@ -4,5 +4,6 @@ export default {
   page: 'home',
   user: {name: ''},
   waiting: {players: 9000, timeout: Date.now()},
-  state: {serverSocket: ''}
+  game: {playing: false},
+  state: {serverSocket: '', gameSocket: ''}
 }

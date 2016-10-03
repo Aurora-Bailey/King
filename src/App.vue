@@ -2,6 +2,7 @@
   <div id="app">
     <home :user="user" v-show="page=='home'"></home>
     <waiting :waiting="waiting" v-show="page=='waiting'"></waiting>
+    <game :game="game" v-show="page=='game'"></game>
   </div>
 </template>
 
@@ -12,11 +13,13 @@
   // Pages
   import Home from './pages/home/Home'
   import Waiting from './pages/waiting/Waiting'
+  import Game from './pages/game/Game'
 
   export default {
     components: {
       Home,
-      Waiting
+      Waiting,
+      Game
     },
     data () {
       return Data

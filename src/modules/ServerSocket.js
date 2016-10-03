@@ -1,4 +1,5 @@
 import Data from './Data'
+import GS from './GameSocket'
 
 var ws = {}
 var sendQueue = []
@@ -81,7 +82,7 @@ function handleMessage (d) {
       Data.page = 'home'
     }
   } else if (d.m === 'joinroom') {
-    console.log('switch servers here.')
+    GS.start(d.port, d.secret)
   }
 
   if (typeof d.page !== 'undefined') {
