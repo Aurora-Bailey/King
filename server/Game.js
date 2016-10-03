@@ -441,6 +441,8 @@ module.exports.setup = function (p) {
   wss.on('connection', function connection(ws) {
     ws.connected = true;
     ws.sendObj = function (obj) {
+      if(!ws.connected) return false;
+
       try {
         ws.send(JSON.stringify(obj));
       } catch (err) {
