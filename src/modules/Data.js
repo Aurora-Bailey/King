@@ -1,4 +1,5 @@
 export default {
   page: 'home',
-  user: {name: 'Guest'}
+  user: {name: 'Guest'},
+  state: {serverSocket: ''}
 }

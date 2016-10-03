@@ -3,28 +3,28 @@ import Data from './Data'
 var ws = {}
 var sendQueue = []
 var failStart = 0 // web socket fails to start
-Data.state.ws = 'dead'
+Data.state.serverSocket = 'dead'
 start()
 
 function start () {
-  if (Data.state.ws !== 'dead') return false
+  if (Data.state.serverSocket !== 'dead') return false
 
-  Data.state.ws = 'connecting'
-  ws = new window.WebSocket('ws://localhost:8777')
+  Data.state.serverSocket = 'connecting'
+  ws = new window.WebSocket('ws://localhost:9777')
 
   ws.onopen = () => {
-    setTimeout(function () {
-      Data.state.ws = 'ready'
-      failStart = 0
-      sendObj({m: 'hi'})
+    Data.state.serverSocket = 'ready'
+    failStart = 0
+    sendObj({m: 'hi'})
 
-      sendQueue.forEach((e, i) => {
-        sendObj(e)
-      })
-    }, 2000)
+    sendCookie()
+
+    sendQueue.forEach((e, i) => {
+      sendObj(e)
+    })
   }
   ws.onclose = () => {
-    Data.state.ws = 'dead'
+    Data.state.serverSocket = 'dead'
     failStart++
     var timeout = 3000 * failStart
     setTimeout(start, timeout)
@@ -37,12 +37,9 @@ function start () {
 }
 
 function handleMessage (d) {
-  if (d.m === 'login') {
-    if (d.token === false) {
-      Data.state.login = 'request'
-    } else {
-      Data.state.login = 'done'
-    }
+  if (d.m === 'makecookie') {
+    window.localStorage.cookie = d.cookie
+    sendCookie()
   } else if (d.m === 'signup') {
     Data.state.signup = 'done'
   }
@@ -52,8 +49,18 @@ function handleMessage (d) {
   }
 }
 
+function sendCookie () {
+  if (typeof window.localStorage.cookie === 'undefined') {
+    console.log('No cookie.')
+    sendObj({m: 'makecookie'}, true)
+  } else {
+    console.log('Cookie')
+    sendObj({m: 'cookie', cookie: window.localStorage.cookie}, true)
+  }
+}
+
 function sendObj (object, queue = false) {
-  if (Data.state.ws !== 'ready') {
+  if (Data.state.serverSocket !== 'ready') {
     if (queue) {
       sendQueue.push(object)
       console.log('object added to web socket queue')

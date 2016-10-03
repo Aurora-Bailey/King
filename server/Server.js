@@ -40,6 +40,7 @@ class Queue {
 
     // player is eligible
     this.players[ws.data.id] = ws;
+    ws.waiting = true;
     ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers});
     this.updatePlayers();
     if(this.numPlayers() >= GV.queue.maxplayers){
@@ -48,8 +49,11 @@ class Queue {
   }
 
   static removePlayer(ws){
+    if(ws.waiting !== true) return false;
+
     if(typeof this.players[ws.data.id] !== 'undefined'){// player is already in queue
       delete this.players[ws.data.id];
+      ws.waiting = false;
       ws.sendObj({m: 'canceljoin', v: true});
       this.updatePlayers();
     }
@@ -101,6 +105,7 @@ class Queue {
       process.send({m: 'pass', to: gameRoom.id, data: {m: 'addplayer', uid: uid, secret: secret, name: name}});
       this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, secret: secret});
       this.players[e].playing = true;
+      this.players[e].waiting = false;
     });
 
     // reset for next round
@@ -309,6 +314,7 @@ module.exports.setup = function (p) {
     ws.compatible = false;
     ws.loggedin = false;
     ws.playing = false;
+    ws.waiting = false;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 

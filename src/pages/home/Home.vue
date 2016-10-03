@@ -12,9 +12,16 @@
 </template>
 
 <script>
-export default {
-  props: ['user']
-}
+  import SS from '../../modules/ServerSocket'
+
+  export default {
+    props: ['user'],
+    methods: {
+      sendCookie: function () {
+        SS.sendObj({m: 'cookie', cookie: 'asdf'})
+      }
+    }
+  }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
