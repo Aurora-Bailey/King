@@ -10,9 +10,12 @@ function start () {
   if (Data.state.serverSocket !== 'dead') return false
 
   Data.state.serverSocket = 'connecting'
-  ws = new window.WebSocket('ws://localhost:9777')
+  ws = new window.WebSocket('ws://' + Data.server + ':9777')
 
   ws.onopen = () => {
+    if (ws.connected) return false // already connected
+
+    ws.connected = true
     Data.state.serverSocket = 'ready'
     failStart = 0
 
@@ -24,6 +27,7 @@ function start () {
     })
   }
   ws.onclose = () => {
+    ws.connected = false
     Data.state.serverSocket = 'dead'
     failStart++
     var timeout = 3000 * failStart
@@ -31,6 +35,7 @@ function start () {
     if (Data.page === 'waiting') {
       Data.page = 'home'
     }
+    console.log('ServerSocket closed.')
   }
   ws.onmessage = (e) => {
     var d = JSON.parse(e.data)
@@ -76,7 +81,7 @@ function handleMessage (d) {
       Data.page = 'home'
     }
   } else if (d.m === 'joinroom') {
-    console.log('switch servers here')
+    console.log('switch servers here.')
   }
 
   if (typeof d.page !== 'undefined') {
