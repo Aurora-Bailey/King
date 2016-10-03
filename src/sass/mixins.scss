@@ -1,0 +1,23 @@
+/*SASS Mixins*/
+@mixin mobile {
+  @media screen and (max-width: $mobile-width) {
+    @content;
+  }
+}
+@mixin portrait {
+  @media screen and (orientation: portrait) and (max-width: $mobile-width) {
+    @content;
+  }
+}
+@mixin landscape {
+  @media screen and (orientation: landscape) and (max-width: $mobile-width) {
+    @content;
+  }
+}
+
+@mixin noselect {
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;          /* Likely future */
+}
