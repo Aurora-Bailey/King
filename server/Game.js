@@ -29,6 +29,7 @@ class Game {
     this.map.units = [];
     this.map.owner = [];
 
+    this.golCalls = 0;
     this.running = false;
     this.loopdelay = GV.game.loopdelay;
     this.loopcount = 0;
@@ -92,6 +93,7 @@ class Game {
   }
 
   static mapGOL(){// game of life to rearrange the solid blocks
+    this.golCalls++;
 
     let maxnumsolid = (this.maptotalsize * this.maptotalsize / 4);
 
@@ -131,8 +133,11 @@ class Game {
       }
     }
 
-    if(numsolid != maxnumsolid){
-      this.mapGOL();
+    if(numsolid != Math.ceil(maxnumsolid) && this.golCalls < 10){
+      setTimeout(()=>{
+        this.mapGOL();
+      }, 1);
+
     }
   }
 
@@ -249,6 +254,7 @@ class Game {
     // >> update king positions?
     // send changes to players
     this.players.forEach((e,i)=>{
+      if(!e.connected) return false;
       e.ws.sendObj({m: 'map', type: 'units', data: Game.map.units});
       e.ws.sendObj({m: 'map', type: 'owner', data: Game.map.owner});
     });
@@ -429,7 +435,7 @@ module.exports.setup = function (p) {
       /* players will start joining and claiming their spot */
       let pid = Game.players.length;
       Game.players[pid] = {connected: false, pid: pid, name: m.name, color: Math.floor(Math.random() * 360), makemove: [], kills: 0};// server version
-      Game.playerarray[pid] = {pid: pid, name: name, color: Game.players[pid].color};// version that will be sent to player
+      Game.playerarray[pid] = {pid: pid, name: m.name, color: Game.players[pid].color};// version that will be sent to player
       Game.allowplayers[m.uid] = {secret: m.secret, pid: pid};
     }
     if(m.m === 'start'){

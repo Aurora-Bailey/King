@@ -15,8 +15,8 @@ function start () {
   ws.onopen = () => {
     Data.state.serverSocket = 'ready'
     failStart = 0
-    sendObj({m: 'hi'})
 
+    sendObj({m: 'hi'})
     sendObj({m: 'version', version: Data.version})
 
     sendQueue.forEach((e, i) => {
@@ -25,10 +25,12 @@ function start () {
   }
   ws.onclose = () => {
     Data.state.serverSocket = 'dead'
-    Data.page = 'home'
     failStart++
     var timeout = 3000 * failStart
     setTimeout(start, timeout)
+    if (Data.page === 'waiting') {
+      Data.page = 'home'
+    }
   }
   ws.onmessage = (e) => {
     var d = JSON.parse(e.data)
@@ -71,7 +73,6 @@ function handleMessage (d) {
     Data.waiting.timeout = d.timeout
   } else if (d.m === 'canceljoin') {
     if (d.v) { // value is true or false
-      Data.waiting = {}
       Data.page = 'home'
     }
   } else if (d.m === 'joinroom') {
