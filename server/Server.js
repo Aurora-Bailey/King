@@ -157,7 +157,7 @@ function handleMessage(ws, d) {// websocket client messages
     /* if no cookie, make one and store it in mondodb, then send it to the user*/
     // >> user stats
     /*logged in*/
-    if (d.m === 'cookie' ){ // && ws.compatible) {
+    if (d.m === 'cookie' && ws.compatible) {
       db.collection('players').find({cookie: d.cookie}).limit(1).toArray(function(err, docs) {
         if (err) {
           ws.sendObj({m: 'badcookie'});
@@ -183,7 +183,7 @@ function handleMessage(ws, d) {// websocket client messages
         }
       });
     }
-    if (d.m === 'makecookie' ){ // && ws.compatible){
+    if (d.m === 'makecookie' && ws.compatible){
       var freshCookie = 'c' + Lib.md5(Math.random() + Date.now()) + 'cookie';
       var uniqueId = 'u' + Lib.md5(Math.random() + Date.now()) + 'user';
       var player = {

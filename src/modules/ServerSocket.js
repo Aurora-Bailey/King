@@ -17,7 +17,7 @@ function start () {
     failStart = 0
     sendObj({m: 'hi'})
 
-    sendCookie()
+    sendObj({m: 'version', version: Data.version})
 
     sendQueue.forEach((e, i) => {
       sendObj(e)
@@ -25,6 +25,7 @@ function start () {
   }
   ws.onclose = () => {
     Data.state.serverSocket = 'dead'
+    Data.state.allowJoin = false
     failStart++
     var timeout = 3000 * failStart
     setTimeout(start, timeout)
@@ -37,11 +38,19 @@ function start () {
 }
 
 function handleMessage (d) {
-  if (d.m === 'makecookie') {
+  if (d.m === 'version') {
+    if (d.compatible) {
+      sendCookie()
+    } else {
+      window.alert('Your game is out of date! Please refresh your browser.')
+    }
+  } else if (d.m === 'makecookie') {
     window.localStorage.cookie = d.cookie
     sendCookie()
-  } else if (d.m === 'signup') {
-    Data.state.signup = 'done'
+  } else if (d.m === 'stats') {
+    Data.user = d.data
+  } else if (d.m === 'ready') {
+    Data.state.allowJoin = true
   }
 
   if (typeof d.page !== 'undefined') {

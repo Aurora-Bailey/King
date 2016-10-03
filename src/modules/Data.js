@@ -1,5 +1,6 @@
 export default {
+  version: 'LKYHFOEIHLSKDJGEG',
   page: 'home',
   user: {name: 'Guest'},
-  state: {serverSocket: ''}
+  state: {serverSocket: '', allowJoin: false}
 }
