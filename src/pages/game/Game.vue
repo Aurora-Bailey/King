@@ -2,8 +2,9 @@
   <div id="game">
     <chat :chat="game.chat"></chat>
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
-    <div class="scrollhomebutton" v-on:click="scrollhome()">home</div>
+    <div class="scrollhomebutton" v-on:click="scrollhome()"></div>
     <div class="gamescroll"
+         oncontextmenu="return false"
          v-on:mousedown="startscroll" v-on:mousemove="mousemove" v-on:mouseup="endscroll"
          v-on:touchstart="startscroll" v-on:touchmove="mousemove" v-on:touchend="endscroll">
       <div class="gamemap" v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
@@ -152,15 +153,22 @@
 
     .scrollhomebutton {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 1vh;
+      left: 1vh;
       z-index: 22000;
       height: 10vh;
       width: 10vh;
       font-size: 2vh;
       line-height: 10vh;
       text-align: center;
-      background-color: black;
+      background-image: url('http://i.imgur.com/S9nN1tJ.png');
+      background-size: contain;
+      background-position: center;
+      color: grey;
+      border-radius: 2.5vh;
+      border: 0.5vh solid black;
+      cursor: pointer;
+      background-color: $accent;
     }
     .gamescroll {
       overflow: hidden;
@@ -276,7 +284,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url('http://i.imgur.com/Y5maWdz.png');
+        background-image: url('http://i.imgur.com/S9nN1tJ.png'); // url('http://i.imgur.com/Y5maWdz.png');
         background-size: contain;
         background-position: center;
         pointer-events: none;
@@ -301,7 +309,7 @@
         animation-iteration-count: infinite;
 
         .king {
-          background-image: url('http://i.imgur.com/a0otSA1.png');
+          // my king
         }
       }
     }
