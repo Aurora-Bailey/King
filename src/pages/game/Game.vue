@@ -67,6 +67,8 @@
           1px 1px 0 #000;
         -webkit-text-stroke-width: 1px;
         -webkit-text-stroke-color: black;
+        pointer-events: none;
+        @include noselect;
       }
 
       .king {
@@ -78,6 +80,7 @@
         background-image: url('http://i.imgur.com/Y5maWdz.png');
         background-size: contain;
         background-position: center;
+        pointer-events: none;
       }
 
 
