@@ -79,9 +79,11 @@ function handleMessage (d) {
     Data.waiting.timeout = d.timeout
   } else if (d.m === 'canceljoin') {
     if (d.v) { // value is true or false
+      Data.waiting.inqueue = false
       Data.page = 'home'
     }
   } else if (d.m === 'joinroom') {
+    Data.waiting.inqueue = false
     GS.start(d.port, d.secret)
   }
 

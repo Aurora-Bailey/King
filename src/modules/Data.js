@@ -3,7 +3,7 @@ export default {
   server: 'localhost',
   page: 'home',
   user: {name: ''},
-  waiting: {players: 9000, timeout: Date.now()},
+  waiting: {players: 9000, timeout: Date.now(), inqueue: false, maxplayer: 100, minplayers: 1},
   game: {
     playing: false,
     dead: false,
