@@ -1,4 +1,5 @@
 import Data from './Data'
+import SS from './ServerSocket'
 import Vue from 'vue'
 
 var ws = {}
@@ -29,6 +30,7 @@ function start (port, secret) {
     Data.state.gameSocket = 'dead'
     console.log('GameSocket closed.')
     Data.page = 'home'
+    SS.sendObj({m: 'gameover'})
   }
   ws.onmessage = (e) => {
     var d = JSON.parse(e.data)
