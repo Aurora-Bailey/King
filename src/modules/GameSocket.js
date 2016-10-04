@@ -47,6 +47,8 @@ function handleMessage (d) {
 
     Data.page = 'game'
     Data.game.playing = true
+    Data.game.dead = false
+    Data.game.deadscreen.spectate = false
   } else if (d.m === 'map') {
     for (let y = 0; y < d.data.length; y++) {
       if (typeof Data.game.map[y] === 'undefined') Vue.set(Data.game.map, y, [])
@@ -87,7 +89,7 @@ function handleMessage (d) {
       }
     }
   } else if (d.m === 'players') {
-    // Data.game.players = d.data
+    d.data.dead = false // inject data into data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
   } else if (d.m === 'chat') {
     if (typeof Data.game.players[d.from] !== 'undefined') {
@@ -100,11 +102,48 @@ function handleMessage (d) {
     setTimeout(() => {
       Data.game.chat.msg.shift()
     }, 30000)
+  } else if (d.m === 'playerdead') {
+    // make sure player exists
+    /*
+    sadf
+    sadf
+    HERE
+    sadf
+    */
+    if (typeof Data.game.players[d.pid] !== 'undefined') {
+      Data.game.players[d.pid].dead = true
+      if (d.pid === Data.game.myid) {
+        // you are dead
+        Data.game.dead = true
+        Data.game.deadscreen.name = Data.game.players[d.pid].name
+        Data.game.deadscreen.killer = d.killer
+        let time = d.timealive
+        time /= 1000 // convert from miliseconds to seconds
+        let minutes = Math.floor(time / 60)
+        let sec = Math.floor(time % 60)
+        if (sec < 10) {
+          sec = '0' + sec
+        }
+        let humantime = minutes + ':' + sec
+        Data.game.deadscreen.playtime = humantime
+        Data.game.deadscreen.place = d.place
+        Data.game.deadscreen.kills = d.kills
+      } else {
+        // someone else is dead
+      }
+
+      handleMessage({m: 'chat', from: 'Game', message: Data.game.players[d.pid].name + ' was taken over by ' + d.killer})
+    }
   }
 
   if (typeof d.page !== 'undefined') {
     Data.page = d.page
   }
+}
+
+function close () {
+  if (Data.state.gameSocket !== 'ready') return false
+  ws.close()
 }
 
 function sendObj (object, queue = false) {
@@ -126,4 +165,4 @@ function shortObj (object) {
 }
 
 var dummy = 'placeholder to keep lint happy'
-export default {sendObj, shortObj, start, dummy}
+export default {sendObj, shortObj, start, close, dummy}
