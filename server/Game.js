@@ -80,7 +80,7 @@ class Game {
           this.map.solid[toty][totx] = 0;
           this.map.units[toty][totx] = 2;
           this.map.owner[toty][totx] = pindex;
-          this.players[pindex].kingloc = {x: toty,y: totx};
+          this.players[pindex].kingloc = {x: totx,y: toty};
           this.playerarray[pindex].kingloc = this.players[pindex].kingloc;
         }
         pindex++;
@@ -353,6 +353,7 @@ function handleMessage(ws, d) {// websocket client messages
         ws.secret = d.secret;
         ws.lastchat = Date.now();
 
+        ws.sendObj({m: 'welcome', pid: pid});
         ws.sendObj({m: 'map', type: 'solid', data: Game.map.solid});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color king location
 

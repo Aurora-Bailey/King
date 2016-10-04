@@ -38,36 +38,41 @@ function start (port, secret) {
 }
 
 function handleMessage (d) {
-  if (d.m === 'hi') {
-    // Data.game.map = [[{solid: 1, owner: 0, units: 0, color: 'red'}]]
+  if (d.m === 'welcome') {
     Vue.set(Data.game, 'map', [])
-
-    // Data.game.players = []
     Vue.set(Data.game, 'players', [])
+    Vue.set(Data.game, 'myid', d.pid)
 
     Data.page = 'game'
     Data.game.playing = true
   } else if (d.m === 'map') {
     for (let y = 0; y < d.data.length; y++) {
-      if (typeof Data.game.map[y] === 'undefined') Vue.set(Data.game.map, y, []) // Data.game.map[y] = [{solid: 2, owner: 0, units: 0, color: 'orange'}]
+      if (typeof Data.game.map[y] === 'undefined') Vue.set(Data.game.map, y, [])
       for (let x = 0; x < d.data[y].length; x++) {
-        if (typeof Data.game.map[y][x] === 'undefined') Vue.set(Data.game.map[y], x, {solid: 0, units: 0, owner: 0, color: 0, king: false}) // Data.game.map[y][x] = {solid: 3, units: 0, owner: 0, color: 'blue'}
+        if (typeof Data.game.map[y][x] === 'undefined') Vue.set(Data.game.map[y], x, {solid: 0, units: 0, owner: -1, color: 0, king: false})
 
-        // Data.game.map[y][x][d.type] = d.data[y][x]
         Vue.set(Data.game.map[y][x], d.type, d.data[y][x])
 
         if (d.type === 'owner') {
           let id = Data.game.map[y][x].owner
-          // compute king
-          let kingloc = Data.game.players[id].kingloc;
-          if ()
 
-          // compute color
           if (typeof Data.game.players[id] !== 'undefined' && typeof Data.game.players[id].color !== 'undefined') {
-            // Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100,50)'
+            // cell has owner
+
+            // compute king
+            let kingloc = Data.game.players[id].kingloc
+            if (kingloc.x === x && kingloc.y === y) {
+              Vue.set(Data.game.map[y][x], 'king', true)
+            } else {
+              Vue.set(Data.game.map[y][x], 'king', false)
+            }
+
+            // compute color
             Vue.set(Data.game.map[y][x], 'color', 'hsl(' + Data.game.players[id].color + ',100%,50%)')
           } else {
-            // Data.game.map[y][x].color = 'hsl(0,100,50)'
+            // un-owned block
+
+            // comput color
             if (Data.game.map[y][x].solid === 1) {
               Vue.set(Data.game.map[y][x], 'color', 'hsl(0,100%,0%)')
             } else {
