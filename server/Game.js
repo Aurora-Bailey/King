@@ -134,10 +134,7 @@ class Game {
     }
 
     if(numsolid != Math.ceil(maxnumsolid) && this.golCalls < 10){
-      setTimeout(()=>{
-        this.mapGOL();
-      }, 1);
-
+      this.mapGOL();
     }
   }
 
