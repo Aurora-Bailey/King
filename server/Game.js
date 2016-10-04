@@ -41,6 +41,9 @@ class Game {
     this.starttime = Date.now();
     this.playersalive = this.players.length;
 
+    // close game after a long time in case of a dissconnected room or something
+    this.forceclose = setTimeout(()=>{this.endgame();}, 1000*60*60*6)// 6 hours
+
     // build map
     // width and height of map in user blocks
     this.mapusersize = Math.ceil(Math.sqrt(this.players.length));
@@ -319,9 +322,12 @@ class Game {
   static endgame(){
     // save stats to database
 
+    clearTimeout(this.forceclose);
+
     // kick all players
     this.players.forEach((e,i)=>{
-      e.ws.close();
+      if (e.ws.connected)
+        e.ws.close();
     });
     // reset the server
     this.setup();
