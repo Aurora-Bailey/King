@@ -2,8 +2,11 @@
   <div id="game">
     <chat :chat="game.chat"></chat>
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
-    <div class="gamescroll">
-      <div class="gamemap">
+    <div class="scrollhomebutton" v-on:click="scrollhome()">home</div>
+    <div class="gamescroll"
+         v-on:mousedown="startscroll" v-on:mousemove="mousemove" v-on:mouseup="endscroll"
+         v-on:touchstart="startscroll" v-on:touchmove="mousemove" v-on:touchend="endscroll">
+      <div class="gamemap" v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
         <div v-for="y in game.map" class="row">
           <div v-for="x in y" class="cell"
                v-on:click="movestart(x.loc.x, x.loc.y)"
@@ -43,13 +46,57 @@
       return {
         move: {
           inprogress: false,
-          loc: {x: -1, y: -1},
+          loc: {x: 0, y: 0},
           percent: 0,
-          direction: -1
+          direction: 0
+        },
+        scrolling: {
+          mousedown: false,
+          scroll: {x: 0, y: 0},
+          from: {x: 0, y: 0},
+          to: {x: 0, y: 0}
         }
       }
     },
     methods: {
+      mousemove: function (e) {
+        if (typeof e.touches !== 'undefined') {
+          e = e.touches[0]
+        }
+        if (!this.scrolling.mousedown) return false
+        this.scrolling.to.x = e.clientX
+        this.scrolling.to.y = e.clientY
+
+        let distx = this.scrolling.to.x - this.scrolling.from.x
+        let disty = this.scrolling.to.y - this.scrolling.from.y
+
+        this.game.scroll.x = this.scrolling.scroll.x + distx
+        this.game.scroll.y = this.scrolling.scroll.y + disty
+      },
+      startscroll: function (e) {
+        if (typeof e.touches !== 'undefined') {
+          e = e.touches[0]
+        }
+        this.scrolling.mousedown = true
+
+        this.scrolling.from.x = e.clientX
+        this.scrolling.from.y = e.clientY
+
+        this.scrolling.to.x = e.clientX
+        this.scrolling.to.y = e.clientY
+
+        this.scrolling.scroll.x = this.game.scroll.x
+        this.scrolling.scroll.y = this.game.scroll.y
+      },
+      endscroll: function (e) {
+        if (typeof e.touches !== 'undefined') {
+          e = e.touches[0]
+        }
+        this.scrolling.mousedown = false
+      },
+      scrollhome: function () {
+        GS.shortObj({m: 'scrollhome'})
+      },
       movestart: function (x, y) {
         if (this.game.map[y][x].owner === this.game.myid) {
           // if you click on different cell during move
@@ -100,18 +147,29 @@
     bottom: 0;
     z-index: 100;
     overflow: auto;
-    text-align: center;
+    text-align: left;
     background-color: $base;
 
+    .scrollhomebutton {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 22000;
+      height: 10vh;
+      width: 10vh;
+      font-size: 2vh;
+      line-height: 10vh;
+      text-align: center;
+      background-color: black;
+    }
     .gamescroll {
       overflow: hidden;
       width: 100vw;
       height: 100vh;
     }
     .gamemap {
-      position: absolute;
-      top: 0;
-      left: 0;
+      margin-top: 0;
+      margin-left: 0;
     }
 
     .row {
@@ -127,6 +185,7 @@
       border: 1px solid #ccc;
       background-color: white;
       overflow: visible;
+      text-align: center;
 
       .name {
         width: 100px;

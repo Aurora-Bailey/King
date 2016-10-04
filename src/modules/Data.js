@@ -15,6 +15,10 @@ export default {
       playtime: 0,
       place: 0,
       kills: 0
+    },
+    scroll: {
+      x: 0,
+      y: 0
     }
   },
   state: {serverSocket: '', gameSocket: ''}

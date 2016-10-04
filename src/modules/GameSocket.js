@@ -91,6 +91,7 @@ function handleMessage (d) {
   } else if (d.m === 'players') {
     d.data.dead = false // inject data into data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
+    shortObj({m: 'scrollhome'})
   } else if (d.m === 'chat') {
     if (typeof Data.game.players[d.from] !== 'undefined') {
       Data.game.chat.msg.push('[' + Data.game.players[d.from].name + '] ' + d.message)
@@ -134,6 +135,17 @@ function handleMessage (d) {
 
       handleMessage({m: 'chat', from: 'Game', message: Data.game.players[d.pid].name + ' was taken over by ' + d.killer})
     }
+  } else if (d.m === 'scrollhome') {
+    // this is in the web socke to be called when the game starts
+    // in the game.vue there is not defining line where the game starts
+    let w = window.innerWidth
+    let h = window.innerHeight
+    let kingloc = Data.game.players[Data.game.myid].kingloc
+
+    Data.game.scroll.x = (kingloc.x * 50) - (w / 2) + 25
+    Data.game.scroll.x = -Data.game.scroll.x
+    Data.game.scroll.y = (kingloc.y * 50) - (h / 2) + 25
+    Data.game.scroll.y = -Data.game.scroll.y
   }
 
   if (typeof d.page !== 'undefined') {
