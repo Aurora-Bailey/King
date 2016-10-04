@@ -7,6 +7,7 @@ export default {
   game: {
     playing: false,
     dead: false,
+    circlecells: false,
     chat: {asdf: 'qwerty', msg: []},
     deadscreen: {
       spectate: false,

@@ -3,11 +3,16 @@
     <chat :chat="game.chat"></chat>
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
     <div class="scrollhomebutton" v-on:click="scrollhome()"></div>
+    <div class="togglecirclecells"
+         v-bind:class="{circlecells: game.circlecells == true}"
+         v-on:click="game.circlecells = !game.circlecells"></div>
     <div class="gamescroll"
          oncontextmenu="return false"
          v-on:mousedown="startscroll" v-on:mousemove="mousemove" v-on:mouseup="endscroll"
          v-on:touchstart="startscroll" v-on:touchmove="mousemove" v-on:touchend="endscroll">
-      <div class="gamemap" v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
+      <div class="gamemap"
+           v-bind:class="{circlecells: game.circlecells == true}"
+           v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
         <div v-for="y in game.map" class="row">
           <div v-for="x in y" class="cell"
                v-on:click="movestart(x.loc.x, x.loc.y)"
@@ -170,6 +175,22 @@
       cursor: pointer;
       background-color: $accent;
     }
+    .togglecirclecells {
+      position: absolute;
+      top: 13vh;
+      left: 3.5vh;
+      z-index: 22000;
+      height: 5vh;
+      width: 5vh;
+      border-radius: 2.5vh;
+      border: 0.5vh solid #ccc;
+      cursor: pointer;
+      background-color: white;
+
+      &.circlecells {
+        border-radius: 0;
+      }
+    }
     .gamescroll {
       overflow: hidden;
       width: 100vw;
@@ -178,6 +199,17 @@
     .gamemap {
       margin-top: 0;
       margin-left: 0;
+
+      &.circlecells {
+        .cell {
+          border-radius: 25px;
+          .movehelper {
+            .up, .down, .left, .right, .center {
+              border-radius: 25px
+            }
+          }
+        }
+      }
     }
 
     .row {
@@ -194,6 +226,7 @@
       background-color: white;
       overflow: visible;
       text-align: center;
+
 
       .name {
         width: 100px;

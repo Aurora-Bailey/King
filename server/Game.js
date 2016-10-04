@@ -87,6 +87,14 @@ class Game {
       }
     }
 
+    // re color players to be a bit more distinct
+    // leave previous value as place holder (random color)
+    this.players.forEach((e,i)=>{
+      this.players[i].color = (360/this.players.length) * i;
+      this.playerarray[i].color = this.players[i].color;
+    });
+
+
     // start loop
     this.running = true;
     this.loop();
