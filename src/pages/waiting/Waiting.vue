@@ -37,6 +37,7 @@
       }
     },
     mounted: function () {
+      // update waiting timer
       setInterval(() => { this.now = Date.now() }, 1000)
     }
   }

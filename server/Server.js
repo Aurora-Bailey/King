@@ -167,15 +167,20 @@ function handleMessage(ws, d) {// websocket client messages
           //User WAS found
           ws.data = docs[0];
 
-          // Set login stuff
-          sendPlayerStats(ws);
-          ws.sendObj({m: 'ready'});
-          ws.loggedin = true;
+          // update rank on the fly
+          db.collection('players').find({points: {$gt: ws.data.points}}).count({}, function (err, count) {
+            ws.data.rank = count + 1; // +1 to account for yourself
 
-          // Update last login
-          db.collection('players').updateOne({id: ws.data.id}, {$set: {lastlogin: Date.now()}}, function(err, result){
-            if(err)
-              log(err);
+            // Set login stuff
+            sendPlayerStats(ws);
+            ws.sendObj({m: 'ready'});
+            ws.loggedin = true;
+
+            // Update last login
+            db.collection('players').updateOne({id: ws.data.id}, {$set: {lastlogin: Date.now()}}, function(err, result){
+              if(err)
+                log(err);
+            });
           });
 
         } else {
@@ -261,8 +266,12 @@ function handleMessage(ws, d) {// websocket client messages
           log(err);
         } else if (docs.length != 0) {
           ws.data = docs[0];
-          sendPlayerStats(ws);
-          ws.playing = false;
+          // update rank on the fly
+          db.collection('players').find({points: {$gt: ws.data.points}}).count({}, function (err, count) {
+            ws.data.rank = count + 1; // +1 to account for yourself
+            sendPlayerStats(ws);
+            ws.playing = false;
+          });
         }
       });
     }
