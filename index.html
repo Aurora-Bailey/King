@@ -6,6 +6,11 @@
     <title>king</title>
   </head>
   <body>
+    <script>
+      var enable_logs = console.log;
+      var disable_logs = function () { return false; }
+      console.log = disable_logs;
+    </script>
     <div id="app"></div>
     <!-- built files will be auto injected -->
   </body>
