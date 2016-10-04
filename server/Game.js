@@ -64,7 +64,9 @@ class Game {
 
     // maybe randomize the order for fairness
     // place players in map
-    let pindex = 0;
+    let pindexarr = []
+    this.players.forEach((e,i)=>{pindexarr.push(i);});
+    while (pindexarr.length < this.mapusersize * this.mapusersize) {pindexarr.push('empty');}
     for(let y=0; y<this.mapusersize; y++){
       for(let x=0; x<this.mapusersize; x++){
         var randcellx = Math.floor(Math.random() * this.mapcellsize);
@@ -76,6 +78,12 @@ class Game {
         var totx = offsetx + randcellx;
         var toty = offsety + randcelly;
 
+        if (pindexarr.length === 0) continue;
+        let randarr = Math.floor(Math.random() * pindexarr.length);
+        let pindex = pindexarr[randarr];
+        pindexarr.splice(randarr, 1);
+        if (pindex === 'empty') continue;
+
         if(typeof this.players[pindex] !== 'undefined'){
           this.map.solid[toty][totx] = 0;
           this.map.units[toty][totx] = 2;
@@ -83,7 +91,6 @@ class Game {
           this.players[pindex].kingloc = {x: totx,y: toty};
           this.playerarray[pindex].kingloc = this.players[pindex].kingloc;
         }
-        pindex++;
       }
     }
 
