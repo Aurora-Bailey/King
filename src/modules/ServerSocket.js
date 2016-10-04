@@ -36,7 +36,7 @@ function start () {
     if (Data.page === 'waiting') {
       Data.page = 'home'
     }
-    console.log('ServerSocket closed.')
+    console.warn('ServerSocket closed.')
   }
   ws.onmessage = (e) => {
     var d = JSON.parse(e.data)
@@ -50,13 +50,14 @@ function handleMessage (d) {
     if (d.compatible) {
       sendCookie()
     } else {
+      console.warn('Your game is out of date! Please refresh your browser.')
       window.alert('Your game is out of date! Please refresh your browser.')
     }
   } else if (d.m === 'makecookie') {
     window.localStorage.cookie = d.cookie
     sendCookie()
   } else if (d.m === 'badcookie') {
-    console.log('Bad Cookie')
+    console.warn('Bad Cookie')
   } else if (d.m === 'setname') {
     console.log('Set name? ' + d.v)
   } else if (d.m === 'stats') {
@@ -108,6 +109,7 @@ function sendObj (object, queue = false) {
       sendQueue.push(object)
       console.log('object added to web socket queue')
     } else {
+      console.warn('WebSocket is not connected.')
       window.alert('WebSocket is not connected.')
     }
     return false

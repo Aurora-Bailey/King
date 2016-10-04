@@ -105,12 +105,6 @@ function handleMessage (d) {
     }, 30000)
   } else if (d.m === 'playerdead') {
     // make sure player exists
-    /*
-    sadf
-    sadf
-    HERE
-    sadf
-    */
     if (typeof Data.game.players[d.pid] !== 'undefined') {
       Data.game.players[d.pid].dead = true
       if (d.pid === Data.game.myid) {
@@ -164,7 +158,8 @@ function sendObj (object, queue = false) {
       sendQueue.push(object)
       console.log('object added to web socket queue')
     } else {
-      window.alert('WebSocket is not connected.')
+      console.warn('Game server is not connected.')
+      window.alert('Game server is not connected.')
     }
     return false
   }
