@@ -49,7 +49,9 @@ function handleMessage (d) {
     for (let y = 0; y < d.data.length; y++) {
       if (typeof Data.game.map[y] === 'undefined') Vue.set(Data.game.map, y, [])
       for (let x = 0; x < d.data[y].length; x++) {
-        if (typeof Data.game.map[y][x] === 'undefined') Vue.set(Data.game.map[y], x, {solid: 0, units: 0, owner: -1, color: 0, king: false})
+        if (typeof Data.game.map[y][x] === 'undefined') {
+          Vue.set(Data.game.map[y], x, {solid: 0, units: 0, owner: -1, color: 0, king: false, loc: {x: x, y: y}})
+        }
 
         Vue.set(Data.game.map[y][x], d.type, d.data[y][x])
 

@@ -1,10 +1,20 @@
-<template>
+<template xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div id="game">
     <div>
       <div v-for="y in game.map" class="row">
-        <div v-for="x in y" class="cell" v-bind:class="{solid: x.solid == 1, me: x.owner === game.myid}" v-bind:style="{ backgroundColor: x.color }">
+        <div v-for="x in y" class="cell"
+             v-on:click="makemove(x.loc.x, x.loc.y)"
+             v-bind:class="{solid: x.solid == 1, me: x.owner === game.myid}"
+             v-bind:style="{ backgroundColor: x.color }">
           <div class="king" v-show="x.king"></div>
           <div class="units" v-show="x.units>0">{{x.units}}</div>
+
+          <div class="movehelper" v-show="x.king">
+            <div class="up">U</div>
+            <div class="left">L</div>
+            <div class="right">R</div>
+            <div class="down">D</div>
+          </div>
         </div>
       </div>
     </div>
@@ -15,7 +25,15 @@
   // import SS from '../../modules/ServerSocket'
 
   export default {
-    props: ['game']
+    props: ['game'],
+    methods: {
+      makemove: function (x, y) {
+        window.alert(x + ' ' + y)
+        if (this.game.map[y][x].owner === this.game.myid) {
+          window.alert('You own this')
+        }
+      }
+    }
   }
 </script>
 
@@ -48,6 +66,38 @@
       position: relative;
       border: 1px solid #ccc;
       background-color: white;
+      overflow: show;
+
+      .movehelper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        background-color: black;
+        opacity: 0.5;
+
+        .up, .down, .left, .right {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          background-color: black;
+        }
+
+        .up {
+          top: -50px;
+        }
+        .left {
+          left: -50px;
+        }
+        .right {
+          right: -50px;
+        }
+        .down {
+          bottom: -50px;
+        }
+      }
 
       .units {
         position: absolute;
