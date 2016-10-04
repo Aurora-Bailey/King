@@ -89,6 +89,17 @@ function handleMessage (d) {
   } else if (d.m === 'players') {
     // Data.game.players = d.data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
+  } else if (d.m === 'chat') {
+    if (typeof Data.game.players[d.from] !== 'undefined') {
+      Data.game.chat.msg.push('[' + Data.game.players[d.from].name + '] ' + d.message)
+    } else {
+      Data.game.chat.msg.push('*' + d.from + '* ' + d.message)
+    }
+
+    // Delete message after 30 seconds
+    setTimeout(() => {
+      Data.game.chat.msg.shift()
+    }, 30000)
   }
 
   if (typeof d.page !== 'undefined') {

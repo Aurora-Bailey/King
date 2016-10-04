@@ -1,5 +1,6 @@
 <template xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div id="game">
+    <chat :chat="game.chat"></chat>
     <div>
       <div v-for="y in game.map" class="row">
         <div v-for="x in y" class="cell"
@@ -25,9 +26,13 @@
 
 <script>
   import GS from '../../modules/GameSocket'
+  import Chat from './Chat'
 
   export default {
     props: ['game'],
+    components: {
+      Chat
+    },
     data () {
       return {
         move: {

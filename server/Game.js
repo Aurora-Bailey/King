@@ -231,8 +231,8 @@ class Game {
 
               // you are the only one alive
               if(this.playersalive == 1){
-                broadcast({m: 'chat', from: 'game', message: this.players[ws.pid].name + ' is the winner!!!!'});
-                broadcast({m: 'chat', from: 'game', message: 'Server will close in 2 minutes.'});
+                broadcast({m: 'chat', from: 'Server', message: this.players[ws.pid].name + ' is the winner!!!!'});
+                broadcast({m: 'chat', from: 'Server', message: 'Server will close in 2 minutes.'});
                 setTimeout(()=>{this.playerDead(ws.pid, 'Server');}, 2000);// kill the winner
                 setTimeout(()=>{this.endgame();}, 120000);
               }
@@ -381,11 +381,12 @@ function handleMessage(ws, d) {// websocket client messages
     /* block spam */
     // >> broadcast to room
     if (d.m === 'chat' && ws.playing){
-      if(ws.lastchat < Date.now() - 5000){// longer than 5 seconds ago
+      if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago
         var msg = d.message.slice(0,144);
+        ws.lastchat = Date.now();
         broadcast({m: 'chat', from: ws.pid, message: msg});
       }else{
-        ws.sendObj({m: 'chat', from: 'game', message: 'You can only send 1 message every 5 seconds.'})
+        ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 1 message per second.'})
       }
     }
 
