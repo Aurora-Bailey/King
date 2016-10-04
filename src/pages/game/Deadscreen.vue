@@ -33,7 +33,7 @@
     left: 0;
     right: 0;
     z-index: 22000;
-    width: 70vh;
+    width: 60vh;
     margin: auto;
     padding: 5vh;
     background-color: black;
