@@ -3,17 +3,19 @@
     <div>
       <div v-for="y in game.map" class="row">
         <div v-for="x in y" class="cell"
-             v-on:click="makemove(x.loc.x, x.loc.y)"
+             v-on:click="movestart(x.loc.x, x.loc.y)"
              v-bind:class="{solid: x.solid == 1, me: x.owner === game.myid}"
              v-bind:style="{ backgroundColor: x.color }">
           <div class="king" v-show="x.king"></div>
           <div class="units" v-show="x.units>0">{{x.units}}</div>
+          <div class="name" v-show="x.owner !== -1 && x.owner !== game.myid">{{x.owner === -1 ? '':game.players[x.owner].name}}</div>
 
-          <div class="movehelper" v-show="x.king">
-            <div class="up">U</div>
-            <div class="left">L</div>
-            <div class="right">R</div>
-            <div class="down">D</div>
+          <div class="movehelper" v-show="x.movehelp != 0">
+            <div class="center" v-on:click.stop.prevent="movestart(x.loc.x, x.loc.y)">{{move.percent}}%</div>
+            <div class="up" v-on:click.stop.prevent="movedirection(0)"></div>
+            <div class="left" v-on:click.stop.prevent="movedirection(3)"></div>
+            <div class="right" v-on:click.stop.prevent="movedirection(1)"></div>
+            <div class="down" v-on:click.stop.prevent="movedirection(2)"></div>
           </div>
         </div>
       </div>
@@ -22,16 +24,52 @@
 </template>
 
 <script>
-  // import SS from '../../modules/ServerSocket'
+  import GS from '../../modules/GameSocket'
 
   export default {
     props: ['game'],
-    methods: {
-      makemove: function (x, y) {
-        window.alert(x + ' ' + y)
-        if (this.game.map[y][x].owner === this.game.myid) {
-          window.alert('You own this')
+    data () {
+      return {
+        move: {
+          inprogress: false,
+          loc: {x: -1, y: -1},
+          percent: 0,
+          direction: -1
         }
+      }
+    },
+    methods: {
+      movestart: function (x, y) {
+        if (this.game.map[y][x].owner === this.game.myid) {
+          // if you click on different cell during move
+          if (this.move.inprogress && this.move.loc.x !== x || this.move.inprogress && this.move.loc.y !== y) {
+            this.cancelmove()
+            return false
+          }
+
+          this.move.inprogress = true
+          this.move.loc.x = x
+          this.move.loc.y = y
+
+          let state = this.game.map[y][x].movehelp + 1
+          this.game.map[y][x].movehelp = state
+
+          // 0 by default
+          if (state === 1) this.move.percent = 50
+          if (state === 2) this.move.percent = 100
+          if (state === 3) this.cancelmove()
+        } else {
+          this.cancelmove()
+        }
+      },
+      movedirection: function (d) {
+        this.move.direction = d
+        GS.sendObj({m: 'move', move: [this.move.loc.x, this.move.loc.y, this.move.percent, this.move.direction]})
+        this.cancelmove()
+      },
+      cancelmove: function () {
+        this.move.inprogress = false
+        this.game.map[this.move.loc.y][this.move.loc.x].movehelp = 0
       }
     }
   }
@@ -66,7 +104,26 @@
       position: relative;
       border: 1px solid #ccc;
       background-color: white;
-      overflow: show;
+      overflow: visible;
+
+      .name {
+        width: 100px;
+        height: 20px;
+        line-height: 20px;
+        position: absolute;
+        top: -20px;
+        left: -50px;
+        right: -50px;
+        z-index: 1020;
+        margin: auto;
+        background-color: black;
+        color: white;
+        display: none;
+        pointer-events: none;
+      }
+      &:hover .name {
+        display: block;
+      }
 
       .movehelper {
         position: absolute;
@@ -75,14 +132,21 @@
         right: 0;
         bottom: 0;
         z-index: 1000;
-        background-color: black;
-        opacity: 0.5;
+        pointer-events: none;
 
-        .up, .down, .left, .right {
-          width: 100%;
-          height: 100%;
+        .up, .down, .left, .right, .center {
+          width: 44px;
+          height: 44px;
+          line-height: 44px;// -3px*2 for border
           position: absolute;
           background-color: black;
+          opacity: 0.5;
+          pointer-events: auto;
+          @include noselect;
+
+          &:hover {
+            opacity: 0.8;
+          }
         }
 
         .up {
@@ -97,6 +161,9 @@
         .down {
           bottom: -50px;
         }
+        .center {
+          opacity: 0.8;
+        }
       }
 
       .units {
@@ -105,6 +172,7 @@
         left: 0;
         right: 0;
         bottom: 0;
+        z-index: 120;
         text-align: center;
         line-height: 50px;
         font-weight: bold;
@@ -146,6 +214,7 @@
           100% {border-color: red;}
         }
         border: 3px solid black;
+        cursor: pointer;
         animation-name: example;
         animation-duration: 6s;
         animation-iteration-count: infinite;
