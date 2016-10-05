@@ -1,5 +1,5 @@
 var x = {};
-x.version = 'LKYHFOEIHLSKDJGEG';
+x.version = 'LKYHFOEIHLSKDJGEG'; // this version is live as of 10/4/2015 11:32 PM
 x.maxnamelength = 15;
 
 x.queue = {};

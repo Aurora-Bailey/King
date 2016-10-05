@@ -1,5 +1,5 @@
 export default {
-  version: 'LKYHFOEIHLSKDJGEG',
+  version: 'LKYHFOEIHLSKDJGEG', // this version is live as of 10/4/2015 11:32 PM
   dev: {
     on: false,
     server: 'localhost',
