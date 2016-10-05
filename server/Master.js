@@ -38,6 +38,7 @@ function workerMessage(worker, message, handle) {
     }
 
     room.open = false;
+    room.open = false;
     worker.send({m: 'getroom', port: room.port, id: room.wid});
   }
 
@@ -85,7 +86,7 @@ function log(msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  console.log('Master: ' + msg);
+  // console.log('Master: ' + msg);
 }
 
 module.exports.setup = function (c) {

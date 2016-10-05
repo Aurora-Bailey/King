@@ -433,7 +433,7 @@ function log(msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  console.log('G--------------------Worker ' + WORKER_INDEX + ': ' + msg);
+  // console.log('G--------------------Worker ' + WORKER_INDEX + ': ' + msg);
 }
 
 /* Setup */
