@@ -71,7 +71,7 @@ function workerExit(worker, code, signal) {
 function makeWorker(id, type, port) {
   if (!cluster) return false;
 
-  log('making worker ' + id);
+  console.log('making worker ' + id);
   workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type});
   workers[id].ready = false;
   workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
