@@ -166,7 +166,7 @@
       font-size: 2vh;
       line-height: 10vh;
       text-align: center;
-      background-image: url('http://i.imgur.com/S9nN1tJ.png');
+      background-image: url('../../assets/crown.png');
       background-size: contain;
       background-position: center;
       color: grey;
@@ -317,7 +317,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url('http://i.imgur.com/S9nN1tJ.png'); // url('http://i.imgur.com/Y5maWdz.png');
+        background-image: url('../../assets/crown.png');
         background-size: contain;
         background-position: center;
         pointer-events: none;
