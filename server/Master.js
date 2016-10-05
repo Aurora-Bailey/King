@@ -2,6 +2,7 @@
 
 var os = require('os'),
   numCores = os.cpus().length,
+  GV = require('./Globalvar'),
   cluster = false,
   workers = [];
 
@@ -33,7 +34,7 @@ function workerMessage(worker, message, handle) {
     if(room === false){
       log('No open game rooms, I\'m making a new one!');
       var id = workers.length;
-      var port = 8000 + id;
+      var port = GV.server.gameport + id;
       room = makeWorker(id, 'game', port);
     }
 
@@ -71,8 +72,13 @@ function workerExit(worker, code, signal) {
 function makeWorker(id, type, port) {
   if (!cluster) return false;
 
+  // this may cause problems for servers that request a room but don't get one
+  // but we only have names for about 200 nodes
+  // nginx routes the name to a port
+  if (id >= GV.server.roomNameList.length) return false;
+
   console.log('making worker ' + id);
-  workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type});
+  workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type, WORKER_NAME: GV.server.roomNameList[id]});
   workers[id].ready = false;
   workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
   workers[id].wid = id;
@@ -93,7 +99,7 @@ module.exports.setup = function (c) {
   cluster = c;
 
   for (let i = 0; i < numCores; i++) {
-    makeWorker(i, 'server', 7777);
+    makeWorker(i, 'server', GV.server.serverport);
   }
   cluster.on('message', (w, m, h)=> {
     workerMessage(w, m, h);
