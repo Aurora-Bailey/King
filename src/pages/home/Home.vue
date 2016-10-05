@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <div class="contain_width">
-      <div class="logo">LOGO</div>
+      <div class="logo">Kingz.io</div>
       <div class="rank">Rank #{{user.rank}}</div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" /></div>
       <button class="play" v-on:click="join()">Play!</button>
