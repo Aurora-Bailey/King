@@ -104,7 +104,10 @@ class Queue {
       let name = this.players[e].data.name;
       let secret = 's' + Lib.md5(Math.random() + Date.now()) + 'secret';
       process.send({m: 'pass', to: gameRoom.id, data: {m: 'addplayer', uid: uid, secret: secret, name: name}});
-      this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, name: gameRoom.name, secret: secret});
+      if (NODE_ENV !== 'production')
+        this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, secret: secret});
+      else
+        this.players[e].sendObj({m: 'joinroom', name: gameRoom.name, secret: secret});
       this.players[e].playing = true;
       this.players[e].waiting = false;
     });
@@ -307,7 +310,7 @@ module.exports.setup = function (p) {
   WORKER_PORT = process.env.WORKER_PORT;
   WORKER_NAME = process.env.WORKER_NAME;
   NODE_ENV = process.env.NODE_ENV;
-  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a server. {' + WORKER_NAME + '}');
+  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a server. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
   log('Version: ' + GV.version);
 
   process.on('message', function (m) {// process server messages

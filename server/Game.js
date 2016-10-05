@@ -444,7 +444,7 @@ module.exports.setup = function (p) {
   WORKER_PORT = process.env.WORKER_PORT;
   WORKER_NAME = process.env.WORKER_NAME;
   NODE_ENV = process.env.NODE_ENV;
-  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a game room. {' + WORKER_NAME + '}');
+  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a game room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
   log('Version: ' + GV.version);
 
   process.on('message', function (m, c) {// process server messages
