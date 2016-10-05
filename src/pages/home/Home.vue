@@ -5,8 +5,8 @@
       <div class="rank">Rank #{{user.rank}}</div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" /></div>
       <button class="play" v-on:click="join()">Play!</button>
-      <div class="instructions">instructions</div>
-      <div class="footer">About | Help | Contact</div>
+      <div class="instructions" v-show="false">instructions</div>
+      <div class="footer" v-show="false">About | Help | Contact</div>
     </div>
   </div>
 </template>

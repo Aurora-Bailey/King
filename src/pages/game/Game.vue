@@ -8,8 +8,8 @@
          v-on:click="game.circlecells = !game.circlecells"></div>
     <div class="gamescroll"
          oncontextmenu="return false"
-         v-on:mousedown="startscroll" v-on:mousemove="mousemove" v-on:mouseup="endscroll"
-         v-on:touchstart="startscroll" v-on:touchmove="mousemove" v-on:touchend="endscroll">
+         v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
+         v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
       <div class="gamemap"
            v-bind:class="{circlecells: game.circlecells == true}"
            v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
@@ -119,8 +119,8 @@
           this.game.map[y][x].movehelp = state
 
           // 0 by default
-          if (state === 1) this.move.percent = 50
-          if (state === 2) this.move.percent = 100
+          if (state === 1) this.move.percent = 100
+          if (state === 2) this.move.percent = 50
           if (state === 3) this.cancelmove()
         } else {
           this.cancelmove()
