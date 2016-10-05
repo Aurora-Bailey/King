@@ -179,7 +179,6 @@ class Game {
     // process user moves {x,y,percent,direction}
     this.players.forEach((e,i)=>{
       if(e.makemove.length > 0){
-        let ws = e.ws;
         let move = e.makemove.shift();
         if(isNaN(move[0]) || isNaN(move[1]) || isNaN(move[2]) || isNaN(move[3])) return false;
 
@@ -190,7 +189,7 @@ class Game {
 
         if(typeof Game.map.solid[y] === 'undefined') return false;
         if(typeof Game.map.solid[y][x] === 'undefined') return false;
-        if(Game.map.owner[y][x] !== ws.pid) return false;
+        if(Game.map.owner[y][x] !== e.pid) return false;
         if(Game.map.units[y][x] < 2) return false;
         if(percent > 100 || percent < 0) return false;
         if(direction > 3 || direction < 0) return false;
@@ -208,14 +207,14 @@ class Game {
         if(amount == Game.map.units[y][x]) amount--;// can't move all units
         if(amount == 0) amount++;// can't move no units
 
-        if(Game.map.owner[moveto.y][moveto.x] === ws.pid){
+        if(Game.map.owner[moveto.y][moveto.x] === e.pid){
           // my cell
           Game.map.units[moveto.y][moveto.x] += amount;
           Game.map.units[y][x] -= amount;
 
         }else if(Game.map.owner[moveto.y][moveto.x] === -1){
           // empty cell
-          Game.map.owner[moveto.y][moveto.x] = ws.pid;
+          Game.map.owner[moveto.y][moveto.x] = e.pid;
           Game.map.units[moveto.y][moveto.x] += amount;
           Game.map.units[y][x] -= amount;
 
@@ -228,20 +227,20 @@ class Game {
 
           if(myunintsleft > 0){
             // take over cell
-            Game.map.owner[moveto.y][moveto.x] = ws.pid;
+            Game.map.owner[moveto.y][moveto.x] = e.pid;
             Game.map.units[moveto.y][moveto.x] = myunintsleft;
             Game.map.units[y][x] -= amount;
 
             // take over player
             if(this.players[enemyid].kingloc.x == moveto.x && this.players[enemyid].kingloc.y == moveto.y){
               this.playerDead(enemyid, e.name);
-              this.players[ws.pid].kills++;
+              this.players[e.pid].kills++;
 
               // claim your new kingdom
               for(let ey=0; ey<this.maptotalsize; ey++){
                 for(let ex=0; ex<this.maptotalsize; ex++){
                   if(this.map.owner[ey][ex] == enemyid){
-                    this.map.owner[ey][ex] = ws.pid;
+                    this.map.owner[ey][ex] = e.pid;
                     this.map.units[ey][ex] = Math.ceil(this.map.units[ey][ex] * 0.5);// you only get half the kingdom
                   }
                 }
@@ -249,9 +248,9 @@ class Game {
 
               // you are the only one alive
               if(this.playersalive == 1){
-                broadcast({m: 'chat', from: 'Server', message: this.players[ws.pid].name + ' is the winner!!!!'});
+                broadcast({m: 'chat', from: 'Server', message: this.players[e.pid].name + ' is the winner!!!!'});
                 broadcast({m: 'chat', from: 'Server', message: 'Server will close in 2 minutes.'});
-                setTimeout(()=>{this.playerDead(ws.pid, 'Server');}, 2000);// kill the winner
+                setTimeout(()=>{this.playerDead(e.pid, 'Server');}, 2000);// kill the winner
                 setTimeout(()=>{this.endgame();}, 120000);
               }
             }
@@ -278,18 +277,22 @@ class Game {
   }
 
   static playerDead(pid, killername){
-    //websocket of dead person
-    let ws = this.players[pid].ws;
-
     broadcast({m: 'playerdead', pid: pid, timealive: Date.now() - this.starttime, place: this.playersalive, kills: this.players[pid].kills, killer: killername});
 
+    this.playersalive--;
+    this.players[pid].dead = true;
+
+    if (!this.players[pid].connected) return false;
+
+    //websocket of dead person
+    let ws = this.players[pid].ws;
 
     // database
     db.collection('players').updateOne({id: ws.uid}, {$push: {pastgames: {
       gameid: this.gameid,
       name: this.players[pid].name,
       color: this.players[pid].color,
-      place: this.playersalive,
+      place: this.playersalive + 1,
       numplayers: this.players.length,
       kills: this.players[pid].kills,
       killer: killername,
@@ -303,20 +306,15 @@ class Game {
         log(err);
     });
     let points = 0;
-    if(this.playersalive == 3) points = Math.round(this.pointpool/4);
     if(this.playersalive == 2) points = Math.round(this.pointpool/4);
-    if(this.playersalive == 1) points = Math.round(this.pointpool/2);
+    if(this.playersalive == 1) points = Math.round(this.pointpool/4);
+    if(this.playersalive == 0) points = Math.round(this.pointpool/2);
     if(points !== 0){
       db.collection('players').updateOne({id: ws.uid}, {$inc: {points: points}}, function(err, result){
         if(err)
           log(err);
       });
     }
-
-
-
-    this.playersalive--;
-    this.players[pid].dead = true;
   }
 
   static endgame(){
@@ -326,6 +324,8 @@ class Game {
 
     // kick all players
     this.players.forEach((e,i)=>{
+      if (!e.connected) return false;
+      if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server');
       if (e.ws.connected)
         e.ws.close();
     });
