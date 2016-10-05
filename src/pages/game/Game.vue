@@ -8,8 +8,8 @@
          v-on:click="game.circlecells = !game.circlecells"></div>
     <div class="gamescroll"
          oncontextmenu="return false"
-         v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
-         v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
+         v-on:mousedown.stop="startscroll" v-on:mousemove.stop="mousemove" v-on:mouseup.stop="endscroll"
+         v-on:touchstart.stop="startscroll" v-on:touchmove.stop="mousemove" v-on:touchend.stop="endscroll">
       <div class="gamemap"
            v-bind:class="{circlecells: game.circlecells == true}"
            v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
