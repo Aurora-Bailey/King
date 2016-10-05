@@ -8,14 +8,15 @@
          v-on:click="game.circlecells = !game.circlecells"></div>
     <div class="gamescroll"
          oncontextmenu="return false"
-         v-on:mousedown.stop="startscroll" v-on:mousemove.stop="mousemove" v-on:mouseup.stop="endscroll"
-         v-on:touchstart.stop="startscroll" v-on:touchmove.stop="mousemove" v-on:touchend.stop="endscroll">
+         v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
+         v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
       <div class="gamemap"
            v-bind:class="{circlecells: game.circlecells == true}"
            v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
         <div v-for="y in game.map" class="row">
           <div v-for="x in y" class="cell"
-               v-on:click="movestart(x.loc.x, x.loc.y)"
+               v-on:mousedown="movestart(x.loc.x, x.loc.y)"
+               v-on:touchstart="movestart(x.loc.x, x.loc.y)"
                v-bind:class="{solid: x.solid == 1, me: x.owner === game.myid}"
                v-bind:style="{ backgroundColor: x.color }">
             <div class="king" v-show="x.king"></div>
@@ -23,11 +24,21 @@
             <div class="name" v-show="x.owner !== -1 && x.owner !== game.myid">{{x.owner === -1 ? '':game.players[x.owner].name}}</div>
 
             <div class="movehelper" v-show="x.movehelp != 0">
-              <div class="center" v-on:click.stop.prevent="movestart(x.loc.x, x.loc.y)">{{move.percent}}%</div>
-              <div class="up" v-on:click.stop.prevent="movedirection(0)"></div>
-              <div class="left" v-on:click.stop.prevent="movedirection(3)"></div>
-              <div class="right" v-on:click.stop.prevent="movedirection(1)"></div>
-              <div class="down" v-on:click.stop.prevent="movedirection(2)"></div>
+              <div class="center"
+                   v-on:mousedown.stop.prevent="movestart(x.loc.x, x.loc.y)"
+                   v-on:touchstart.stop.prevent="movestart(x.loc.x, x.loc.y)">{{move.percent}}%</div>
+              <div class="up"
+                   v-on:mousedown.stop.prevent="movedirection(0)"
+                   v-on:touchstart.stop.prevent="movedirection(0)"></div>
+              <div class="left"
+                   v-on:mousedown.stop.prevent="movedirection(3)"
+                   v-on:touchstart.stop.prevent="movedirection(3)"></div>
+              <div class="right"
+                   v-on:mousedown.stop.prevent="movedirection(1)"
+                   v-on:touchstart.stop.prevent="movedirection(1)"></div>
+              <div class="down"
+                   v-on:mousedown.stop.prevent="movedirection(2)"
+                   v-on:touchstart.stop.prevent="movedirection(2)"></div>
             </div>
           </div>
         </div>

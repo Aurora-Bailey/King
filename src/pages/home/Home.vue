@@ -1,5 +1,6 @@
 <template>
   <div id="home">
+    <div class="microversion">v1456</div>
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
       <div class="rank">Rank #{{user.rank}}</div>
@@ -50,6 +51,14 @@
     z-index: 100;
     overflow: auto;
     text-align: center;
+
+    .microversion {
+      position: absolute;
+      bottom: 1vh;
+      left: 1vh;
+      font-size: 2vh;
+      color: darken($base, 10%)
+    }
 
     .logo {
       font-size: 10vh;
