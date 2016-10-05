@@ -33,7 +33,7 @@ function workerMessage(worker, message, handle) {
     if(room === false){
       log('No open game rooms, I\'m making a new one!');
       var id = workers.length;
-      var port = 10000 + id;
+      var port = 8000 + id;
       room = makeWorker(id, 'game', port);
     }
 
@@ -92,7 +92,7 @@ module.exports.setup = function (c) {
   cluster = c;
 
   for (let i = 0; i < numCores; i++) {
-    makeWorker(i, 'server', 9777);
+    makeWorker(i, 'server', 7777);
   }
   cluster.on('message', (w, m, h)=> {
     workerMessage(w, m, h);
