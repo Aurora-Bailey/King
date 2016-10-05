@@ -6,11 +6,15 @@ var ws = {}
 var sendQueue = []
 Data.state.gameSocket = 'dead'
 
-function start (port, secret) {
+function start (obj) {
   if (Data.state.gameSocket !== 'dead') return false
 
   Data.state.gameSocket = 'connecting'
-  ws = new window.WebSocket('ws://' + Data.server + ':' + port)
+  if (Data.dev.on) {
+    ws = new window.WebSocket('ws://' + Data.dev.server + ':' + obj.port)
+  } else {
+    ws = new window.WebSocket('ws://' + Data.server + '/' + obj.name)
+  }
 
   ws.onopen = () => {
     if (ws.connected) return false // already connected
@@ -19,7 +23,7 @@ function start (port, secret) {
     Data.state.gameSocket = 'ready'
 
     sendObj({m: 'hi'})
-    sendObj({m: 'joinroom', uid: Data.user.id, secret: secret})
+    sendObj({m: 'joinroom', uid: Data.user.id, secret: obj.secret})
 
     sendQueue.forEach((e, i) => {
       sendObj(e)

@@ -1,6 +1,11 @@
 export default {
   version: 'LKYHFOEIHLSKDJGEG',
-  server: 'localhost',
+  dev: {
+    on: false,
+    server: 'localhost',
+    port: '7777'
+  },
+  server: 'ws.kingz.io',
   page: 'home',
   user: {name: ''},
   waiting: {players: 9000, timeout: Date.now(), inqueue: false, maxplayer: 100, minplayers: 1},

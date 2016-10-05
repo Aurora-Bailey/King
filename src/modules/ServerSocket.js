@@ -11,7 +11,11 @@ function start () {
   if (Data.state.serverSocket !== 'dead') return false
 
   Data.state.serverSocket = 'connecting'
-  ws = new window.WebSocket('ws://' + Data.server + ':9777')
+  if (Data.dev.on) {
+    ws = new window.WebSocket('ws://' + Data.dev.server + ':' + Data.dev.port)
+  } else {
+    ws = new window.WebSocket('ws://' + Data.server)
+  }
 
   ws.onopen = () => {
     if (ws.connected) return false // already connected
@@ -58,6 +62,7 @@ function handleMessage (d) {
     sendCookie()
   } else if (d.m === 'badcookie') {
     console.warn('Bad Cookie')
+    delete window.localStorage.removeItem('cookie')
   } else if (d.m === 'setname') {
     console.log('Set name? ' + d.v)
   } else if (d.m === 'stats') {
@@ -85,7 +90,11 @@ function handleMessage (d) {
     }
   } else if (d.m === 'joinroom') {
     Data.waiting.inqueue = false
-    GS.start(d.port, d.secret)
+    if (typeof d.name !== 'undefined') {
+      GS.start({name: d.name, secret: d.secret})
+    } else {
+      GS.start({port: d.port, secret: d.secret})
+    }
   }
 
   if (typeof d.page !== 'undefined') {
