@@ -4,6 +4,7 @@
       <div class="title">Waiting for players...</div>
       <div class="players">{{waiting.players}} out of {{waiting.maxplayers}}</div>
       <div class="timeout" v-show="waiting.players>=waiting.minplayers">Force start in {{seconds}}</div>
+      <div class="timeoutplacholder" v-show="waiting.players<waiting.minplayers">(4 players minimum)</div>
       <button class="cancel" v-on:click="cancel()">Cancel</button>
     </div>
   </div>
