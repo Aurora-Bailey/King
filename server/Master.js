@@ -62,7 +62,7 @@ function workerMessage(worker, message, handle) {
     }
   }
 
-  log('Worker ' + worker.wid + ': ' + JSON.stringify(message));
+  // log('Worker ' + worker.wid + ': ' + JSON.stringify(message));
 }
 function workerExit(worker, code, signal) {
   log('worker died ' + worker.wid);
@@ -86,7 +86,7 @@ function log(msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  // console.log('Master: ' + msg);
+  console.log('Master: ' + msg);
 }
 
 module.exports.setup = function (c) {

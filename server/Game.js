@@ -433,7 +433,7 @@ function log(msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  // console.log('G--------------------Worker ' + WORKER_INDEX + ': ' + msg);
+  console.log('G--------------------Worker ' + WORKER_INDEX + ': ' + msg);
 }
 
 /* Setup */
@@ -461,7 +461,6 @@ module.exports.setup = function (p) {
     if(m.m === 'start'){
       Game.start();
     }
-    log(m);
   });
 
   wss.on('connection', function connection(ws) {
@@ -480,7 +479,6 @@ module.exports.setup = function (p) {
       try {
         var d = JSON.parse(data);
         handleMessage(ws, d);
-        log(d);
       }
       catch (err) {
         log('HACKER!!! AKA bad client message.');
