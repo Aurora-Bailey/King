@@ -104,7 +104,7 @@ class Queue {
       let name = this.players[e].data.name;
       let secret = 's' + Lib.md5(Math.random() + Date.now()) + 'secret';
       process.send({m: 'pass', to: gameRoom.id, data: {m: 'addplayer', uid: uid, secret: secret, name: name}});
-      this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, secret: secret});
+      this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, name: gameRoom.name, secret: secret});
       this.players[e].playing = true;
       this.players[e].waiting = false;
     });
@@ -312,7 +312,7 @@ module.exports.setup = function (p) {
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
-      gameRoom = {port: m.port, id: m.id};
+      gameRoom = {port: m.port, id: m.id, name: m.name};
     }
     if(m.m === 'broadcast'){
       broadcast(m);

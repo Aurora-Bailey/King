@@ -39,8 +39,7 @@ function workerMessage(worker, message, handle) {
     }
 
     room.open = false;
-    room.open = false;
-    worker.send({m: 'getroom', port: room.port, id: room.wid});
+    worker.send({m: 'getroom', port: room.port, name: room.name, id: room.wid});
   }
 
   if(message.m === 'pass'){
@@ -76,14 +75,16 @@ function makeWorker(id, type, port) {
   // but we only have names for about 200 nodes
   // nginx routes the name to a port
   if (id >= GV.server.roomNameList.length) return false;
+  let name = GV.server.roomNameList[id];
 
   console.log('making worker ' + id);
-  workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type, WORKER_NAME: GV.server.roomNameList[id]});
+  workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type, WORKER_NAME: name});
   workers[id].ready = false;
   workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
   workers[id].wid = id;
   workers[id].port = port;
   workers[id].type = type;
+  workers[id].name = name;
 
   return workers[id];
 }
