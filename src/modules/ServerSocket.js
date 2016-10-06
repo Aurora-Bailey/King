@@ -55,7 +55,6 @@ function handleMessage (d) {
       sendCookie()
     } else {
       console.warn('Your game is out of date! Please refresh your browser.')
-      window.alert('Your game is out of date! Please refresh your browser.')
     }
   } else if (d.m === 'makecookie') {
     window.localStorage.cookie = d.cookie
@@ -78,7 +77,7 @@ function handleMessage (d) {
       Data.waiting.maxplayers = d.maxplayers
       Data.waiting.minplayers = d.minplayers
     } else {
-      window.alert(d.msg)
+      console.warn(d.msg)
     }
   } else if (d.m === 'joinupdate') {
     Data.waiting.players = d.players
@@ -119,7 +118,6 @@ function sendObj (object, queue = false) {
       console.log('object added to web socket queue')
     } else {
       console.warn('WebSocket is not connected.')
-      window.alert('WebSocket is not connected.')
     }
     return false
   }

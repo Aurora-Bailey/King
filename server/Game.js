@@ -73,14 +73,34 @@ class Game {
     while (pindexarr.length < this.mapusersize * this.mapusersize) {pindexarr.push('empty');}
     for(let y=0; y<this.mapusersize; y++){
       for(let x=0; x<this.mapusersize; x++){
-        var randcellx = Math.floor(Math.random() * this.mapcellsize);
-        var randcelly = Math.floor(Math.random() * this.mapcellsize);
 
-        var offsetx = x * this.mapcellsize;
-        var offsety = y * this.mapcellsize;
+        let randcellx = Math.floor(Math.random() * this.mapcellsize);
+        let randcelly = Math.floor(Math.random() * this.mapcellsize);
 
-        var totx = offsetx + randcellx;
-        var toty = offsety + randcelly;
+        let offsetx = x * this.mapcellsize;
+        let offsety = y * this.mapcellsize;
+
+        let totx = offsetx + randcellx;
+        let toty = offsety + randcelly;
+
+        let numempty = this.getMapNumEmpty(totx, toty);
+
+        console.log(numempty, totx, toty);
+        while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
+          randcellx = Math.floor(Math.random() * this.mapcellsize);
+          randcelly = Math.floor(Math.random() * this.mapcellsize);
+
+          offsetx = x * this.mapcellsize;
+          offsety = y * this.mapcellsize;
+
+          totx = offsetx + randcellx;
+          toty = offsety + randcelly;
+
+          numempty = this.getMapNumEmpty(totx, toty);
+
+          console.log('reprocess' ,numempty, this.maptotalsize * this.maptotalsize / 4, totx, toty);
+        }
+
 
         if (pindexarr.length === 0) continue;
         let randarr = Math.floor(Math.random() * pindexarr.length);
@@ -109,6 +129,48 @@ class Game {
     // start loop
     this.running = true;
     this.loop();
+  }
+
+  static getMapNumEmpty(cellx, celly) {
+    let ret = this.mapNumEmpty(cellx, celly);
+
+    // clean up
+    for(let y=0; y<this.maptotalsize; y++){
+      for(let x=0; x<this.maptotalsize; x++){
+        if (this.map.solid[y][x] == 10) this.map.solid[y][x] = 0;
+      }
+    }
+
+    return ret;
+  }
+
+  static mapNumEmpty(cellx, celly){
+    if (typeof this.map.solid[celly] === 'undefined') return 'edge';
+    if (typeof this.map.solid[celly][cellx] === 'undefined') return 'edge';
+
+    if (this.map.solid[celly][cellx] == 1) return 'solid';
+
+    if (this.map.solid[celly][cellx] == 0) {
+      let emptyneig = 1;
+
+      this.map.solid[celly][cellx] = 10;
+
+      let r = this.mapNumEmpty(cellx+1, celly);
+      if (!isNaN(r)) emptyneig += r;
+
+      let l = this.mapNumEmpty(cellx-1, celly);
+      if (!isNaN(l)) emptyneig += l;
+
+      let u = this.mapNumEmpty(cellx, celly-1);
+      if (!isNaN(u)) emptyneig += u;
+
+      let d = this.mapNumEmpty(cellx, celly+1);
+      if (!isNaN(d)) emptyneig += d;
+
+      return emptyneig;
+    }
+
+    return 'processed';
   }
 
   static mapGOL(){// game of life to rearrange the solid blocks
@@ -466,6 +528,8 @@ module.exports.setup = function (p) {
   });
 
   wss.on('connection', function connection(ws) {
+    ws.on('error', function(e) { log('Got an error'); return false; });
+
     ws.connected = true;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
