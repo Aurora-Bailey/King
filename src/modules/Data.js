@@ -14,10 +14,9 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v1463',
+    microversion: 'v1464',
     notes: [
-      {title: 'Note', text: 'For more players check back at the following times \n\n 6:00 AM/PM GMT \n 12:00 AM/PM GMT \n Friday 8:00 PM GMT'},
-      {title: 'Server Reset', text: 'Server will be down for maintenance Thursday, October 6, 2016 11:00 AM GMT'}
+      {title: 'Note', text: 'For more players check back at the following times \n\n 6:00 AM/PM GMT \n 12:00 AM/PM GMT \n Friday 8:00 PM GMT'}
     ]
   },
   waiting: {
