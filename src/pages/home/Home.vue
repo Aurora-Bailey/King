@@ -1,6 +1,6 @@
 <template>
   <div id="home">
-    <div class="microversion">v1457</div>
+    <div class="microversion">v1458</div>
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
       <div class="rank">Rank #{{user.rank}}</div>
