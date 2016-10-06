@@ -1,11 +1,21 @@
 <template>
   <div id="waiting">
+
     <div class="center">
       <div class="title">Waiting for players...</div>
       <div class="players">{{waiting.players}} out of {{waiting.maxplayers}}</div>
       <div class="timeout" v-show="waiting.players>=waiting.minplayers">Starting in {{seconds}}</div>
       <div class="timeoutplacholder" v-show="waiting.players<waiting.minplayers">(2 players minimum)</div>
       <button class="cancel" v-on:click="cancel()">Cancel</button>
+
+      <div class="tips">
+        <div class="tiptitle">
+          Tips from the worlds best Kings.io player
+        </div>
+        <div class="actualtip" v-for="tip in waiting.tips">
+          {{tip}}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -59,6 +69,23 @@
     z-index: 100;
     overflow: auto;
     text-align: center;
+
+    .tips {
+      padding: 2.5vh;
+      margin-top: 4vh;
+      background-color: darken($base, 15%);
+
+      .tiptitle {
+        font-size: 3vh;
+        font-weight: bold;
+        padding: 0 1vh 1vh;
+      }
+
+      .actualtip {
+        font-size: 2.5vh;
+        font-weight: normal;
+      }
+    }
 
     .center {
       position: absolute;

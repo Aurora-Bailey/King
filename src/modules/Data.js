@@ -25,7 +25,8 @@ export default {
     timeout: Date.now(),
     inqueue: false,
     maxplayer: 100,
-    minplayers: 1
+    minplayers: 1,
+    tips: ['Double click to split', 'Hold click to move camera', 'And protect your king :)']
   },
   game: {
     playing: false,
