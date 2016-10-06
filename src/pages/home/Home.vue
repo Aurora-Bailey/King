@@ -86,7 +86,6 @@
         left: 0;
         right: 0;
         white-space: nowrap;
-        text-align: left;
         .notice {
           white-space: normal;
           vertical-align: text-top;
