@@ -65,7 +65,12 @@ function handleMessage (d) {
   } else if (d.m === 'setname') {
     console.log('Set name? ' + d.v)
   } else if (d.m === 'stats') {
-    Data.user = d.data
+    Data.user.id = d.data.id
+    Data.user.name = d.data.name
+    Data.user.lastlogin = d.data.lastlogin
+    Data.user.numplays = d.data.numplays
+    Data.user.points = d.data.points
+    Data.user.rank = d.data.rank
   } else if (d.m === 'ready') {
     console.log('ready')
   } else if (d.m === 'join') {

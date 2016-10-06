@@ -1,6 +1,12 @@
 <template>
   <div id="home">
-    <div class="microversion">v1459</div>
+    <div class=notice_container>
+      <div class="notice" v-for="note in user.notes">
+        <div class="notice_title">{{note.title}}</div>
+        <div class="notice_text">{{note.text}}</div>
+      </div>
+    </div>
+    <div class="microversion">{{user.microversion}}</div>
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
       <div class="rank">Rank #{{user.rank}}</div>
@@ -58,6 +64,56 @@
       left: 1vh;
       font-size: 2vh;
       color: darken($base, 10%)
+    }
+
+    .notice_container {
+      width: 30vh;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 150;
+      overflow: auto;
+      padding: 1vh;
+      opacity: 0.8;
+
+      @media screen and (orientation: portrait) {
+        width: 100vw;
+        height: 35vh;
+        top: auto;
+        bottom: 0vh;
+        left: 0;
+        right: 0;
+        white-space: nowrap;
+        text-align: left;
+        .notice {
+          white-space: normal;
+          vertical-align: text-top;
+          display: inline-block;
+          width: 30vh;
+          margin: 0 2vh;
+        }
+      }
+    }
+
+    .notice {
+      text-align: center;
+      margin-bottom: 2vh;
+      background-color: darken($base, 15%);
+      box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
+
+      .notice_title {
+        font-size: 2.5vh;
+        padding: 1vh;
+        background-color: $accent;
+        color: $accent-alt
+      }
+      .notice_text {
+        white-space: pre-wrap;
+        font-size: 2vh;
+        padding: 1vh;
+      }
     }
 
     .logo {
@@ -142,6 +198,8 @@
     .contain_width {
       width: 50vh;
       margin: auto;
+      position: relative;
+      z-index: 120;
     }
   }
 

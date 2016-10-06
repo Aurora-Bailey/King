@@ -6,17 +6,6 @@
       <div class="timeout" v-show="waiting.players>=waiting.minplayers">Force start in {{seconds}}</div>
       <div class="timeoutplacholder" v-show="waiting.players<waiting.minplayers">(2 players minimum)</div>
       <button class="cancel" v-on:click="cancel()">Cancel</button>
-      <div class="notice">
-        For more players
-        <br>
-        Check back at the following times
-        <br><br>
-        6:00 AM/PM GMT
-        <br>
-        12:00 AM/PM GMT
-        <br>
-        Friday 8:00 PM GMT
-      </div>
     </div>
   </div>
 </template>
@@ -70,12 +59,6 @@
     z-index: 100;
     overflow: auto;
     text-align: center;
-
-    .notice {
-      margin: auto;
-      font-size: 2vh;
-      padding: 5vh;
-    }
 
     .center {
       position: absolute;
