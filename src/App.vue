@@ -3,6 +3,8 @@
     <home :user="user" v-show="page=='home'"></home>
     <waiting :waiting="waiting" v-show="page=='waiting'"></waiting>
     <game :game="game" v-show="page=='game'"></game>
+
+    <soft-popup :popup.sync="popup" v-show="popup.active"></soft-popup>
   </div>
 </template>
 
@@ -15,11 +17,15 @@
   import Waiting from './pages/waiting/Waiting'
   import Game from './pages/game/Game'
 
+  // Parts
+  import SoftPopup from './parts/SoftPopup'
+
   export default {
     components: {
       Home,
       Waiting,
-      Game
+      Game,
+      SoftPopup
     },
     data () {
       return Data

@@ -55,6 +55,7 @@ function handleMessage (d) {
       sendCookie()
     } else {
       console.warn('Your game is out of date! Please refresh your browser.')
+      Data.popup.show('Out of date', 'Your game is out of date! Please refresh your browser.')
     }
   } else if (d.m === 'makecookie') {
     window.localStorage.cookie = d.cookie
@@ -62,6 +63,7 @@ function handleMessage (d) {
   } else if (d.m === 'badcookie') {
     console.warn('Bad Cookie')
     delete window.localStorage.removeItem('cookie')
+    sendCookie()
   } else if (d.m === 'setname') {
     console.log('Set name? ' + d.v)
   } else if (d.m === 'stats') {
@@ -123,6 +125,7 @@ function sendObj (object, queue = false) {
       console.log('object added to web socket queue')
     } else {
       console.warn('WebSocket is not connected.')
+      Data.popup.show('Connection', 'WebSocket is not connected.\n Our servers might be down.')
     }
     return false
   }

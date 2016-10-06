@@ -45,5 +45,15 @@ export default {
       y: 0
     }
   },
-  state: {serverSocket: '', gameSocket: ''}
+  state: {serverSocket: '', gameSocket: ''},
+  popup: {
+    show: function (title, message) {
+      this.title = title
+      this.msg = message
+      this.active = true
+    },
+    title: 'Message Title',
+    msg: 'Mesage Body.',
+    active: false
+  }
 }
