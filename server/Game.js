@@ -42,6 +42,9 @@ class Game {
     this.starttime = Date.now();
     this.playersalive = this.players.length;
 
+    // keep track of players
+    log('Starting game with ' + this.playersalive + ' players ' + this.gameid);
+
     // close game after a long time in case of a dissconnected room or something
     this.forceclose = setTimeout(()=>{this.endgame();}, 1000*60*60*6)// 6 hours
 
@@ -85,7 +88,6 @@ class Game {
 
         let numempty = this.getMapNumEmpty(totx, toty);
 
-        console.log(numempty, totx, toty);
         while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
           randcellx = Math.floor(Math.random() * this.mapcellsize);
           randcelly = Math.floor(Math.random() * this.mapcellsize);
@@ -98,7 +100,7 @@ class Game {
 
           numempty = this.getMapNumEmpty(totx, toty);
 
-          console.log('reprocess' ,numempty, this.maptotalsize * this.maptotalsize / 4, totx, toty);
+          log('reprocess numempty:' + numempty + ' minempty:' + (this.maptotalsize * this.maptotalsize / 4) );
         }
 
 
@@ -382,8 +384,10 @@ class Game {
 
   static endgame(){
     // save stats to database
-
     clearTimeout(this.forceclose);
+
+    // keep track of players
+    log('Ending game with ' + this.playersalive + ' players ' + this.gameid);
 
     // kick all players
     this.players.forEach((e,i)=>{
