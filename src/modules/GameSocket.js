@@ -103,9 +103,9 @@ function handleMessage (d) {
       Data.game.chat.msg.push('*' + d.from + '* ' + d.message)
     }
 
-    // Delete message after 30 seconds
+    // archive message after 30 seconds
     setTimeout(() => {
-      Data.game.chat.msg.shift()
+      Data.game.chat.history.push(Data.game.chat.msg.shift())
     }, 30000)
   } else if (d.m === 'playerdead') {
     // make sure player exists

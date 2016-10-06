@@ -163,7 +163,7 @@
     right: 0;
     bottom: 0;
     z-index: 100;
-    overflow: auto;
+    overflow: hidden;
     text-align: left;
     background-color: $base;
 
@@ -187,6 +187,7 @@
       background-color: $accent;
     }
     .togglecirclecells {
+      display: none; // disable for now
       position: absolute;
       top: 13vh;
       left: 3.5vh;

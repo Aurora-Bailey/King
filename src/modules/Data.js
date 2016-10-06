@@ -32,7 +32,7 @@ export default {
     playing: false,
     dead: false,
     circlecells: false,
-    chat: {asdf: 'qwerty', msg: []},
+    chat: {asdf: 'qwerty', msg: [], history: [], showhistory: false},
     deadscreen: {
       spectate: false,
       name: 'name',
