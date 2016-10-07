@@ -94,6 +94,7 @@ function handleMessage (d) {
       Data.waiting.minplayers = d.minplayers
     } else {
       console.warn(d.msg)
+      Data.popup.show('Error', d.msg)
     }
   } else if (d.m === 'joinupdate') {
     Data.waiting.players = d.players
