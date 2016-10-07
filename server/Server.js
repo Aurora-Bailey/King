@@ -44,6 +44,7 @@ class Queue {
     ws.waiting = true;
     ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers, minplayers: GV.queue.minplayers});
     this.updatePlayers();
+    log(this.numPlayers() + '/' + GV.queue.maxplayers + ' in queue. Timeout:' + Lib.humanTimeDiff(Date.now(), this.timeout));
     if(this.numPlayers() >= GV.queue.maxplayers){
       this.startGame();
     }
@@ -55,7 +56,7 @@ class Queue {
     if(typeof this.players[ws.data.id] !== 'undefined'){// player is already in queue
       delete this.players[ws.data.id];
       ws.waiting = false;
-      ws.sendObj({m: 'canceljoin', v: true});
+      if (ws.connected) ws.sendObj({m: 'canceljoin', v: true});
       this.updatePlayers();
     }
   }
@@ -356,8 +357,8 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       log('Player left server.');
-      Queue.removePlayer(ws);
       ws.connected = false;
+      Queue.removePlayer(ws);
     });
 
     ws.sendObj({m: 'hi'});

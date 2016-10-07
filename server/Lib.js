@@ -32,6 +32,19 @@ class Lib {
   static md5(string) {
     return crypto.createHash('md5').update('' + string).digest('hex');
   }
+
+  static humanTimeDiff(from, to) {
+    let diff = to - from;
+    let hours = Math.floor(diff/3600000);
+    diff = diff % 3600000;
+    let minutes = Math.floor(diff/60000);
+    diff = diff % 60000;
+    let seconds = Math.floor(diff/1000);
+
+    if (seconds < 10) seconds = '0' + seconds;
+
+    return '' + hours + 'h ' + minutes + ':' + seconds
+  }
 }
 
 module.exports = Lib;
