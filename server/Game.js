@@ -442,6 +442,7 @@ function handleMessage(ws, d) {// websocket client messages
         ws.sendObj({m: 'welcome', pid: pid});
         ws.sendObj({m: 'map', type: 'solid', data: Game.map.solid});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color king location
+        ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
 
         // take one point for the point pool
         db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){
@@ -560,9 +561,14 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       ws.connected = false;
-      if (typeof ws.pid === 'undefined') return false;
-
-      log('___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
+      try{
+        if (typeof ws.pid === 'undefined') return false;
+        if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
+        broadcast({m: 'chat', from: 'Server', message: '[' + Game.players[ws.pid].name + '] has left the game.'});
+        log('___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
+      }catch(err){
+        console.log(err);
+      }
     });
 
     ws.sendObj({m: 'hi'});
