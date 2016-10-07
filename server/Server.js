@@ -11,6 +11,7 @@ var http = require('http'),
   app = express(),
   gameRoom = false,
   process = false,
+  numConnected = 0,
   WORKER_PORT = false,
   WORKER_NAME = false,
   WORKER_INDEX = false,
@@ -337,7 +338,8 @@ module.exports.setup = function (p) {
   wss.on('connection', function connection(ws) {
     ws.on('error', function(e) { log('Got an error'); return false; });
 
-    log('Player connected.');
+    numConnected++;
+    log('Player connected. Total: ' + numConnected);
 
     ws.connectedtime = Date.now(); // connect time
     ws.connected = true;
@@ -370,6 +372,7 @@ module.exports.setup = function (p) {
     ws.on('close', function () {
       log('Player disconnected. Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
       ws.connected = false;
+      numConnected--;
       Queue.removePlayer(ws);
     });
 
