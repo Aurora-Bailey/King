@@ -1,7 +1,7 @@
 <template>
   <div id="chat">
-    <div class="output">
-      <div class="message history" v-show="chat.showhistory" v-for="msg in chat.history">
+    <div class="output" id="chat_output">
+      <div class="message history" v-show="showhistory" v-for="msg in chat.history">
         {{msg}}
       </div>
       <div class="message" v-for="msg in chat.msg">
@@ -10,7 +10,7 @@
     </div>
     <div class="input">
       <input v-model="chattext" placeholder="[Enter] to send chat" type="text" v-on:keyup.enter="sendChat()" />
-      <button class="historybutton" v-on:click="chat.showhistory=!chat.showhistory"></button>
+      <button class="historybutton" v-on:click="showhistory=!showhistory"></button>
     </div>
   </div>
 </template>
@@ -22,7 +22,9 @@
     props: ['chat'],
     data () {
       return {
-        chattext: ''
+        chattext: '',
+        showhistory: false,
+        msg: this.chat.msg
       }
     },
     methods: {
@@ -30,6 +32,18 @@
         if (this.chattext === '') return false
         GS.sendObj({m: 'chat', message: this.chattext})
         this.chattext = ''
+      }
+    },
+    watch: {
+      msg: function (val) {
+        setTimeout(() => {
+          window.document.getElementById('chat_output').scrollTop += 1000000
+        }, 30)
+      },
+      showhistory: function (val) {
+        setTimeout(() => {
+          window.document.getElementById('chat_output').scrollTop += 1000000
+        }, 10)
       }
     }
   }
@@ -45,40 +59,37 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    z-index: 20000;
+    z-index: 23000;
     width: 50vh;
     max-height: 100vh;
-    overflow: auto;
+    overflow: hidden;
     background-color: black;
     opacity: 0.9;
     font-size: 2.4vh;
-
-    padding-bottom: 6vh; // for chat bar
 
     .history {
       color: darken($base-alt, 40%);
     }
 
-
-
     .output {
       text-align: left;
-      padding: 1vh;
+      padding: 1vh 1vh 0;
+      max-height: 94vh;
+      overflow: auto;
     }
     .input {
       padding: 1vh;
-      position: fixed;
-      bottom: 0;
-      left: 0;
       height: 6vh;
-      width: 50vh;
-
+      background-color: black;
+      white-space: nowrap;
+      overflow: hidden;
 
       .historybutton {
         background-image: url('../../assets/history.png');
         background-size: contain;
         background-position: center;
-        width: 8%;
+        background-repeat: no-repeat;
+        width: 9%;
         height: 4vh;
         vertical-align: text-top;
         background-color: transparent;
