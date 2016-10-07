@@ -243,6 +243,7 @@ function handleMessage(ws, d) {// websocket client messages
             } else {
               ws.data.name = newname;
               sendPlayerStats(ws);
+              sendLeaderboard(ws);
               ws.sendObj({m: 'setname', v: true});
             }
           });
