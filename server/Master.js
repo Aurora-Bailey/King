@@ -3,6 +3,7 @@
 var os = require('os'),
   numCores = os.cpus().length,
   GV = require('./Globalvar'),
+  Lib = require('./Lib'),
   cluster = false,
   workers = [];
 
@@ -93,7 +94,7 @@ function log(msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  console.log('Master: ' + msg);
+  console.log('[' + Lib.humanTimeDate(Date.now()) + ']Master: ' + msg);
 }
 
 module.exports.setup = function (c) {

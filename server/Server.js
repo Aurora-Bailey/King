@@ -44,7 +44,6 @@ class Queue {
     ws.waiting = true;
     ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers, minplayers: GV.queue.minplayers});
     this.updatePlayers();
-    log(this.numPlayers() + '/' + GV.queue.maxplayers + ' in queue. Timeout:' + Lib.humanTimeDiff(Date.now(), this.timeout));
     if(this.numPlayers() >= GV.queue.maxplayers){
       this.startGame();
     }
@@ -71,6 +70,7 @@ class Queue {
     keys.forEach((e,i)=>{
       this.players[e].sendObj({m: 'joinupdate', players: keys.length, timeout: this.timeout})
     });
+    log(keys.length + '/' + GV.queue.maxplayers + ' in queue. Timeout:' + Lib.humanTimeDiff(Date.now(), this.timeout));
   }
 
   static startGame(){
@@ -83,7 +83,7 @@ class Queue {
     // too few players?
     if(this.numPlayers() < GV.queue.minplayers){
       this.resetTimer();
-      this.updatePlayers();
+      if (this.numPlayers() !== 0) this.updatePlayers();
       return false;
     }
 
@@ -301,7 +301,7 @@ function log(msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  console.log('S--------------------Worker ' + WORKER_INDEX + ': ' + msg);
+  console.log('[' + Lib.humanTimeDate(Date.now()) + ']S----Worker ' + WORKER_INDEX + ': ' + msg);
 }
 
 /* Setup */

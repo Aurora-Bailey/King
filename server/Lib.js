@@ -45,6 +45,11 @@ class Lib {
 
     return '' + hours + 'h ' + minutes + ':' + seconds
   }
+
+  static humanTimeDate(timestamp) {
+    let d = new Date(timestamp);
+    return '' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+  }
 }
 
 module.exports = Lib;
