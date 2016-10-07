@@ -241,17 +241,14 @@
 
 
       .name {
-        width: 100px;
-        height: 20px;
-        line-height: 20px;
         position: absolute;
-        top: -20px;
-        left: -50px;
-        right: -50px;
+        top: -30px;
+        font-size: 16px;
+        padding: 5px 15px;
         z-index: 1020;
         margin: auto;
-        background-color: black;
-        color: white;
+        background-color: $accent;
+        color: $accent-alt;
         display: none;
         pointer-events: none;
       }
