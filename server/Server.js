@@ -124,7 +124,6 @@ class Queue {
     process.send({m: 'getroom'});
   }
 }
-Queue.reset();
 
 /* Websockets */
 function sendPlayerStats(ws) {
@@ -133,6 +132,19 @@ function sendPlayerStats(ws) {
   delete copy.cookie;
   delete copy.pastgames;
   ws.sendObj({m: 'stats', data: copy});
+}
+function sendLeaderboard(ws) {
+  db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*7)}}, {_id: 0, name: 1, points: 1}).sort({points: -1}).limit(10).toArray(function(err, docs) {
+    if (err) {
+      log('Error with mongodb leaderboard request');
+      log(err);
+    } else if (docs.length != 0) {
+      //found
+      ws.sendObj({m: 'leaderboard', data: docs});
+    } else {
+      // no leaderboards found
+    }
+  });
 }
 function broadcast(obj) {
   wss.clients.forEach(function each(client) {
@@ -164,17 +176,7 @@ function handleMessage(ws, d) {// websocket client messages
     // >> user stats
     /*logged in*/
     if (d.m === 'cookie' && ws.compatible) {
-      db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*7)}}, {_id: 0, name: 1, points: 1}).sort({points: -1}).limit(10).toArray(function(err, docs) {
-        if (err) {
-          log('Error with mongodb leaderboard request');
-          log(err);
-        } else if (docs.length != 0) {
-          //found
-          ws.sendObj({m: 'leaderboard', data: docs});
-        } else {
-          // no leaderboards found
-        }
-      });
+      sendLeaderboard(ws);
       db.collection('players').find({cookie: d.cookie}).limit(1).toArray(function(err, docs) {
         if (err) {
           ws.sendObj({m: 'badcookie'});
@@ -276,7 +278,8 @@ function handleMessage(ws, d) {// websocket client messages
     // >> send new stats
     /* set user to not playing*/
     if (d.m === 'gameover' && ws.loggedin){
-      // pull fresh copy of data, send it to user
+      sendLeaderboard(ws);
+      // update player status on ws, then send the status to user
       db.collection('players').find({cookie: ws.data.cookie}).limit(1).toArray(function(err, docs) {
         if (err) {
           log('Error with mongodb refresh request');
@@ -325,6 +328,11 @@ module.exports.setup = function (p) {
   NODE_ENV = process.env.NODE_ENV;
   log('Hi I\'m worker ' + WORKER_INDEX + ' running as a server. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
   log('Version: ' + GV.version);
+
+  // update for dev server
+  if (NODE_ENV === 'development') {
+    GV.queue.maxwait = 15000; // set wait time to 15 seconds
+  }
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
@@ -393,6 +401,7 @@ module.exports.setup = function (p) {
     log( 'I\'m listening on port ' + server.address().port)
   });
 
+  Queue.reset();
   process.send({m: 'ready'});
   process.send({m: 'getroom'});
 };
