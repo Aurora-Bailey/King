@@ -372,9 +372,19 @@ class Game {
         log(err);
     });
     let points = 0;
-    if(this.playersalive == 2) points = Math.round(this.pointpool/4);
-    if(this.playersalive == 1) points = Math.round(this.pointpool/4);
-    if(this.playersalive == 0) points = Math.round(this.pointpool/2);
+    if(this.players.length == 2){ // exception
+      if(this.playersalive == 1) points = 0;
+      if(this.playersalive == 0) points = 2;
+    }else if(this.players.length == 3){ // exception
+      if(this.playersalive == 2) points = 0;
+      if(this.playersalive == 1) points = 1;
+      if(this.playersalive == 0) points = 2;
+    }else{
+      if(this.playersalive == 2) points = Math.round(this.pointpool/4);
+      if(this.playersalive == 1) points = Math.round(this.pointpool/4);
+      if(this.playersalive == 0) points = Math.round(this.pointpool/2);
+    }
+
     if(points !== 0){
       db.collection('players').updateOne({id: ws.uid}, {$inc: {points: points}}, function(err, result){
         if(err)
