@@ -70,7 +70,7 @@ class Queue {
     keys.forEach((e,i)=>{
       this.players[e].sendObj({m: 'joinupdate', players: keys.length, timeout: this.timeout})
     });
-    log(keys.length + '/' + GV.queue.maxplayers + ' in queue. Timeout:' + Lib.humanTimeDiff(Date.now(), this.timeout));
+    log(keys.length + '/' + GV.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout));
   }
 
   static startGame(){
@@ -326,8 +326,9 @@ module.exports.setup = function (p) {
   wss.on('connection', function connection(ws) {
     ws.on('error', function(e) { log('Got an error'); return false; });
 
-    log('Player joined server.');
+    log('Player connected.');
 
+    ws.connectedtime = Date.now(); // connect time
     ws.connected = true;
     ws.compatible = false;
     ws.loggedin = false;
@@ -356,7 +357,7 @@ module.exports.setup = function (p) {
     });
 
     ws.on('close', function () {
-      log('Player left server.');
+      log('Player disconnected. Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
       ws.connected = false;
       Queue.removePlayer(ws);
     });

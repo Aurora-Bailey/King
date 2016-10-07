@@ -41,14 +41,12 @@ class Lib {
     diff = diff % 60000;
     let seconds = Math.floor(diff/1000);
 
-    if (seconds < 10) seconds = '0' + seconds;
-
-    return '' + hours + 'h ' + minutes + ':' + seconds
+    return '' + (hours>0?hours + 'h':'') + (minutes<10?'0':'') + minutes + ':' + (seconds<10?'0':'') + seconds
   }
 
   static humanTimeDate(timestamp) {
     let d = new Date(timestamp);
-    return '' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+    return '' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + (d.getMinutes()<10?'0':'') + d.getMinutes() + ':' + (d.getSeconds()<10?'0':'') + d.getSeconds();
   }
 }
 
