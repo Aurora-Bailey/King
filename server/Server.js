@@ -163,6 +163,17 @@ function handleMessage(ws, d) {// websocket client messages
     // >> user stats
     /*logged in*/
     if (d.m === 'cookie' && ws.compatible) {
+      db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*7)}}, {_id: 0, name: 1, points: 1}).sort({points: -1}).limit(10).toArray(function(err, docs) {
+        if (err) {
+          log('Error with mongodb leaderboard request');
+          log(err);
+        } else if (docs.length != 0) {
+          //found
+          ws.sendObj({m: 'leaderboard', data: docs});
+        } else {
+          // no leaderboards found
+        }
+      });
       db.collection('players').find({cookie: d.cookie}).limit(1).toArray(function(err, docs) {
         if (err) {
           ws.sendObj({m: 'badcookie'});
