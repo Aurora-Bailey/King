@@ -5,7 +5,7 @@ x.maxnamelength = 15;
 x.queue = {};
 x.queue.minplayers = 2;
 x.queue.maxplayers = 16; // 4x4
-x.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
+x.queue.maxwait = 15000;//1000*60*5; // 5 minutes in miliseconds
 
 x.game = {};
 x.game.areaperplayer = 49;// will be rounded to the closest square root number

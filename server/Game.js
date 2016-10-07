@@ -89,7 +89,7 @@ class Game {
         let numempty = this.getMapNumEmpty(totx, toty);
 
         while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
-          log('reprocess numempty:' + numempty + ' minempty:' + (this.maptotalsize * this.maptotalsize / 4) );
+          log('___re-place numempty: ' + numempty + ' minempty: ' + (this.maptotalsize * this.maptotalsize / 4) );
 
           randcellx = Math.floor(Math.random() * this.mapcellsize);
           randcelly = Math.floor(Math.random() * this.mapcellsize);
@@ -343,7 +343,7 @@ class Game {
 
   static playerDead(pid, killername){
     broadcast({m: 'playerdead', pid: pid, timealive: Date.now() - this.starttime, place: this.playersalive, kills: this.players[pid].kills, killer: killername});
-    log('___dead: N:' + this.players[pid].name + ' K:' + killername + ' T:' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P:' + this.playersalive);
+    log('___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
 
     this.playersalive--;
     this.players[pid].dead = true;
@@ -388,7 +388,7 @@ class Game {
     clearTimeout(this.forceclose);
 
     // keep track of players
-    log('Ending game. Time:' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive:' + this.playersalive + ' Game:' + this.gameid);
+    log('Ending game. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
 
     // kick all players
     this.players.forEach((e,i)=>{
@@ -560,6 +560,9 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       ws.connected = false;
+      if (typeof ws.pid === 'undefined') return false;
+
+      log('___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
     });
 
     ws.sendObj({m: 'hi'});

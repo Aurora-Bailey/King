@@ -78,7 +78,7 @@ function makeWorker(id, type, port) {
   if (id >= GV.server.roomNameList.length) return false;
   let name = GV.server.roomNameList[id];
 
-  console.log('making worker ' + id);
+  log('Making worker ' + id);
   workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type, WORKER_NAME: name});
   workers[id].ready = false;
   workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
