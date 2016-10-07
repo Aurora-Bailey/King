@@ -1,11 +1,21 @@
 <template>
   <div id="home">
-    <div class=notice_container>
+    <div class=sidebar>
+      <div class="leaderboard">
+        <div class="leaderboardtitle">Leaderboard</div>
+        <div class="rankedplayer" v-for="(leader, index) in leaderboard">
+          #{{leader.rank}}
+          {{leader.name}}
+        </div>
+      </div>
+
       <div class="notice" v-for="note in user.notes">
         <div class="notice_title">{{note.title}}</div>
         <div class="notice_text">{{note.text}}</div>
       </div>
     </div>
+
+
     <div class="microversion">{{user.microversion}}</div>
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
@@ -22,7 +32,7 @@
   import SS from '../../modules/ServerSocket'
 
   export default {
-    props: ['user'],
+    props: ['user', 'leaderboard'],
     data () {
       return {
         name: '' // local version of name bound to the input box
@@ -58,6 +68,22 @@
     overflow: auto;
     text-align: center;
 
+    .leaderboard {
+      text-align: center;
+      margin-bottom: 4vh;
+
+      .leaderboardtitle {
+        font-size: 3vh;
+        font-weight: bold;
+        padding: 1vh;
+      }
+
+      .rankedplayer {
+        font-size: 2vh;
+        padding: 0 1vh;
+      }
+    }
+
     .microversion {
       position: absolute;
       bottom: 1vh;
@@ -66,7 +92,7 @@
       color: darken($base, 10%)
     }
 
-    .notice_container {
+    .sidebar {
       width: 30vh;
       height: 100vh;
       position: absolute;
@@ -86,7 +112,7 @@
         left: 0;
         right: 0;
         white-space: nowrap;
-        .notice {
+        .notice, .leaderboard {
           white-space: normal;
           vertical-align: text-top;
           display: inline-block;
@@ -99,18 +125,17 @@
     .notice {
       text-align: center;
       margin-bottom: 2vh;
+      padding: 2vh;
       background-color: darken($base, 15%);
       box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
 
       .notice_title {
         font-size: 2.5vh;
         padding: 1vh;
-        background-color: $accent;
-        color: $accent-alt
       }
       .notice_text {
         white-space: pre-wrap;
-        font-size: 2vh;
+        font-size: 1.8vh;
         padding: 1vh;
       }
     }

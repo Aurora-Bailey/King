@@ -14,11 +14,12 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v1464',
+    microversion: 'v1465',
     notes: [
-      {title: 'Note', text: 'For more players check back at the following times \n\n 6:00 AM/PM GMT \n 12:00 AM/PM GMT \n Friday 8:00 PM GMT'}
+      {title: 'Notice', text: 'For more players check back at the following times \n\n 6:00 AM/PM GMT \n 12:00 AM/PM GMT \n Friday 8:00 PM GMT'}
     ]
   },
+  leaderboard: [],
   waiting: {
     players: 9000,
     timeout: Date.now(),

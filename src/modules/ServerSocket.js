@@ -66,6 +66,15 @@ function handleMessage (d) {
     sendCookie()
   } else if (d.m === 'setname') {
     console.log('Set name? ' + d.v)
+  } else if (d.m === 'leaderboard') {
+    for (let i = 0; i < d.data.length; i++) { // set rank to the same if points are the same
+      if (typeof d.data[i - 1] !== 'undefined' && d.data[i - 1].points === d.data[i].points) {
+        d.data[i].rank = d.data[i - 1].rank
+      } else {
+        d.data[i].rank = i + 1
+      }
+    }
+    Data.leaderboard = Object.assign({}, Data.leaderboard, d.data)
   } else if (d.m === 'stats') {
     Data.user.id = d.data.id
     Data.user.name = d.data.name
