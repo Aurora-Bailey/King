@@ -7,7 +7,6 @@
          v-bind:class="{circlecells: game.circlecells == true}"
          v-on:click="game.circlecells = !game.circlecells"></div>
     <div class="gamescroll"
-         oncontextmenu="return false"
          v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
          v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
       <div class="gamemap"

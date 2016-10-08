@@ -98,9 +98,19 @@ function handleMessage (d) {
     shortObj({m: 'scrollhome'})
   } else if (d.m === 'chat') {
     if (typeof Data.game.players[d.from] !== 'undefined') {
-      Data.game.chat.msg.push('[' + Data.game.players[d.from].name + '] ' + d.message)
+      // Data.game.chat.msg.push('[' + Data.game.players[d.from].name + '] ' + d.message)
+      Data.game.chat.msg.push({
+        msg: d.message,
+        name: Data.game.players[d.from].name,
+        color: 'hsl(' + Data.game.players[d.from].color + ',100%,80%)'
+      })
     } else {
-      Data.game.chat.msg.push('*' + d.from + '* ' + d.message)
+      // Data.game.chat.msg.push('*' + d.from + '* ' + d.message)
+      Data.game.chat.msg.push({
+        msg: d.message,
+        name: d.from,
+        color: 'hsl(0,0%,60%)'
+      })
     }
 
     // archive message after 30 seconds

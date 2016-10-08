@@ -1,15 +1,15 @@
 <template>
   <div id="chat">
     <div class="output" id="chat_output">
-      <div class="message history" v-show="showhistory" v-for="msg in chat.history">
-        {{msg}}
+      <div class="message history" v-bind:style="{color: msg.color}" v-show="showhistory" v-for="msg in chat.history">
+        <span class="msgname">{{msg.name}}:</span> <span class="msgmsg">{{msg.msg}}</span>
       </div>
-      <div class="message" v-for="msg in chat.msg">
-        {{msg}}
+      <div class="message" v-bind:style="{color: msg.color}" v-for="msg in chat.msg">
+        <span class="msgname">{{msg.name}}:</span> <span class="msgmsg">{{msg.msg}}</span>
       </div>
     </div>
     <div class="input">
-      <input v-model="chattext" placeholder="[Enter] to send chat" type="text" v-on:keyup.enter="sendChat()" />
+      <input v-model="chattext" maxlength="250" placeholder="[Enter] to send chat" type="text" v-on:keyup.enter="sendChat()" />
       <button class="historybutton" v-on:click="showhistory=!showhistory"></button>
     </div>
   </div>
@@ -67,15 +67,23 @@
     opacity: 0.9;
     font-size: 2.4vh;
 
-    .history {
-      color: darken($base-alt, 40%);
-    }
-
     .output {
       text-align: left;
       padding: 1vh 1vh 0;
       max-height: 94vh;
       overflow: auto;
+
+      .history {
+        opacity: 0.6
+      }
+
+      .msgmsg {
+        // message text style
+      }
+
+      .msgname {
+        opacity: 0.7;
+      }
     }
     .input {
       padding: 1vh;
