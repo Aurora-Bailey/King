@@ -173,7 +173,7 @@ function sendObj (object, queue = false) {
       console.log('object added to web socket queue')
     } else {
       console.warn('Game server is not connected.')
-      Data.popup.show('Connection', 'Game server is not connected.\n Our servers might be down.')
+      Data.popup.show('Connection', 'You are not connected to the game server!')
     }
     return false
   }

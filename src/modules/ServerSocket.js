@@ -135,7 +135,7 @@ function sendObj (object, queue = false) {
       console.log('object added to web socket queue')
     } else {
       console.warn('WebSocket is not connected.')
-      Data.popup.show('Connection', 'WebSocket is not connected.\n Our servers might be down.')
+      Data.popup.show('Connection', 'You are not connected to the server!')
     }
     return false
   }
