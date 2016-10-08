@@ -578,7 +578,7 @@ module.exports.setup = function (p) {
       try{
         if (typeof ws.pid === 'undefined') return false;
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
-        broadcast({m: 'chat', from: 'Server', message: '[' + Game.players[ws.pid].name + '] has left the game.'});
+        broadcast({m: 'chat', from: 'Server', message: '' + Game.players[ws.pid].name + ' has left the game.'});
         log('___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
       }catch(err){
         console.log(err);
