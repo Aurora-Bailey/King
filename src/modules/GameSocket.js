@@ -44,6 +44,7 @@ function start (obj) {
 }
 
 function setLeaderboard (players) {
+  Vue.set(Data.game, 'leaderboard', [])
   for (let i = 0; i < players.length; i++) {
     Data.game.leaderboard.push({
       name: players[i].name,
