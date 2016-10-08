@@ -313,7 +313,7 @@ class Game {
 
               // you are the only one alive
               if(this.playersalive == 1){
-                broadcast({m: 'chat', from: 'Server', message: this.players[e.pid].name + ' is the winner!!!!'});
+                broadcast({m: 'chat', from: 'Game', message: this.players[e.pid].name + ' is the winner!!!!'});
                 broadcast({m: 'chat', from: 'Server', message: 'Server will close in 2 minutes.'});
                 setTimeout(()=>{this.playerDead(e.pid, 'Server');}, 2000);// kill the winner
                 setTimeout(()=>{this.endgame();}, 120000);
