@@ -1,6 +1,7 @@
 <template xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div id="game">
     <chat :chat="game.chat"></chat>
+    <leaderboard :leaderboard="game.leaderboard"></leaderboard>
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
     <div class="scrollhomebutton" v-on:click="scrollhome()"></div>
     <div class="togglecirclecells"
@@ -50,13 +51,15 @@
 <script>
   import GS from '../../modules/GameSocket'
   import Chat from './Chat'
+  import Leaderboard from './Leaderboard'
   import Deadscreen from './Deadscreen'
 
   export default {
     props: ['game'],
     components: {
       Chat,
-      Deadscreen
+      Deadscreen,
+      Leaderboard
     },
     data () {
       return {

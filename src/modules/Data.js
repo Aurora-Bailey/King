@@ -33,6 +33,7 @@ export default {
     dead: false,
     circlecells: false,
     chat: {asdf: 'qwerty', msg: [], history: []},
+    leaderboard: [],
     deadscreen: {
       spectate: false,
       name: 'name',

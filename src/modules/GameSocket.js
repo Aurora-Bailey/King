@@ -43,6 +43,44 @@ function start (obj) {
   }
 }
 
+function setLeaderboard (players) {
+  for (let i = 0; i < players.length; i++) {
+    Data.game.leaderboard.push({
+      name: players[i].name,
+      color: 'hsl(' + players[i].color + ',100%,80%)',
+      pid: players[i].pid,
+      units: 0,
+      blocks: 0
+    })
+  }
+}
+function updateLeaderboard () {
+  for (let i = 0; i < Data.game.leaderboard.length; i++) {
+    Data.game.leaderboard[i].units = 0
+    Data.game.leaderboard[i].blocks = 0
+  }
+  for (let y = 0; y < Data.game.map.length; y++) {
+    for (let x = 0; x < Data.game.map[y].length; x++) {
+      let cell = Data.game.map[y][x]
+      for (let i = 0; i < Data.game.leaderboard.length; i++) {
+        if (Data.game.leaderboard[i].pid === cell.owner) {
+          Data.game.leaderboard[i].units += cell.units
+          Data.game.leaderboard[i].blocks += 1
+          break
+        }
+      }
+    }
+  }
+
+  Data.game.leaderboard.sort(function (a, b) {
+    if (a.units > b.units) return -1
+    if (a.units < b.units) return 1
+    if (a.blocks > b.blocks) return -1
+    if (a.blocks < b.blocks) return 1
+    return 0
+  })
+}
+
 function handleMessage (d) {
   if (d.m === 'welcome') {
     Vue.set(Data.game, 'map', [])
@@ -92,9 +130,14 @@ function handleMessage (d) {
         }
       }
     }
+    // Update leaderboard
+    if (d.type === 'owner') {
+      updateLeaderboard()
+    }
   } else if (d.m === 'players') {
     d.data.dead = false // inject data into data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
+    setLeaderboard(d.data)
     shortObj({m: 'scrollhome'})
   } else if (d.m === 'chat') {
     if (typeof Data.game.players[d.from] !== 'undefined') {

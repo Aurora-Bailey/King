@@ -1,51 +1,15 @@
 <template>
-  <div id="chat">
-    <div class="output" id="chat_output">
-      <div class="message history" v-bind:style="{color: msg.color}" v-show="showhistory" v-for="msg in chat.history">
-        <span class="msgname">{{msg.name}}:</span> <span class="msgmsg">{{msg.msg}}</span>
-      </div>
-      <div class="message" v-bind:style="{color: msg.color}" v-for="msg in chat.msg">
-        <span class="msgname">{{msg.name}}:</span> <span class="msgmsg">{{msg.msg}}</span>
-      </div>
-    </div>
-    <div class="input">
-      <input v-model="chattext" maxlength="250" placeholder="[Enter] to send chat" type="text" v-on:keyup.enter="sendChat()" />
-      <button class="historybutton" v-on:click="showhistory=!showhistory"></button>
+  <div id="leaderboard">
+    <div class="leadtitle">Leaderboard</div>
+    <div class="ranks" v-bind:style="{color: leader.color}" v-for="(leader, index) in leaderboard">
+      #{{parseInt(index) + 1}} {{leader.name}} - {{leader.units}} | {{leader.blocks}}
     </div>
   </div>
 </template>
 
 <script>
-  import GS from '../../modules/GameSocket'
-
   export default {
-    props: ['chat'],
-    data () {
-      return {
-        chattext: '',
-        showhistory: false,
-        msg: this.chat.msg
-      }
-    },
-    methods: {
-      sendChat: function () {
-        if (this.chattext === '') return false
-        GS.sendObj({m: 'chat', message: this.chattext})
-        this.chattext = ''
-      }
-    },
-    watch: {
-      msg: function (val) {
-        setTimeout(() => {
-          window.document.getElementById('chat_output').scrollTop += 1000000
-        }, 30)
-      },
-      showhistory: function (val) {
-        setTimeout(() => {
-          window.document.getElementById('chat_output').scrollTop += 1000000
-        }, 10)
-      }
-    }
+    props: ['leaderboard']
   }
 </script>
 
@@ -55,89 +19,30 @@
   @import "../../sass/variables";
   @import "../../sass/mixins";
 
-  #chat {
+  #leaderboard {
     position: absolute;
-    left: 0;
-    bottom: 0;
-    z-index: 23000;
-    width: 50vh;
+    top: 0;
+    right: 0;
+    z-index: 22000;
+    width: 30vh;
     max-height: 100vh;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     background-color: black;
     opacity: 0.9;
-    font-size: 2.4vh;
+    text-align: center;
+    padding: 1vh 1vh 3vh;
+    white-space: nowrap;
 
-    .output {
-      text-align: left;
-      padding: 1vh 1vh 0;
-      max-height: 94vh;
-      overflow: auto;
-
-      .history {
-        opacity: 0.6
-      }
-
-      .msgmsg {
-        // message text style
-      }
-
-      .msgname {
-        opacity: 0.7;
-      }
-    }
-    .input {
+    .leadtitle {
+      font-size: 3vh;
+      font-weight: bold;
       padding: 1vh;
-      height: 6vh;
-      background-color: black;
-      white-space: nowrap;
-      overflow: hidden;
+    }
 
-      .historybutton {
-        background-image: url('../../assets/history.png');
-        background-size: contain;
-        background-position: center;
-        background-repeat: no-repeat;
-        width: 9%;
-        height: 4vh;
-        vertical-align: text-top;
-        background-color: transparent;
-        display: inline-block;
-        border: none;
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.8;
-        }
-
-        &:focus {
-          outline: none;
-        }
-      }
-      input[type="text"]{
-        vertical-align: text-top;
-        display: inline-block;
-        width: 88%;
-        height: 4vh;
-        font-size: 2vh;
-        text-align: center;
-        line-height: 4vh;
-        padding: 0 1vh;
-        color: #888;
-        background-color: white;
-        border: 0.2vh solid #888;
-        box-shadow: 0 0.125em 0.5em 0 rgba(0,0,0,0.1);
-        border-radius: 0.5vh;
-
-        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-
-        &:focus {
-          outline: none;
-          border-color: lighten($accent, 10%);
-          box-shadow: 0 0 2vh 0 lighten($accent, 10%);
-        }
-      }
+    .ranks {
+      font-size: 2vh;
+      padding: 0 1vh;
     }
   }
 </style>
