@@ -31,7 +31,7 @@
     background-color: black;
     opacity: 0.9;
     text-align: center;
-    padding: 1vh 1vh 3vh;
+    padding: 1vh 1vh 4vh;
     white-space: nowrap;
 
     .leadtitle {
