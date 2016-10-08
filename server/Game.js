@@ -482,9 +482,13 @@ function handleMessage(ws, d) {// websocket client messages
     // >> broadcast to room
     if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago
-        var msg = d.message.slice(0,144);
+        d.message = '' + d.message; // force string
+
+        var msg = d.message.slice(0,250);
         ws.lastchat = Date.now();
         broadcast({m: 'chat', from: ws.pid, message: msg});
+
+        if (d.message.length > 250) ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 250 characters.'});
       }else{
         ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 1 message per second.'})
       }
