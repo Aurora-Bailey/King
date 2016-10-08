@@ -109,7 +109,7 @@ function handleMessage (d) {
       Data.game.chat.msg.push({
         msg: d.message,
         name: d.from,
-        color: 'hsl(0,0%,60%)'
+        color: (d.from === 'Game' ? 'hsl(0,0%,100%)' : 'hsl(0,0%,70%)')
       })
     }
 
