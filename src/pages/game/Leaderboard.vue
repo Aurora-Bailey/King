@@ -24,7 +24,7 @@
     top: 0;
     right: 0;
     z-index: 22000;
-    width: 30vh;
+    width: 28vh;
     max-height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
