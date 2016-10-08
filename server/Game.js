@@ -441,6 +441,7 @@ function handleMessage(ws, d) {// websocket client messages
     if (d.m === 'joinroom'){
       if(Game.allowplayers[d.uid] !== 'undefined' && Game.allowplayers[d.uid].secret === d.secret){
         let pid = Game.allowplayers[d.uid].pid;
+        if (Game.players[pid].connected) return false; // already connected
         Game.players[pid].ws = ws;
         Game.players[pid].connected = true;
         ws.playing = true;
