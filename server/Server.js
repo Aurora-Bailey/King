@@ -160,6 +160,21 @@ function sendLeaderboard(ws) {
     }
   });
 }
+function sendTimeoutPing() {
+  wss.clients.forEach(function each(client) {
+    if (client.timeout === true){
+      log('Closing dead client.');
+      client.close();
+    }else{
+      log('tmp client is alive');
+      client.timeout = true;
+      client.sendObj({m: 'timeout'});
+    }
+  });
+  setTimeout(()=>{
+    sendTimeoutPing();
+  }, 1000*10);//*10);// 10 minutes
+}
 function broadcast(obj) {
   wss.clients.forEach(function each(client) {
     client.sendObj(obj);
@@ -173,6 +188,10 @@ function handleMessage(ws, d) {// websocket client messages
     if (d.m === 'hi') {
       //ws.sendObj({m: 'hi'});
     }
+
+    if (d.m === 'timeout') {
+      ws.timeout = false;
+    }else
 
     // << version compatible GV.version
     // >> true/false
@@ -371,7 +390,9 @@ module.exports.setup = function (p) {
     numConnected++;
     log('Player connected. Total: ' + numConnected);
 
+    // don't use ws.domain or ws.extensions
     ws.connectedtime = Date.now(); // connect time
+    ws.timeout = false;
     ws.connected = true;
     ws.compatible = false;
     ws.loggedin = false;
@@ -426,5 +447,6 @@ module.exports.setup = function (p) {
   Queue.setup();
   process.send({m: 'ready'});
   process.send({m: 'getroom'});
+  sendTimeoutPing();
 };
 
