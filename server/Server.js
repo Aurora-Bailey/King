@@ -166,14 +166,13 @@ function sendTimeoutPing() {
       log('Closing dead client.');
       client.close();
     }else{
-      log('tmp client is alive');
       client.timeout = true;
       client.sendObj({m: 'timeout'});
     }
   });
   setTimeout(()=>{
     sendTimeoutPing();
-  }, 1000*10);//*10);// 10 minutes
+  }, 1000*60*10);// 10 minutes
 }
 function broadcast(obj) {
   wss.clients.forEach(function each(client) {

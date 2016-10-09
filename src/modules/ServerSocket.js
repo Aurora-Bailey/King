@@ -57,6 +57,8 @@ function handleMessage (d) {
       console.warn('Your game is out of date! Please refresh your browser.')
       Data.popup.show('Out of date', 'Your game is out of date! Please refresh your browser.')
     }
+  } else if (d.m === 'timeout') {
+    sendObj({m: 'timeout', alive: true})
   } else if (d.m === 'makecookie') {
     window.localStorage.cookie = d.cookie
     sendCookie()
