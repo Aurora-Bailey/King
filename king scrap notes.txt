@@ -42,6 +42,7 @@
 
 	add about, help, contact pages
 	remove ugly time notice at some point.
+	make chat from admin broadcast red
 
 	!!!!!!!! Compatable versoin change
 	fancy button to select game modes.
@@ -60,7 +61,7 @@
 	// reset games (roomname)
 	// reset servers (servername)
 	// lock games
-	// broadcast message
+	// broadcast message to all game chats
 	// kick (player)
 
 
