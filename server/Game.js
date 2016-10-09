@@ -501,17 +501,25 @@ module.exports.setup = function (p) {
     // messages from the process node
     if(m.m === 'broadcast'){
       broadcast(m);
-    }
-    if(m.m === 'addplayer'){
+    }else if(m.m === 'addplayer'){
       /* add player spots and start the game loop */
       /* players will start joining and claiming their spot */
       let pid = Game.players.length;
       Game.players[pid] = {connected: false, pid: pid, name: m.name, color: Math.floor(Math.random() * 360), makemove: [], kills: 0};// server version
       Game.playerarray[pid] = {pid: pid, name: m.name, color: Game.players[pid].color};// version that will be sent to player
       Game.allowplayers[m.uid] = {secret: m.secret, pid: pid};
-    }
-    if(m.m === 'start'){
+    }else if(m.m === 'start'){
       Game.start();
+    }else if (m.m === "getnumconnected"){
+      process.send({
+        m: 'pass',
+        to: m.rid,
+        data: {
+          m: 'godmsg',
+          s: m.sid,
+          msg: WORKER_INDEX + '-' + WORKER_NAME + '-game ' + wss.clients.length + ' Players:' + Game.players.length
+        }
+      });
     }
   });
 

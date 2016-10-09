@@ -327,9 +327,18 @@ module.exports.setup = function (p) {
           process.send({m: 'getroom'});
         }, 30000); // Request another room in 30 seconds
       }
-    }
-    if(m.m === 'broadcast'){
+    }else if(m.m === 'broadcast'){
       broadcast(m);
+    }else if (m.m === "getnumconnected"){
+      process.send({
+        m: 'pass',
+        to: m.rid,
+        data: {
+          m: 'godmsg',
+          s: m.sid,
+          msg: WORKER_INDEX + '-' + WORKER_NAME + '-server ' + numConnected
+        }
+      });
     }
   });
 

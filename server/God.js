@@ -61,7 +61,7 @@ function handleMessage(ws, d) {// websocket client messages
 
             // Connected
             if (query[1] === 'connected') {
-
+              process.send({m: 'pass', to: 'all', data: {m: 'getnumconnected', rid: WORKER_INDEX, sid: ws.sid}});
             }
 
             // Nodes
@@ -111,6 +111,16 @@ module.exports.setup = function (p) {
   process.on('message', function (m) {// process server messages
     if (m.m === "godmsg") {
       sendToSid(m.s, {m: 'output', msg: m.msg});
+    }else if (m.m === "getnumconnected"){
+      process.send({
+        m: 'pass',
+        to: m.rid,
+        data: {
+          m: 'godmsg',
+          s: m.sid,
+          msg: WORKER_INDEX + '-' + WORKER_NAME + '-god ' + wss.clients.length
+        }
+      });
     }
   });
 
