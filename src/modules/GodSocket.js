@@ -9,7 +9,7 @@ Data.state.godSocket = 'dead'
 window.addEventListener('keydown', (e) => {
   if (e.keyCode === 191 && e.shiftKey && e.ctrlKey) {
     Data.god.show = !Data.god.show
-    if (Data.god.show === 'remove to start socket') start()
+    if (Data.god.show) start()
   }
 }, false)
 
@@ -52,7 +52,8 @@ function start () {
 }
 
 function handleMessage (d) {
-  if (d.m === 'version') {
+  if (d.m === 'output') {
+    Data.god.msg.push(d.msg)
   }
 
   if (typeof d.page !== 'undefined') {

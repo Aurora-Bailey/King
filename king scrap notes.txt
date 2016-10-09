@@ -51,6 +51,8 @@
 // both
   ==else if on all applicable if statements
 
+  change zero to god in Nginx
+
 	dev console on homescreen that can access stats
 	add myself as admin in mongodb
 	add chat commands for addmin

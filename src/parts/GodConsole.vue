@@ -26,8 +26,7 @@
     methods: {
       sendInput: function () {
         if (this.textinput === '') return false
-        // GS.sendObj({m: 'chat', message: this.chattext})
-        this.god.msg.push(this.textinput)
+        GODS.sendObj({m: 'input', msg: this.textinput})
         this.textinput = ''
       }
     },
