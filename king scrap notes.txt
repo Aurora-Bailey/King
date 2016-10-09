@@ -54,6 +54,7 @@
 	dev console on homescreen that can access stats
 	add myself as admin in mongodb
 	add chat commands for addmin
+	maybe put admin commands on a separate node ws.kings.io/god
 	// get number of running rooms
 	// get number of players
 	// get number of players in games
