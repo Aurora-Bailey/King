@@ -99,6 +99,9 @@ function handleMessage (d) {
   } else if (d.m === 'joinupdate') {
     Data.waiting.players = d.players
     Data.waiting.timeout = d.timeout
+    if (typeof d.note !== 'undefined') {
+      if (d.note === 'full') Data.popup.show('All room are full', 'Please wait a minute for a new room to open up.')
+    }
   } else if (d.m === 'canceljoin') {
     if (d.v) { // value is true or false
       Data.waiting.inqueue = false
