@@ -46,7 +46,12 @@ export default {
       y: 0
     }
   },
-  state: {serverSocket: '', gameSocket: ''},
+  god: {
+    show: false,
+    port: 7770,
+    nameport: 'god'
+  },
+  state: {serverSocket: '', gameSocket: '', godSocket: ''},
   popup: {
     show: function (title, message) {
       this.title = title

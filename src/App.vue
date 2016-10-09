@@ -4,6 +4,7 @@
     <waiting :waiting="waiting" v-show="page=='waiting'"></waiting>
     <game :game="game" v-show="page=='game'"></game>
 
+    <god-console :god="god" v-show="god.show"></god-console>
     <soft-popup :popup.sync="popup" v-show="popup.active"></soft-popup>
   </div>
 </template>
@@ -18,6 +19,7 @@
   import Game from './pages/game/Game'
 
   // Parts
+  import GodConsole from './parts/GodConsole'
   import SoftPopup from './parts/SoftPopup'
 
   export default {
@@ -25,6 +27,7 @@
       Home,
       Waiting,
       Game,
+      GodConsole,
       SoftPopup
     },
     data () {
