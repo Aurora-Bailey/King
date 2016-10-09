@@ -40,8 +40,12 @@
 	==game leaderboard/num units
   ==remove circlecells
 
-	fancy button to select game modes.
 	add about, help, contact pages
+	remove ugly time notice at some point.
+
+	!!!!!!!! Compatable versoin change
+	fancy button to select game modes.
+
 
 // both
 	dev console on homescreen that can access stats
@@ -62,9 +66,10 @@
 	==fix 200 game room limit
 	==if all rooms are full set timeout to check again and send users the notice.
 
-	dont pull past games from database on cookie auth
+	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
+	points by chess ranking formula ?might come with the multi-game overhaul
+
 	add pings to websockt, disconnect if no ping in 10 minutes
-	points by chess ranking formula
 
 	!!!!!!!! Compatable versoin change
 
@@ -79,6 +84,7 @@
 		"cookie": "c3391ef15429ee68427ed5d4c5917a9fccookie",
 		"id": "u8876c7728767f59642a32f6c4762bc26user",
 		"name": "Cognito",
+		"mod": "god",
 		"rank": 0,
 		"points": 99960,
 		"numplays": 32,
