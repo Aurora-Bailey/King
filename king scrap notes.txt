@@ -52,6 +52,7 @@
   ==else if on all applicable if statements
 
   change zero to god in Nginx
+  add mod=god to mongodb
 
 	dev console on homescreen that can access stats
 	add myself as admin in mongodb
