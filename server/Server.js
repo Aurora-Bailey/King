@@ -182,33 +182,18 @@ function broadcast(obj) {
 
 function handleMessage(ws, d) {// websocket client messages
   try{
-    // << hi
-    // >> hi
     if (d.m === 'hi') {
       //ws.sendObj({m: 'hi'});
-    }
-
-    // set timeout to false
-    if (d.m === 'timeout') {
+    }else if (d.m === 'timeout') {
       ws.timeout = false;
-    }else
-
-    // << version compatible GV.version
-    // >> true/false
-    if (d.m === 'version') {
+    }else if (d.m === 'version') {
       if(d.version === GV.version){
         ws.compatible = true;
         ws.sendObj({m: 'version', compatible: true});
       } else {
         ws.sendObj({m: 'version', compatible: false});
       }
-    }
-
-    // << unique cookie id/ lack of cookie
-    /* if no cookie, make one and store it in mondodb, then send it to the user*/
-    // >> user stats
-    /*logged in*/
-    if (d.m === 'cookie' && ws.compatible) {
+    }else if (d.m === 'cookie' && ws.compatible) {
       sendLeaderboard(ws);
       db.collection('players').find({cookie: d.cookie}).limit(1).toArray(function(err, docs) {
         if (err) {
@@ -239,8 +224,7 @@ function handleMessage(ws, d) {// websocket client messages
           ws.sendObj({m: 'badcookie'});
         }
       });
-    }
-    if (d.m === 'makecookie' && ws.compatible){
+    }else if (d.m === 'makecookie' && ws.compatible){
       var freshCookie = 'c' + Lib.md5(Math.random() + Date.now()) + 'cookie';
       var uniqueId = 'u' + Lib.md5(Math.random() + Date.now()) + 'user';
       var player = {
@@ -257,12 +241,7 @@ function handleMessage(ws, d) {// websocket client messages
         if(!err)
           ws.sendObj({m: 'makecookie', cookie: freshCookie});
       });
-    }
-
-    // << set/update name
-    // >> player stats
-    // >> set name true/false
-    if (d.m === 'setname' && ws.loggedin){
+    }else if (d.m === 'setname' && ws.loggedin){
       if(typeof d.name !== 'string'){
         // bad name
         ws.sendObj({m: 'setname', v: false});
@@ -285,33 +264,11 @@ function handleMessage(ws, d) {// websocket client messages
           ws.sendObj({m: 'setname', v: false});
         }
       }
-    }
-
-    // << join game request
-    /* add user to waiting queue, ignore if already in queue or playing*/
-    // >> give update on num players and timeout
-    /* when all spots are filled or timeout is hit */
-    /* send master list of unique ids and user ids, master sends game room list of unique ids*/
-    // >> ip address with port, unique id string specific to game room
-    /* set user to playing */
-    if (d.m === 'join' && ws.loggedin) {
+    }else if (d.m === 'join' && ws.loggedin) {
       Queue.addPlayer(ws);
-    }
-    if (d.m === 'canceljoin' && ws.loggedin) {
+    }else if (d.m === 'canceljoin' && ws.loggedin) {
       Queue.removePlayer(ws);
-    }
-
-    /*
-    *
-    * Game loop runs between here
-    *
-    *
-    * */
-
-    // << game over
-    // >> send new stats
-    /* set user to not playing*/
-    if (d.m === 'gameover' && ws.loggedin){
+    }else if (d.m === 'gameover' && ws.loggedin){
       sendLeaderboard(ws);
       // update player status on ws, then send the status to user
       db.collection('players').find({cookie: ws.data.cookie}).limit(1).toArray(function(err, docs) {
@@ -329,17 +286,8 @@ function handleMessage(ws, d) {// websocket client messages
         }
       });
     }
-
-    /* admin commands*/
-    // << {m: 'broadcast', pass: 'l3rd9uwb', message: 'server will restart in 10 minutes', level: 'warn'}
-    /* send to master, master sends to server nodes, server broadcasts */
-    // >> broadcast message to all users, display as banner
-    //{"m": "broadcast", "password": "l3rd9uwb", "message": "", "level": "warn"}
-    if (d.m === 'broadcast' && d.password === 'l3rd9uwb'){
-      // *notice. sent to process not websocket
-      process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});
-    }
-
+    // Example broadcast to all nodes
+    // process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});
   }catch(err){
     log(err);
   }

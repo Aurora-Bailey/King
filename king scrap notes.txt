@@ -48,8 +48,7 @@
 
 
 // both
-
-  else if on all applicable if statements
+  ==else if on all applicable if statements
 
 	dev console on homescreen that can access stats
 	add myself as admin in mongodb
