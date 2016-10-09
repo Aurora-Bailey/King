@@ -39,8 +39,14 @@ function workerMessage(worker, message, handle) {
       room = makeWorker(id, 'game', port);
     }
 
-    room.open = false;
-    worker.send({m: 'getroom', port: room.port, name: room.name, id: room.wid});
+    if(room === false){
+      // Still no room
+      log('!!! Failed to get room ' + workers.length);
+      worker.send({m: 'getroom', fail: true});
+    } else {
+      room.open = false;
+      worker.send({m: 'getroom', port: room.port, name: room.name, id: room.wid});
+    }
   }
 
   if(message.m === 'pass'){

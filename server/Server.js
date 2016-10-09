@@ -18,16 +18,16 @@ var http = require('http'),
   NODE_ENV = false;
 
 class Queue {
-  static reset(){
-    this.timeout = Date.now() + GV.queue.maxwait;
-    this.timer = setTimeout(()=>{this.startGame()}, GV.queue.maxwait);
+  static setup(){
+    this.resetTimer();
+    this.starting = false;
     this.players = {};
   }
 
-  static resetTimer(){
-    clearTimeout(this.timer);
-    this.timeout = Date.now() + GV.queue.maxwait;
-    this.timer = setTimeout(()=>{this.startGame()}, GV.queue.maxwait);
+  static resetTimer(wait = GV.queue.maxwait){
+    if (typeof this.timer !== 'undefined') clearTimeout(this.timer);
+    this.timeout = Date.now() + wait;
+    this.timer = setTimeout(()=>{this.startGame()}, wait);
   }
 
   static addPlayer(ws){
@@ -45,7 +45,7 @@ class Queue {
     ws.waiting = true;
     ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers, minplayers: GV.queue.minplayers});
     this.updatePlayers();
-    if(this.numPlayers() >= GV.queue.maxplayers){
+    if(this.numPlayers() >= GV.queue.maxplayers && this.starting === false){
       this.startGame();
     }
   }
@@ -66,12 +66,14 @@ class Queue {
     return keys.length;
   }
 
-  static updatePlayers(){
+  static updatePlayers(note = ''){
     let keys = Object.keys(this.players);
+    let sendObj = {m: 'joinupdate', players: keys.length, timeout: this.timeout}
+    if (note !== '') sendObj.note = note;
     keys.forEach((e,i)=>{
-      this.players[e].sendObj({m: 'joinupdate', players: keys.length, timeout: this.timeout})
+      this.players[e].sendObj(sendObj);
     });
-    log(keys.length + '/' + GV.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout));
+    log(keys.length + '/' + GV.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
   }
 
   static startGame(){
@@ -85,15 +87,22 @@ class Queue {
     if(this.numPlayers() < GV.queue.minplayers){
       this.resetTimer();
       if (this.numPlayers() !== 0) this.updatePlayers();
+      this.starting = false;
       return false;
     }
 
     // start game
     // send request
 
+    this.starting = true;
+
     // maybe wait a second for a game room
-    if(gameRoom === false){
-      setTimeout(()=>{this.startGame()}, 1000);
+    if(gameRoom === false || gameRoom === 'full'){
+      setTimeout(()=>{
+        this.startGame()
+      }, 30000); // Try to start again in 30 seconds
+      this.resetTimer(30000);
+      this.updatePlayers('full');
       return false;
     }
 
@@ -101,7 +110,10 @@ class Queue {
     // send gameroom to player
     // set players to playing
     let keys = Object.keys(this.players);
+    let numthrough = GV.queue.maxplayers
     keys.forEach((e,i)=>{
+      if (numthrough <= 0) return false;
+      numthrough--;
       let uid = this.players[e].data.id;
       let name = this.players[e].data.name;
       let secret = 's' + Lib.md5(Math.random() + Date.now()) + 'secret';
@@ -112,11 +124,13 @@ class Queue {
         this.players[e].sendObj({m: 'joinroom', name: gameRoom.name, secret: secret});
       this.players[e].playing = true;
       this.players[e].waiting = false;
+      delete this.players[e];
     });
 
     // reset for next round
-    this.reset();
-    //this.resetTimer();
+    this.starting = false;
+    this.resetTimer();
+    if (this.numPlayers() !== 0) this.updatePlayers();
 
     // forget room and request another
     process.send({m: 'pass', to: gameRoom.id, data: {m: 'start'}});
@@ -337,7 +351,14 @@ module.exports.setup = function (p) {
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
-      gameRoom = {port: m.port, id: m.id, name: m.name};
+      if (typeof m.fail === 'undefined') {
+        gameRoom = {port: m.port, id: m.id, name: m.name};
+      }else{
+        gameRoom = 'full';
+        setTimeout(()=>{
+          process.send({m: 'getroom'});
+        }, 30000); // Request another room in 30 seconds
+      }
     }
     if(m.m === 'broadcast'){
       broadcast(m);
@@ -402,7 +423,7 @@ module.exports.setup = function (p) {
     log( 'I\'m listening on port ' + server.address().port)
   });
 
-  Queue.reset();
+  Queue.setup();
   process.send({m: 'ready'});
   process.send({m: 'getroom'});
 };
