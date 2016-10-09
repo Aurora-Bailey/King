@@ -38,9 +38,9 @@
 	==make server and game chats more subtle
 	==remote our server might be down from popup
 	==game leaderboard/num units
+  ==remove circlecells
 
 	fancy button to select game modes.
-	remove circlecells
 	add about, help, contact pages
 
 // both

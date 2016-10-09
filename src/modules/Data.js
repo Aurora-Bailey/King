@@ -31,7 +31,6 @@ export default {
   game: {
     playing: false,
     dead: false,
-    circlecells: false,
     chat: {asdf: 'qwerty', msg: [], history: []},
     leaderboard: [],
     deadscreen: {
