@@ -151,7 +151,7 @@ function sendLeaderboard(ws) {
   db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*7)}}, {_id: 0, name: 1, points: 1}).sort({points: -1}).limit(10).toArray(function(err, docs) {
     if (err) {
       log('Error with mongodb leaderboard request');
-      log(err);
+      console.log(err);
     } else if (docs.length != 0) {
       //found
       ws.sendObj({m: 'leaderboard', data: docs});
@@ -199,7 +199,7 @@ function handleMessage(ws, d) {// websocket client messages
         if (err) {
           ws.sendObj({m: 'badcookie'});
           log('Error with mongodb cookie request');
-          log(err);
+          console.log(err);
         } else if (docs.length != 0) {
           //User WAS found
           ws.data = docs[0];
@@ -216,7 +216,7 @@ function handleMessage(ws, d) {// websocket client messages
             // Update last login
             db.collection('players').updateOne({id: ws.data.id}, {$set: {lastlogin: Date.now()}}, function(err, result){
               if(err)
-                log(err);
+                console.log(err);
             });
           });
 
@@ -251,7 +251,7 @@ function handleMessage(ws, d) {// websocket client messages
 
           db.collection('players').updateOne({id: ws.data.id}, {$set: {name: newname}}, function(err, result){
             if (err) {
-              log(err);
+              console.log(err);
             } else {
               ws.data.name = newname;
               sendPlayerStats(ws);
@@ -274,7 +274,7 @@ function handleMessage(ws, d) {// websocket client messages
       db.collection('players').find({cookie: ws.data.cookie}).limit(1).toArray(function(err, docs) {
         if (err) {
           log('Error with mongodb refresh request');
-          log(err);
+          console.log(err);
         } else if (docs.length != 0) {
           ws.data = docs[0];
           // update rank on the fly
@@ -289,7 +289,8 @@ function handleMessage(ws, d) {// websocket client messages
     // Example broadcast to all nodes
     // process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});
   }catch(err){
-    log(err);
+    console.log(d);
+    console.log(err);
   }
 }
 
@@ -333,7 +334,7 @@ module.exports.setup = function (p) {
   });
 
   wss.on('connection', function connection(ws) {
-    ws.on('error', function(e) { log('Got an error'); return false; });
+    ws.on('error', function(e) { log('Got a ws error'); return false; });
 
     numConnected++;
     log('Player connected. Total: ' + numConnected);
@@ -353,7 +354,6 @@ module.exports.setup = function (p) {
         ws.send(JSON.stringify(obj));
       } catch (err) {
         log('I failed to send a message.');
-        log(err);
       }
     };
     ws.on('message', function incoming(data) {
@@ -363,15 +363,15 @@ module.exports.setup = function (p) {
       }
       catch (err) {
         log('HACKER!!! AKA bad client message.');
-        log(data);
-        log(err);
+        console.log(data);
+        console.log(err);
       }
     });
 
     ws.on('close', function () {
-      log('Player disconnected. Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
       ws.connected = false;
       numConnected--;
+      log('Player disconnected. Total: ' + numConnected + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
       Queue.removePlayer(ws);
     });
 
@@ -383,7 +383,7 @@ module.exports.setup = function (p) {
       res.send('WebSocket -_- ' + WORKER_INDEX);
     } catch (err) {
       log('I failed to send a http request.');
-      log(err);
+      console.log(err);
     }
   });
 
