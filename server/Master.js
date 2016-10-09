@@ -14,6 +14,18 @@ function workerMessage(worker, message, handle) {
     worker = undefined;
   }
 
+  // God commands
+  if (message.m === 'getnodetotal'){
+    let numObj = {};
+    workers.forEach((e, i)=>{
+      if (typeof numObj[e.type] === 'undefined') numObj[e.type] = 1;
+      else numObj[e.type]++;
+    });
+    worker.send({m: 'godmsg', msg: JSON.stringify(numObj), s: message.s});
+  }
+
+  // End god commands
+
   if(message.m === 'ready'){
     worker.ready = true;
   }

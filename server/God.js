@@ -17,15 +17,70 @@ var http = require('http'),
 
 
 /* Websockets */
-function broadcast(obj) {
+function sendToSid(sid, obj) {
   wss.clients.forEach(function each(client) {
-    client.sendObj(obj);
+    if (client.sid === sid) client.sendObj(obj);
   });
 }
 function handleMessage(ws, d) {// websocket client messages
   try{
     if (d.m === 'hi') {
       //ws.sendObj({m: 'hi'});
+    } else if (d.m === 'cookie') {
+      db.collection('players').find({cookie: d.cookie}, {_id: 0, mod: 1, name: 1}).limit(1).toArray(function(err, docs) {
+        if (err) {
+          ws.sendObj({m: 'output', msg: 'Bad Cookie!'});
+          log('Error with mongodb cookie request');
+          console.log(err);
+        } else if (docs.length != 0) {
+          //User WAS found
+          ws.name = docs[0].name;
+          if (typeof docs[0].mod !== 'undefined') ws.mod = docs[0].mod;
+          else ws.mod = 'peasant';
+
+          ws.sendObj({m: 'output', msg: 'Welcome ' + ws.mod.toUpperCase() + ' ' + ws.name});
+        } else {
+          ws.sendObj({m: 'output', msg: 'Bad Cookie!'});
+        }
+      });
+    }else if (d.m === 'input') {
+
+      // Firewall
+      if (ws.mod !== 'god'){
+        ws.sendObj({m: 'output', msg: 'Bad Egg!'});
+        return false;
+      }
+
+      let query = d.msg.split(' ');
+
+      if (typeof query[0] !== 'undefined') {
+
+        // Total
+        if (query[0] === 'total') {
+          if (typeof query[1] !== 'undefined') {
+
+            // Connected
+            if (query[1] === 'connected') {
+
+            }
+
+            // Nodes
+            if (query[1] === 'nodes') {
+              process.send({m: 'getnodetotal', s: ws.sid});
+            }
+
+
+            // End Total
+          }
+        }
+
+        // Help
+        if (query[0] === 'help') {
+          ws.sendObj({m: 'output', msg: 'total nodes'});
+          ws.sendObj({m: 'output', msg: 'total connected'});
+        }
+      }
+
     }
     // Example broadcast to all nodes
     // process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});
@@ -54,6 +109,9 @@ module.exports.setup = function (p) {
   log('Version: ' + GV.version);
 
   process.on('message', function (m) {// process server messages
+    if (m.m === "godmsg") {
+      sendToSid(m.s, {m: 'output', msg: m.msg});
+    }
   });
 
   wss.on('connection', function connection(ws) {
@@ -61,6 +119,8 @@ module.exports.setup = function (p) {
 
     // don't use ws.domain or ws.extensions
     ws.connected = true;
+    ws.mod = false;
+    ws.sid = Lib.md5(Math.random() + Date.now());
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 
