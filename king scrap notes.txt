@@ -30,7 +30,7 @@
 	??set max players to 9 or 16
 	??units come slower at the end of the game?
 	??camera center on map if it will fit
-
+	==Upgrade github and make everything private
 
 
 // client
