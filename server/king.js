@@ -18,6 +18,9 @@ if (cluster.isMaster) {
       }else if(process.env.WORKER_TYPE == 'game'){
         var Game = require('./Game');
         Game.setup(process);
+      }else if(process.env.WORKER_TYPE == 'god'){
+        var God = require('./God');
+        God.setup(process);
       }
     }
   });

@@ -106,8 +106,11 @@ function log(msg){
 module.exports.setup = function (c) {
   cluster = c;
 
+  // god server
+  makeWorker(workers.length, 'god', GV.server.godport);
+
   for (let i = 0; i < numCores; i++) {
-    makeWorker(i, 'server', GV.server.serverport);
+    makeWorker(workers.length, 'server', GV.server.serverport);
   }
   cluster.on('message', (w, m, h)=> {
     workerMessage(w, m, h);
