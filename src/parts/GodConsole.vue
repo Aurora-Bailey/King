@@ -1,6 +1,13 @@
 <template>
   <div id="godconsole">
-    asdf
+    <div class="godout" id="godoutput">
+      <div v-for="msg in god.msg">
+        {{msg}}
+      </div>
+    </div>
+    <div class="godin">
+      <input v-model="textinput" type="text" v-on:keyup.enter="sendInput()"/>
+    </div>
   </div>
 </template>
 
@@ -9,7 +16,28 @@
   console.log(GODS.dummy)
 
   export default {
-    props: ['god']
+    props: ['god'],
+    data () {
+      return {
+        textinput: '',
+        msg: this.god.msg
+      }
+    },
+    methods: {
+      sendInput: function () {
+        if (this.textinput === '') return false
+        // GS.sendObj({m: 'chat', message: this.chattext})
+        this.god.msg.push(this.textinput)
+        this.textinput = ''
+      }
+    },
+    watch: {
+      msg: function (val) {
+        setTimeout(() => {
+          window.document.getElementById('godoutput').scrollTop += 1000000
+        }, 0)
+      }
+    }
   }
 </script>
 
@@ -25,9 +53,55 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 30000;
-    background-color: rgba(255,255,255,0.2);
-    font-size: 2.4vh;
+    width: 50vh;
+    height: 75vh;
+    margin: auto;
+    z-index: 40000;
+    background-color: rgba(0,0,0,1);
+    opacity: 0.9;
+    font-size: 2vh;
+
+    &.extend {
+      width: 100vh;
+      height: 50vh;
+    }
+
+    .godout {
+      height: 69vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 1vh 1vh 0;
+    }
+    .godin {
+      height: 6vh;
+      padding: 1vh;
+
+      input[type="text"]{
+        vertical-align: text-top;
+        display: inline-block;
+        width: 100%;
+        height: 4vh;
+        font-size: 2vh;
+        text-align: left;
+        line-height: 4vh;
+        padding: 0 1vh;
+        color: #888;
+        background-color: white;
+        border: 0.2vh solid #888;
+        box-shadow: 0 0.125em 0.5em 0 rgba(0,0,0,0.1);
+        border-radius: 0.5vh;
+
+        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+
+        &:focus {
+          outline: none;
+          border-color: lighten($accent, 10%);
+          box-shadow: 0 0 2vh 0 lighten($accent, 10%);
+        }
+      }
+    }
   }
 
 </style>

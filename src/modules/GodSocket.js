@@ -9,9 +9,7 @@ Data.state.godSocket = 'dead'
 window.addEventListener('keydown', (e) => {
   if (e.keyCode === 191 && e.shiftKey && e.ctrlKey) {
     Data.god.show = !Data.god.show
-  }
-  if (e === 'nota') {
-    start()
+    if (Data.god.show === 'remove to start socket') start()
   }
 }, false)
 
