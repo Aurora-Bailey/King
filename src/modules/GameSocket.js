@@ -34,6 +34,8 @@ function start (obj) {
     Data.state.gameSocket = 'dead'
     console.log('GameSocket closed.')
     Data.page = 'home'
+    Vue.set(Data.game, 'map', [])
+    Vue.set(Data.game, 'leaderboard', [])
     SS.sendObj({m: 'gameover'})
   }
   ws.onmessage = (e) => {
