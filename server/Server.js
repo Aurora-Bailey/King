@@ -189,6 +189,7 @@ function handleMessage(ws, d) {// websocket client messages
       //ws.sendObj({m: 'hi'});
     }
 
+    // set timeout to false
     if (d.m === 'timeout') {
       ws.timeout = false;
     }else
