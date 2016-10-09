@@ -31,6 +31,7 @@ function start () {
     failStart = 0
 
     sendObj({m: 'hi'})
+    sendCookie()
 
     sendQueue.forEach((e, i) => {
       sendObj(e)
@@ -51,6 +52,13 @@ function start () {
   }
 }
 
+function sendCookie () {
+  if (typeof window.localStorage.cookie === 'undefined') {
+    shortObj({m: 'output', msg: 'No Cookies!'})
+  } else {
+    sendObj({m: 'cookie', cookie: window.localStorage.cookie}, true)
+  }
+}
 function handleMessage (d) {
   if (d.m === 'output') {
     Data.god.msg.push(d.msg)

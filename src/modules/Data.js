@@ -50,7 +50,7 @@ export default {
     show: false,
     port: 7770,
     nameport: 'god',
-    msg: ['Admin Console.']
+    msg: []
   },
   state: {serverSocket: '', gameSocket: '', godSocket: ''},
   popup: {
