@@ -55,10 +55,13 @@ function handleMessage(ws, d) {// websocket client messages
 
       let query = d.msg.split(' ');
 
+      // First word
       if (typeof query[0] !== 'undefined') {
 
-        // Room stats
+        // stats
         if (query[0] === 'stats') {
+
+          // Second word
           if (typeof query[1] !== 'undefined') {
             // Nodes
             if (query[1] === 'num') {
@@ -71,7 +74,7 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
-        // Help
+        // help
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'stats'});
           ws.sendObj({m: 'output', msg: 'stats num'});
