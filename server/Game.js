@@ -533,8 +533,8 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game]  Clients:' + wss.clients.length +
-            ' Players:' + Game.players.length + ' Playing:' + Game.running + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length +
+            ' Players:' + Game.players.length + ' Playing:' + Game.running +
             ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh') +
             ' ChatLogs:' + Game.chatlogs.length
           }

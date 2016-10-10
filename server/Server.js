@@ -11,6 +11,7 @@ var http = require('http'),
   app = express(),
   gameRoom = false,
   process = false,
+  uptime = Date.now(),
   numConnected = 0,
   WORKER_PORT = false,
   WORKER_NAME = false,
@@ -337,7 +338,7 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [server]  Clients:' + wss.clients.length + ' numConnected:'  + numConnected +
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [server]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length + ' numConnected:'  + numConnected +
             ' Waiting:' + Queue.numPlayers() + '/' + GV.queue.maxplayers + ' Timeout:' + Lib.humanTimeDiff(Date.now(), Queue.timeout)
           }
         });

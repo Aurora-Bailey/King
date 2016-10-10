@@ -10,6 +10,7 @@ var http = require('http'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
+  uptime = Date.now(),
   WORKER_PORT = false,
   WORKER_NAME = false,
   WORKER_INDEX = false,
@@ -135,7 +136,7 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [god]  Clients:' + wss.clients.length + ' ' + nameClients()
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [god]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length + ' Names:' + nameClients()
           }
         });
       } catch(err) {
