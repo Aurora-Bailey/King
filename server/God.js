@@ -143,7 +143,6 @@ function handleMessage(ws, d) {// websocket client messages
             process.send({m: 'pass', to: 'all', data: {m: 'sniff', rid: WORKER_INDEX, sid: ws.sid}});
           }
         }
-
         // unsniff
         if (query[0] === 'unsniff') {
 
@@ -159,6 +158,42 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
+        // snoop
+        // currently only game rooms listen for this.
+        if (query[0] === 'snoop') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // send to specific node or type
+            ws.sendObj({m: 'output', msg: '=== snooping ' + query[1] + ' ==='});
+            process.send({m: 'pass', to: query[1], data: {m: 'snoop', rid: WORKER_INDEX, sid: ws.sid}});
+          } else {
+            // No arguments
+            ws.sendObj({m: 'output', msg: '=== snooping every node ==='});
+            process.send({m: 'pass', to: 'all', data: {m: 'snoop', rid: WORKER_INDEX, sid: ws.sid}});
+          }
+        }
+        // unsnoop
+        if (query[0] === 'unsnoop') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // send to specific node or type
+            ws.sendObj({m: 'output', msg: '=== Unsnooping ' + query[1] + ' ==='});
+            process.send({m: 'pass', to: query[1], data: {m: 'unsnoop', rid: WORKER_INDEX, sid: ws.sid}});
+          } else {
+            // No arguments
+            ws.sendObj({m: 'output', msg: '=== Unsnooping every node ==='});
+            process.send({m: 'pass', to: 'all', data: {m: 'unsnoop', rid: WORKER_INDEX, sid: ws.sid}});
+          }
+        }
+
+        // chatlogs
+        // pull chat logs from node
+
+        // chat
+        // send message to a game room chat
+
         // nodes
         if (query[0] === 'nodes') {
           process.send({m: 'getnodetotal', s: ws.sid});
@@ -169,6 +204,8 @@ function handleMessage(ws, d) {// websocket client messages
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'sniff [id/type/all] - Real time logs from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'unsniff [id/type/all] - Stop real time logs from every node. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'snoop [id/type/all] - Real time chat from every node. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'unsnoop [id/type/all] - Stop real time chat from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
         }
       }

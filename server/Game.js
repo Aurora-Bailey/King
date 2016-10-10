@@ -64,6 +64,54 @@ var sniffers = {
   }
 };
 
+var snoopers = {
+  list: [],
+  add: function(snooper){
+    let alreadySniffing = false;
+    this.list.forEach((e,i)=>{
+      if (e.sid == snooper.sid) alreadySniffing = true;
+    });
+
+    if(!alreadySniffing){
+      this.list.push(snooper);
+      try {
+        process.send({
+          m: 'pass',
+          to: snooper.rid,
+          data: {
+            m: 'godmsg',
+            s: snooper.sid,
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + ' Snooping Activated!'
+          }
+        });
+      } catch(err) {
+        console.log(err);
+      }
+    }
+  },
+  remove: function(snooper){
+    for(let i=0; i<this.list.length; i++){
+      if (this.list[i].sid == snooper.sid){
+        this.list.splice(i, 1);
+        i--;
+        try {
+          process.send({
+            m: 'pass',
+            to: snooper.rid,
+            data: {
+              m: 'godmsg',
+              s: snooper.sid,
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + ' Snooping De-Activated!'
+            }
+          });
+        } catch(err) {
+          console.log(err);
+        }
+      }
+    }
+  }
+};
+
 class Game {
   static setup(){
     // set or reset game room
@@ -475,12 +523,33 @@ function broadcast(obj) {
   });
 }
 function broadcastChat(from, msg) {
+
+  // log chat
   let name = from;
   if (typeof Game.players[from] !== 'undefined') name = Game.players[from].name;
-  Game.chatlogs.push('' + from + ': ' + msg);
+  let logmsg = '' + name + ': ' + msg
+  Game.chatlogs.push(logmsg);
 
+  // send chat
   wss.clients.forEach(function each(client) {
     client.sendObj({m: 'chat', from: from, message: msg});
+  });
+
+  // snoop chat
+  snoopers.list.forEach((e,i)=>{
+    try {
+      process.send({
+        m: 'pass',
+        to: e.rid,
+        data: {
+          m: 'godmsg',
+          s: e.sid,
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + logmsg
+        }
+      });
+    } catch(err) {
+      console.log(err);
+    }
   });
 }
 
@@ -618,6 +687,20 @@ module.exports.setup = function (p) {
         sniffers.remove({rid: m.rid, sid: m.sid});
       } catch(err) {
         log('I failed to remove sniffer.');
+        console.log(err);
+      }
+    }else if (m.m === "snoop"){
+      try {
+        snoopers.add({rid: m.rid, sid: m.sid});
+      } catch(err) {
+        log('I failed to add snooper.');
+        console.log(err);
+      }
+    }else if (m.m === "unsnoop"){
+      try {
+        snoopers.remove({rid: m.rid, sid: m.sid});
+      } catch(err) {
+        log('I failed to remove snooper.');
         console.log(err);
       }
     }
