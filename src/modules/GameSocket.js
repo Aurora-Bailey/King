@@ -152,10 +152,13 @@ function handleMessage (d) {
       })
     } else {
       // Data.game.chat.msg.push('*' + d.from + '* ' + d.message)
+      let color = 'hsl(0,0%,70%)'
+      if (d.from === 'Game') color = 'hsl(0,0%,100%)'
+      if (d.from === 'God') color = 'hsl(0,100%,50%)'
       Data.game.chat.msg.push({
         msg: d.message,
         name: d.from,
-        color: (d.from === 'Game' ? 'hsl(0,0%,100%)' : 'hsl(0,0%,70%)')
+        color: color
       })
     }
 
