@@ -445,6 +445,7 @@ class Game {
   static playerDead(pid, killername){
     broadcast({m: 'playerdead', pid: pid, timealive: Date.now() - this.starttime, place: this.playersalive, kills: this.players[pid].kills, killer: killername});
     log('___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
+    broadcastChat('Game', this.players[pid].name + ' was taken over by ' + killername);
 
     this.playersalive--;
     this.players[pid].dead = true;

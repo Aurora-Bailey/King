@@ -187,7 +187,7 @@ function handleMessage (d) {
         // someone else is dead
       }
 
-      handleMessage({m: 'chat', from: 'Game', message: Data.game.players[d.pid].name + ' was taken over by ' + d.killer})
+      // handleMessage({m: 'chat', from: 'Game', message: Data.game.players[d.pid].name + ' was taken over by ' + d.killer})
     }
   } else if (d.m === 'scrollhome') {
     // this is in the web socke to be called when the game starts
