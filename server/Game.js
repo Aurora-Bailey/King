@@ -704,6 +704,23 @@ module.exports.setup = function (p) {
         log('I failed to remove snooper.');
         console.log(err);
       }
+    }else if (m.m === "chatlogs"){
+      try {
+        Game.chatlogs.forEach((e,i)=>{
+          process.send({
+            m: 'pass',
+            to: m.rid,
+            data: {
+              m: 'godmsg',
+              s: m.sid,
+              msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + e
+            }
+          });
+        });
+      } catch(err) {
+        log('I failed to send chat logs to god.');
+        console.log(err);
+      }
     }
   });
 

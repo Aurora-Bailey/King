@@ -190,6 +190,20 @@ function handleMessage(ws, d) {// websocket client messages
 
         // chatlogs
         // pull chat logs from node
+        // currently only game rooms listen for this.
+        if (query[0] === 'chatlogs') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // send to specific node or type
+            ws.sendObj({m: 'output', msg: '=== Pulling chat logs from ' + query[1] + ' ==='});
+            process.send({m: 'pass', to: query[1], data: {m: 'chatlogs', rid: WORKER_INDEX, sid: ws.sid}});
+          } else {
+            // No arguments
+            ws.sendObj({m: 'output', msg: '=== Pulling chat logs from EVERYTHING ==='});
+            process.send({m: 'pass', to: 'all', data: {m: 'chatlogs', rid: WORKER_INDEX, sid: ws.sid}});
+          }
+        }
 
         // chat
         // send message to a game room chat
@@ -206,6 +220,7 @@ function handleMessage(ws, d) {// websocket client messages
           ws.sendObj({m: 'output', msg: 'unsniff [id/type/all] - Stop real time logs from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'snoop [id/type/all] - Real time chat from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'unsnoop [id/type/all] - Stop real time chat from every node. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'chatlogs [id/type/all] - Pull past chat messages. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
         }
       }
