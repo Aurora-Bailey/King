@@ -81,16 +81,9 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
-        // workers
+        // nodes
         if (query[0] === 'nodes') {
-
-          // Second word
-          if (typeof query[1] !== 'undefined') {
-            // Nodes
-          } else {
-            // No arguments
-            process.send({m: 'getnodetotal', s: ws.sid});
-          }
+          process.send({m: 'getnodetotal', s: ws.sid});
         }
 
         // help
