@@ -69,8 +69,8 @@ function handleMessage(ws, d) {// websocket client messages
             }
           } else {
             // No arguments
-            ws.sendObj({m: 'output', msg: '--- Pulling stats from every node ---'});
-            process.send({m: 'pass', to: 'all', data: {m: 'getnumconnected', rid: WORKER_INDEX, sid: ws.sid}});
+            ws.sendObj({m: 'output', msg: '=== Pulling stats from every node ==='});
+            process.send({m: 'pass', to: 'all', data: {m: 'getstats', rid: WORKER_INDEX, sid: ws.sid}});
           }
         }
 
@@ -111,7 +111,7 @@ module.exports.setup = function (p) {
   process.on('message', function (m) {// process server messages
     if (m.m === "godmsg") {
       sendToSid(m.s, {m: 'output', msg: m.msg});
-    }else if (m.m === "getnumconnected"){
+    }else if (m.m === "getstats"){
       process.send({
         m: 'pass',
         to: m.rid,

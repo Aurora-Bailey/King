@@ -510,7 +510,7 @@ module.exports.setup = function (p) {
       Game.allowplayers[m.uid] = {secret: m.secret, pid: pid};
     }else if(m.m === 'start'){
       Game.start();
-    }else if (m.m === "getnumconnected"){
+    }else if (m.m === "getstats"){
       process.send({
         m: 'pass',
         to: m.rid,

@@ -329,7 +329,7 @@ module.exports.setup = function (p) {
       }
     }else if(m.m === 'broadcast'){
       broadcast(m);
-    }else if (m.m === "getnumconnected"){
+    }else if (m.m === "getstats"){
       process.send({
         m: 'pass',
         to: m.rid,
