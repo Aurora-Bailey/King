@@ -527,7 +527,7 @@ function broadcastChat(from, msg) {
 
   // log chat
   let name = from;
-  if (typeof Game.players[from] !== 'undefined') name = Game.players[from].name;
+  if (typeof Game.players[from] !== 'undefined') name = from + '-' + Game.players[from].name;
   let logmsg = '' + name + ': ' + msg
   Game.chatlogs.push(logmsg);
 
