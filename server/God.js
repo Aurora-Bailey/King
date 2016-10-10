@@ -71,7 +71,9 @@ function handleMessage(ws, d) {// websocket client messages
 
           // Second word
           if (typeof query[1] !== 'undefined') {
-
+            // send to specific node or type
+            ws.sendObj({m: 'output', msg: '=== Pulling status from ' + query[1] + ' ==='});
+            process.send({m: 'pass', to: query[1], data: {m: 'getstats', rid: WORKER_INDEX, sid: ws.sid}});
           } else {
             // No arguments
             ws.sendObj({m: 'output', msg: '=== Pulling status from every node ==='});
@@ -93,7 +95,8 @@ function handleMessage(ws, d) {// websocket client messages
 
         // help
         if (query[0] === 'help') {
-          ws.sendObj({m: 'output', msg: 'status - Status of every node.'});
+          ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'sniff [id/type/all] - Real time logs from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
         }
       }
