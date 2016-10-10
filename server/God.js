@@ -320,6 +320,7 @@ module.exports.setup = function (p) {
     ws.on('close', function () {
       log(ws.name + ' has left.');
       handleMessage(ws, {m: 'input', msg: 'unsniff'}); // Clean up
+      handleMessage(ws, {m: 'input', msg: 'unsnoop'}); // Clean up
       ws.connected = false;
     });
 
