@@ -17,6 +17,26 @@ var http = require('http'),
   NODE_ENV = false;
 
 
+var sniffers = {
+  list: [],
+  add: function(sniffer){
+    let alreadySniffing = false;
+    this.list.forEach((e,i)=>{
+      if (e.sid == sniffer.sid) alreadySniffing = true;
+    });
+
+    if(!alreadySniffing) this.list.push(sniffer);
+  },
+  remove: function(sniffer){
+    for(let i=0; i<this.list.length; i++){
+      if (this.list[i].sid == sniffer.sid){
+        this.list.splice(i, 1);
+        i--;
+      }
+    }
+  }
+};
+
 /* Websockets */
 function nameClients() {
   let names = '';
@@ -81,6 +101,36 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
+        // sniff
+        if (query[0] === 'sniff') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // send to specific node or type
+            ws.sendObj({m: 'output', msg: '=== Sniffing ' + query[1] + ' ==='});
+            process.send({m: 'pass', to: query[1], data: {m: 'sniff', rid: WORKER_INDEX, sid: ws.sid}});
+          } else {
+            // No arguments
+            ws.sendObj({m: 'output', msg: '=== Sniffing every node ==='});
+            process.send({m: 'pass', to: 'all', data: {m: 'sniff', rid: WORKER_INDEX, sid: ws.sid}});
+          }
+        }
+
+        // unsniff
+        if (query[0] === 'unsniff') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // send to specific node or type
+            ws.sendObj({m: 'output', msg: '=== Unsniffing ' + query[1] + ' ==='});
+            process.send({m: 'pass', to: query[1], data: {m: 'unsniff', rid: WORKER_INDEX, sid: ws.sid}});
+          } else {
+            // No arguments
+            ws.sendObj({m: 'output', msg: '=== Unsniffing every node ==='});
+            process.send({m: 'pass', to: 'all', data: {m: 'unsniff', rid: WORKER_INDEX, sid: ws.sid}});
+          }
+        }
+
         // nodes
         if (query[0] === 'nodes') {
           process.send({m: 'getnodetotal', s: ws.sid});
@@ -90,6 +140,7 @@ function handleMessage(ws, d) {// websocket client messages
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'sniff [id/type/all] - Real time logs from every node. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'unsniff [id/type/all] - Stop real time logs from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
         }
       }
@@ -109,6 +160,21 @@ function log(msg){
     msg = JSON.stringify(msg);
   }
   console.log('[' + Lib.humanTimeDate(Date.now()) + ']GOD--------------Worker ' + WORKER_INDEX + ': ' + msg);
+  sniffers.list.forEach((e,i)=>{
+    try {
+      process.send({
+        m: 'pass',
+        to: e.rid,
+        data: {
+          m: 'godmsg',
+          s: e.sid,
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [god] ' + msg
+        }
+      });
+    } catch(err) {
+      console.log(err);
+    }
+  });
 }
 
 /* Setup */
@@ -137,6 +203,22 @@ module.exports.setup = function (p) {
         });
       } catch(err) {
         log('I failed to send stats to god.');
+        console.log(err);
+      }
+    }else if (m.m === "sniff"){
+      try {
+        sniffers.add({rid: m.rid, sid: m.sid});
+        log('Sniffer Activated.');
+      } catch(err) {
+        log('I failed to add sniffer.');
+        console.log(err);
+      }
+    }else if (m.m === "unsniff"){
+      try {
+        sniffers.remove({rid: m.rid, sid: m.sid});
+        log('Sniffer De-Activated.');
+      } catch(err) {
+        log('I failed to remove sniffer.');
         console.log(err);
       }
     }
@@ -173,6 +255,8 @@ module.exports.setup = function (p) {
     });
 
     ws.on('close', function () {
+      log(ws.name + ' has left.');
+      handleMessage(ws, {m: 'input', msg: 'unsniff'}); // Clean up
       ws.connected = false;
     });
 
