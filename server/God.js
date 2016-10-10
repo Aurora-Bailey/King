@@ -25,13 +25,41 @@ var sniffers = {
       if (e.sid == sniffer.sid) alreadySniffing = true;
     });
 
-    if(!alreadySniffing) this.list.push(sniffer);
+    if(!alreadySniffing){
+      this.list.push(sniffer);
+      try {
+        process.send({
+          m: 'pass',
+          to: sniffer.rid,
+          data: {
+            m: 'godmsg',
+            s: sniffer.sid,
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [god] ' + ' Sniffing Activated!'
+          }
+        });
+      } catch(err) {
+        console.log(err);
+      }
+    }
   },
   remove: function(sniffer){
     for(let i=0; i<this.list.length; i++){
       if (this.list[i].sid == sniffer.sid){
         this.list.splice(i, 1);
         i--;
+        try {
+          process.send({
+            m: 'pass',
+            to: sniffer.rid,
+            data: {
+              m: 'godmsg',
+              s: sniffer.sid,
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [god] ' + ' Sniffing De-Activated!'
+            }
+          });
+        } catch(err) {
+          console.log(err);
+        }
       }
     }
   }
@@ -208,7 +236,6 @@ module.exports.setup = function (p) {
     }else if (m.m === "sniff"){
       try {
         sniffers.add({rid: m.rid, sid: m.sid});
-        log('Sniffer Activated.');
       } catch(err) {
         log('I failed to add sniffer.');
         console.log(err);
@@ -216,7 +243,6 @@ module.exports.setup = function (p) {
     }else if (m.m === "unsniff"){
       try {
         sniffers.remove({rid: m.rid, sid: m.sid});
-        log('Sniffer De-Activated.');
       } catch(err) {
         log('I failed to remove sniffer.');
         console.log(err);

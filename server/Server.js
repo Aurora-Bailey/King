@@ -18,6 +18,54 @@ var http = require('http'),
   WORKER_INDEX = false,
   NODE_ENV = false;
 
+var sniffers = {
+  list: [],
+  add: function(sniffer){
+    let alreadySniffing = false;
+    this.list.forEach((e,i)=>{
+      if (e.sid == sniffer.sid) alreadySniffing = true;
+    });
+
+    if(!alreadySniffing){
+      this.list.push(sniffer);
+      try {
+        process.send({
+          m: 'pass',
+          to: sniffer.rid,
+          data: {
+            m: 'godmsg',
+            s: sniffer.sid,
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [server] ' + ' Sniffing Activated!'
+          }
+        });
+      } catch(err) {
+        console.log(err);
+      }
+    }
+  },
+  remove: function(sniffer){
+    for(let i=0; i<this.list.length; i++){
+      if (this.list[i].sid == sniffer.sid){
+        this.list.splice(i, 1);
+        i--;
+        try {
+          process.send({
+            m: 'pass',
+            to: sniffer.rid,
+            data: {
+              m: 'godmsg',
+              s: sniffer.sid,
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [server] ' + ' Sniffing De-Activated!'
+            }
+          });
+        } catch(err) {
+          console.log(err);
+        }
+      }
+    }
+  }
+};
+
 class Queue {
   static setup(){
     this.resetTimer();
@@ -301,6 +349,21 @@ function log(msg){
     msg = JSON.stringify(msg);
   }
   console.log('[' + Lib.humanTimeDate(Date.now()) + ']S----Worker ' + WORKER_INDEX + ': ' + msg);
+  sniffers.list.forEach((e,i)=>{
+    try {
+      process.send({
+        m: 'pass',
+        to: e.rid,
+        data: {
+          m: 'godmsg',
+          s: e.sid,
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [server] ' + msg
+        }
+      });
+    } catch(err) {
+      console.log(err);
+    }
+  });
 }
 
 /* Setup */
@@ -344,6 +407,20 @@ module.exports.setup = function (p) {
         });
       } catch(err) {
         log('I failed to send stats to god.');
+        console.log(err);
+      }
+    }else if (m.m === "sniff"){
+      try {
+        sniffers.add({rid: m.rid, sid: m.sid});
+      } catch(err) {
+        log('I failed to add sniffer.');
+        console.log(err);
+      }
+    }else if (m.m === "unsniff"){
+      try {
+        sniffers.remove({rid: m.rid, sid: m.sid});
+      } catch(err) {
+        log('I failed to remove sniffer.');
         console.log(err);
       }
     }
