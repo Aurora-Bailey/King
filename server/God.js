@@ -207,6 +207,23 @@ function handleMessage(ws, d) {// websocket client messages
 
         // chat
         // send message to a game room chat
+        // currently only game rooms listen for this.
+        if (query[0] === 'chat') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // send to specific node or type
+            let buildmsg = [];
+            query.forEach((e,i)=>{// skip first two elements
+              if (i > 1) {
+                buildmsg.push(e);
+              }
+            });
+            process.send({m: 'pass', to: query[1], data: {m: 'godchat', msg: buildmsg.join(' ')}});
+          } else {
+            // No arguments
+          }
+        }
 
         // nodes
         if (query[0] === 'nodes') {
@@ -221,6 +238,7 @@ function handleMessage(ws, d) {// websocket client messages
           ws.sendObj({m: 'output', msg: 'snoop [id/type/all] - Real time chat from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'unsnoop [id/type/all] - Stop real time chat from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'chatlogs [id/type/all] - Pull past chat messages. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'chat id/type/all string of text - Send chat message to room. options required'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
         }
       }

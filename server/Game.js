@@ -721,6 +721,13 @@ module.exports.setup = function (p) {
         log('I failed to send chat logs to god.');
         console.log(err);
       }
+    }else if (m.m === "godchat"){
+      try {
+        broadcastChat('God', m.msg);
+      } catch(err) {
+        log('I failed to send chat to players.');
+        console.log(err);
+      }
     }
   });
 
