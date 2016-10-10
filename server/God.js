@@ -51,33 +51,30 @@ function handleMessage(ws, d) {// websocket client messages
         return false;
       }
 
+      ws.sendObj({m: 'output', msg: '---> ' + d.msg});
+
       let query = d.msg.split(' ');
 
       if (typeof query[0] !== 'undefined') {
 
-        // Total
-        if (query[0] === 'total') {
+        // Room stats
+        if (query[0] === 'stats') {
           if (typeof query[1] !== 'undefined') {
-
-            // Connected
-            if (query[1] === 'connected') {
-              process.send({m: 'pass', to: 'all', data: {m: 'getnumconnected', rid: WORKER_INDEX, sid: ws.sid}});
-            }
-
             // Nodes
-            if (query[1] === 'nodes') {
+            if (query[1] === 'num') {
               process.send({m: 'getnodetotal', s: ws.sid});
             }
-
-
-            // End Total
+          } else {
+            // No arguments
+            ws.sendObj({m: 'output', msg: '--- Pulling stats from every node ---'});
+            process.send({m: 'pass', to: 'all', data: {m: 'getnumconnected', rid: WORKER_INDEX, sid: ws.sid}});
           }
         }
 
         // Help
         if (query[0] === 'help') {
-          ws.sendObj({m: 'output', msg: 'total nodes'});
-          ws.sendObj({m: 'output', msg: 'total connected'});
+          ws.sendObj({m: 'output', msg: 'stats'});
+          ws.sendObj({m: 'output', msg: 'stats num'});
         }
       }
 
