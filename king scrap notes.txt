@@ -39,10 +39,10 @@
 	==remote our server might be down from popup
 	==game leaderboard/num units
   ==remove circlecells
+  ==make chat from admin broadcast red
 
 	add about, help, contact pages
 	remove ugly time notice at some point.
-	make chat from admin broadcast red
 
 	!!!!!!!! Compatable versoin change
 	fancy button to select game modes.
@@ -50,22 +50,23 @@
 
 // both
   ==else if on all applicable if statements
+  ==dev console on homescreen that can access stats
+	==add chat commands for addmin
+	==maybe put admin commands on a separate node ws.kings.io/god
+	==// get number of running rooms
+	==// get number of players
+	==// get number of players in games
+	==// broadcast message to all game chats
+
 
   change zero to god in Nginx
   add mod=god to mongodb
 
-	dev console on homescreen that can access stats
 	add myself as admin in mongodb
-	add chat commands for addmin
-	maybe put admin commands on a separate node ws.kings.io/god
-	// get number of running rooms
-	// get number of players
-	// get number of players in games
 
 	// reset games (roomname)
 	// reset servers (servername)
 	// lock games
-	// broadcast message to all game chats
 	// kick (player)
 
 
