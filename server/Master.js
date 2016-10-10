@@ -23,18 +23,13 @@ function workerMessage(worker, message, handle) {
     });
     worker.send({m: 'godmsg', msg: JSON.stringify(numObj), s: message.s});
   }
-
   // End god commands
 
   if(message.m === 'ready'){
     worker.ready = true;
-  }
-
-  if(message.m === 'open'){
+  } else if(message.m === 'open'){
     worker.open = true;
-  }
-
-  if(message.m === 'getroom'){
+  } else if(message.m === 'getroom'){
     var room = false;
 
     for(let i=0; i<workers.length; i++){
@@ -59,26 +54,12 @@ function workerMessage(worker, message, handle) {
       room.open = false;
       worker.send({m: 'getroom', port: room.port, name: room.name, id: room.wid});
     }
-  }
-
-  if(message.m === 'pass'){
-    if(message.to === 'server'){ // braodcast to all servers
-      workers.forEach((e,i)=>{
-        if(e.type === 'server')
-          e.send(message.data);
-      });
-    }else if(message.to === 'game'){ // broadcast to all game rooms
-      workers.forEach((e,i)=>{
-        if(e.type === 'game')
-          e.send(message.data);
-      });
-    }else if(message.to === 'all'){
-      workers.forEach((e,i)=>{
+  }else if(message.m === 'pass') { // to: id || type || 'all'
+    workers.forEach((e, i)=> {
+      if (e.type === message.to || e.wid == message.to || 'all' === message.to) {// Make sure type id and all are distinct
         e.send(message.data);
-      });
-    }else{
-      workers[message.to].send(message.data);
-    }
+      }
+    });
   }
 
   // log('Worker ' + worker.wid + ': ' + JSON.stringify(message));
