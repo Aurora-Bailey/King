@@ -234,7 +234,7 @@ function handleMessage(ws, d) {// websocket client messages
             if (typeof query[1] !== 'undefined' &&
               typeof query[2] !== 'undefined' &&
               typeof query[3] !== 'undefined' &&
-              typeof query[4] !== 'undefined') {
+              typeof query[4] !== 'undefined' && ws.connected) {
 
               let live = query[0];
               let interval = parseInt(query[1]);
