@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="godin">
-      <input v-model="textinput" type="text" v-on:keyup.enter="sendInput()"/>
+      <input v-model="textinput" type="text" v-on:keyup.enter="sendInput()" v-on:keyup.up="cycleHistory(-1)" v-on:keyup.down="cycleHistory(1)"/>
     </div>
   </div>
 </template>
@@ -20,14 +20,27 @@
     data () {
       return {
         textinput: '',
-        msg: this.god.msg
+        msg: this.god.msg,
+        history: [],
+        histPoint: 0
       }
     },
     methods: {
       sendInput: function () {
         if (this.textinput === '') return false
         GODS.sendObj({m: 'input', msg: this.textinput})
+        this.history.push(this.textinput)
+        this.histPoint = this.history.length
         this.textinput = ''
+      },
+      cycleHistory: function (ind) {
+        this.histPoint += ind
+        if (typeof this.history[this.histPoint] !== 'undefined') {
+          this.textinput = this.history[this.histPoint]
+        } else {
+          this.textinput = ''
+          this.histPoint = this.history.length
+        }
       }
     },
     watch: {
