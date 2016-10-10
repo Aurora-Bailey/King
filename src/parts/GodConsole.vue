@@ -52,21 +52,14 @@
     left: 0;
     right: 0;
     bottom: 0;
-    width: 50vh;
-    height: 75vh;
     margin: auto;
     z-index: 40000;
     background-color: rgba(0,0,0,1);
     opacity: 0.9;
     font-size: 2vh;
 
-    &.extend {
-      width: 100vh;
-      height: 50vh;
-    }
-
     .godout {
-      height: 69vh;
+      height: 94vh;
       overflow-x: hidden;
       overflow-y: auto;
       padding: 1vh 1vh 0;
