@@ -225,6 +225,51 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
+        // Live
+        // run a command multiple times
+        // live secInterval num clear command here
+        if (query[0] === 'live') {
+
+          try {
+            if (typeof query[1] !== 'undefined' &&
+              typeof query[2] !== 'undefined' &&
+              typeof query[3] !== 'undefined' &&
+              typeof query[4] !== 'undefined') {
+
+              let live = query[0];
+              let interval = parseInt(query[1]);
+              let numRepeat = parseInt(query[2]);
+              let clear = query[3];
+
+              let buildmsg = [];
+              query.forEach((e,i)=>{// skip first 4 elements
+                if (i > 3) {
+                  buildmsg.push(e);
+                }
+              });
+              let command = buildmsg.join(' ');
+              let commandWithIndex = command.replace('{i}', '' + numRepeat);
+
+              // run the command
+              handleMessage(ws, {m: 'input', msg: commandWithIndex})
+
+              // run live again
+              if (numRepeat > 1 && ws.connected) {
+                numRepeat--;
+                setTimeout(()=>{
+                  if (clear == 'true') ws.sendObj({m: 'clear', clear: 'clear'});
+                  handleMessage(ws, {m: 'input', msg: live + ' ' + interval + ' ' + numRepeat + ' ' + clear + ' ' + command})
+                }, interval * 1000)
+              }
+
+            }
+          } catch(err) {
+            console.log(err);
+            log('error with live');
+          }
+
+        }
+
         // nodes
         if (query[0] === 'nodes') {
           process.send({m: 'getnodetotal', s: ws.sid});
@@ -240,6 +285,7 @@ function handleMessage(ws, d) {// websocket client messages
           ws.sendObj({m: 'output', msg: 'chatlogs [id/type/all] - Pull past chat messages. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'chat id/type/all string of text - Send chat message to room. options required'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
+          ws.sendObj({m: 'output', msg: 'live secInterval numRepeat clearWindow command - Repeat a command. {i} for index'});
         }
       }
 

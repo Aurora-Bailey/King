@@ -1,5 +1,4 @@
 import Data from './Data'
-import Vue from 'vue'
 
 var ws = {}
 var sendQueue = []
@@ -69,7 +68,9 @@ function handleMessage (d) {
     Data.page = d.page
   }
   if (typeof d.clear !== 'undefined') {
-    Vue.set(Data.god, 'msg', [])
+    while (Data.god.msg.length > 0) {
+      Data.god.msg.pop()
+    }
   }
 }
 
