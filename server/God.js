@@ -70,10 +70,7 @@ function handleMessage(ws, d) {// websocket client messages
 
           // Second word
           if (typeof query[1] !== 'undefined') {
-            // Nodes
-            if (query[1] === 'num') {
-              process.send({m: 'getnodetotal', s: ws.sid});
-            }
+
           } else {
             // No arguments
             ws.sendObj({m: 'output', msg: '=== Pulling stats from every node ==='});
@@ -81,10 +78,22 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
+        // workers
+        if (query[0] === 'nodes') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // Nodes
+          } else {
+            // No arguments
+            process.send({m: 'getnodetotal', s: ws.sid});
+          }
+        }
+
         // help
         if (query[0] === 'help') {
-          ws.sendObj({m: 'output', msg: 'stats'});
-          ws.sendObj({m: 'output', msg: 'stats num'});
+          ws.sendObj({m: 'output', msg: 'stats - Status of every node.'});
+          ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
         }
       }
 
