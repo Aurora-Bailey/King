@@ -330,15 +330,21 @@ module.exports.setup = function (p) {
     }else if(m.m === 'broadcast'){
       broadcast(m);
     }else if (m.m === "getstats"){
-      process.send({
-        m: 'pass',
-        to: m.rid,
-        data: {
-          m: 'godmsg',
-          s: m.sid,
-          msg: WORKER_INDEX + '-' + WORKER_NAME + '-server ' + numConnected
-        }
-      });
+      try {
+        process.send({
+          m: 'pass',
+          to: m.rid,
+          data: {
+            m: 'godmsg',
+            s: m.sid,
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [server]  Clients:' + wss.clients.length + ' numConnected:'  + numConnected +
+            ' Waiting:' + Queue.numPlayers() + '/' + GV.queue.maxplayers + ' Timeout:' + Lib.humanTimeDiff(Date.now(), Queue.timeout)
+          }
+        });
+      } catch(err) {
+        log('I failed to send stats to god.');
+        console.log(err);
+      }
     }
   });
 

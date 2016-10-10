@@ -17,6 +17,13 @@ var http = require('http'),
 
 
 /* Websockets */
+function nameClients() {
+  let names = '';
+  wss.clients.forEach(function each(client) {
+    names += '[' + client.name + ' ' + client.mod + ' ' + Lib.humanTimeDiff(client.start, Date.now()) + '] ';
+  });
+  return names;
+}
 function sendToSid(sid, obj) {
   wss.clients.forEach(function each(client) {
     if (client.sid === sid) client.sendObj(obj);
@@ -112,15 +119,20 @@ module.exports.setup = function (p) {
     if (m.m === "godmsg") {
       sendToSid(m.s, {m: 'output', msg: m.msg});
     }else if (m.m === "getstats"){
-      process.send({
-        m: 'pass',
-        to: m.rid,
-        data: {
-          m: 'godmsg',
-          s: m.sid,
-          msg: WORKER_INDEX + '-' + WORKER_NAME + '-god ' + wss.clients.length
-        }
-      });
+      try {
+        process.send({
+          m: 'pass',
+          to: m.rid,
+          data: {
+            m: 'godmsg',
+            s: m.sid,
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [god]  Clients:' + wss.clients.length + ' ' + nameClients()
+          }
+        });
+      } catch(err) {
+        log('I failed to send stats to god.');
+        console.log(err);
+      }
     }
   });
 
@@ -129,6 +141,8 @@ module.exports.setup = function (p) {
 
     // don't use ws.domain or ws.extensions
     ws.connected = true;
+    ws.start = Date.now();
+    ws.name = 'Unknown';
     ws.mod = false;
     ws.sid = Lib.md5(Math.random() + Date.now());
     ws.sendObj = function (obj) {

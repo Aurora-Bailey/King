@@ -10,6 +10,7 @@ var http = require('http'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
+  uptime = Date.now(),
   WORKER_PORT = false,
   WORKER_INDEX = false,
   WORKER_NAME = false,
@@ -34,6 +35,8 @@ class Game {
     this.running = false;
     this.loopdelay = GV.game.loopdelay;
     this.loopcount = 0;
+
+    this.chatlogs = [];
   }
 
   static start(){
@@ -313,8 +316,10 @@ class Game {
 
               // you are the only one alive
               if(this.playersalive == 1){
-                broadcast({m: 'chat', from: 'Game', message: this.players[e.pid].name + ' is the winner!!!!'});
-                broadcast({m: 'chat', from: 'Server', message: 'Server will close in 2 minutes.'});
+                // broadcast({m: 'chat', from: 'Game', message: this.players[e.pid].name + ' is the winner!!!!'});
+                broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
+                // broadcast({m: 'chat', from: 'Server', message: 'Server will close in 2 minutes.'});
+                broadcastChat('Server', 'Server will close in 2 minutes.')
                 setTimeout(()=>{this.playerDead(e.pid, 'Server');}, 2000);// kill the winner
                 setTimeout(()=>{this.endgame();}, 120000);
               }
@@ -421,6 +426,15 @@ function broadcast(obj) {
     client.sendObj(obj);
   });
 }
+function broadcastChat(from, msg) {
+  let name = from;
+  if (typeof Game.players[from] !== 'undefined') name = Game.players[from].name;
+  Game.chatlogs.push('' + from + ': ' + msg);
+
+  wss.clients.forEach(function each(client) {
+    client.sendObj({m: 'chat', from: from, message: msg});
+  });
+}
 
 function handleMessage(ws, d) {// websocket client messages
 
@@ -467,7 +481,8 @@ function handleMessage(ws, d) {// websocket client messages
 
         var msg = d.message.slice(0,250);
         ws.lastchat = Date.now();
-        broadcast({m: 'chat', from: ws.pid, message: msg});
+        // broadcast({m: 'chat', from: ws.pid, message: msg});
+        broadcastChat(ws.pid, msg);
 
         if (d.message.length > 250) ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 250 characters.'});
       }else{
@@ -511,15 +526,23 @@ module.exports.setup = function (p) {
     }else if(m.m === 'start'){
       Game.start();
     }else if (m.m === "getstats"){
-      process.send({
-        m: 'pass',
-        to: m.rid,
-        data: {
-          m: 'godmsg',
-          s: m.sid,
-          msg: WORKER_INDEX + '-' + WORKER_NAME + '-game ' + wss.clients.length + ' Players:' + Game.players.length
-        }
-      });
+      try {
+        process.send({
+          m: 'pass',
+          to: m.rid,
+          data: {
+            m: 'godmsg',
+            s: m.sid,
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game]  Clients:' + wss.clients.length +
+            ' Players:' + Game.players.length + ' Playing:' + Game.running + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
+            ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh') +
+            ' ChatLogs:' + Game.chatlogs.length
+          }
+        });
+      } catch(err) {
+        log('I failed to send stats to god.');
+        console.log(err);
+      }
     }
   });
 
@@ -554,7 +577,8 @@ module.exports.setup = function (p) {
       try{
         if (typeof ws.pid === 'undefined') return false;
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
-        broadcast({m: 'chat', from: 'Server', message: '' + Game.players[ws.pid].name + ' has left the game.'});
+        // broadcast({m: 'chat', from: 'Server', message: '' + Game.players[ws.pid].name + ' has left the game.'});
+        broadcastChat('Server', '' + Game.players[ws.pid].name + ' has left the game.');
         log('___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
       }catch(err){
         console.log(err);
