@@ -367,7 +367,7 @@ module.exports.setup = function (p) {
   });
 
   wss.on('connection', function connection(ws) {
-    ws.on('error', function(e) { log('Got a ws error'); return false; });
+    ws.on('error', function(e) { log('Got a ws error'); console.log(e); return false; });
 
     // don't use ws.domain or ws.extensions
     ws.connected = true;

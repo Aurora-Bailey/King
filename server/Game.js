@@ -732,7 +732,7 @@ module.exports.setup = function (p) {
   });
 
   wss.on('connection', function connection(ws) {
-    ws.on('error', function(e) { log('Got an error'); return false; });
+    ws.on('error', function(e) { log('Got an error'); console.log(e); return false; });
 
     ws.connected = true;
     ws.sendObj = function (obj) {

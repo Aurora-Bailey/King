@@ -427,7 +427,7 @@ module.exports.setup = function (p) {
   });
 
   wss.on('connection', function connection(ws) {
-    ws.on('error', function(e) { log('Got a ws error'); return false; });
+    ws.on('error', function(e) { log('Got a ws error'); console.log(e); return false; });
 
     numConnected++;
     log('Player connected. Total: ' + numConnected);
