@@ -57,12 +57,9 @@
 	==// get number of players
 	==// get number of players in games
 	==// broadcast message to all game chats
-
-
-  change zero to god in Nginx
-  add mod=god to mongodb
-
-	add myself as admin in mongodb
+  ==change zero to god in Nginx
+  ==add mod=god to mongodb
+	==add myself as admin in mongodb
 
 	// reset games (roomname)
 	// reset servers (servername)
