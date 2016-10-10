@@ -66,15 +66,15 @@ function handleMessage(ws, d) {// websocket client messages
       // First word
       if (typeof query[0] !== 'undefined') {
 
-        // stats
-        if (query[0] === 'stats') {
+        // status
+        if (query[0] === 'status') {
 
           // Second word
           if (typeof query[1] !== 'undefined') {
 
           } else {
             // No arguments
-            ws.sendObj({m: 'output', msg: '=== Pulling stats from every node ==='});
+            ws.sendObj({m: 'output', msg: '=== Pulling status from every node ==='});
             process.send({m: 'pass', to: 'all', data: {m: 'getstats', rid: WORKER_INDEX, sid: ws.sid}});
           }
         }
@@ -93,7 +93,7 @@ function handleMessage(ws, d) {// websocket client messages
 
         // help
         if (query[0] === 'help') {
-          ws.sendObj({m: 'output', msg: 'stats - Status of every node.'});
+          ws.sendObj({m: 'output', msg: 'status - Status of every node.'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
         }
       }
