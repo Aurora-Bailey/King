@@ -28,7 +28,11 @@
     methods: {
       sendInput: function () {
         if (this.textinput === '') return false
-        GODS.sendObj({m: 'input', msg: this.textinput})
+        if (this.textinput === 'clear') {
+          GODS.shortObj({clear: 'clear'})
+        } else {
+          GODS.sendObj({m: 'input', msg: this.textinput})
+        }
         this.history.push(this.textinput)
         this.histPoint = this.history.length
         this.textinput = ''
