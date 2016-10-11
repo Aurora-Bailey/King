@@ -134,8 +134,8 @@
 
         &:focus {
           outline: none;
-          border-color: lighten($accent, 10%);
-          box-shadow: 0 0 2vh 0 lighten($accent, 10%);
+          border-color: lighten($primary, 10%);
+          box-shadow: 0 0 2vh 0 lighten($primary, 10%);
         }
       }
     }

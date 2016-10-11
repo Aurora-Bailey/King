@@ -144,7 +144,6 @@
       font-size: 10vh;
       padding: 5vh 0;
       font-weight: bold;
-      text-shadow: 0 0.05em 0.1em rgba(0,0,0,0.2);
     }
 
     .rank {
@@ -177,8 +176,8 @@
 
         &:focus {
           outline: none;
-          border-color: lighten($accent, 10%);
-          box-shadow: 0 0 2vh 0 lighten($accent, 10%);
+          border-color: lighten($primary, 10%);
+          box-shadow: 0 0 2vh 0 lighten($primary, 10%);
         }
       }
     }
@@ -191,14 +190,14 @@
       font-size: 4vh;
       padding: 2vh 0;
       margin: 2vh 0;
-      background-color: $accent;
-      color: $accent-alt;
+      background-color: $primary;
+      color: $primary-alt;
       cursor: pointer;
       box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
 
       &:hover {
-        background-color: lighten($accent, 10%);
-        color: lighten($accent-alt, 10%);
+        background-color: lighten($primary, 10%);
+        color: lighten($primary-alt, 10%);
       }
     }
 

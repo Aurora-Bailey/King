@@ -181,7 +181,7 @@
       border-radius: 2.5vh;
       border: 0.5vh solid black;
       cursor: pointer;
-      background-color: $accent;
+      background-color: $primary;
     }
 
     .gamescroll {
@@ -217,8 +217,8 @@
         padding: 5px 15px;
         z-index: 1020;
         margin: auto;
-        background-color: $accent;
-        color: $accent-alt;
+        background-color: $primary;
+        color: $primary-alt;
         display: none;
         pointer-events: none;
       }

@@ -62,14 +62,14 @@
       border: none;
       font-size: 2vh;
       padding: 1vh 0;
-      background-color: $accent;
-      color: $accent-alt;
+      background-color: $primary;
+      color: $primary-alt;
       cursor: pointer;
       box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
 
       &:hover {
-        background-color: lighten($accent, 10%);
-        color: lighten($accent-alt, 10%);
+        background-color: lighten($primary, 10%);
+        color: lighten($primary-alt, 10%);
       }
     }
   }
