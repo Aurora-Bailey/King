@@ -15,6 +15,8 @@
       </div>
     </div>
 
+    <div class="twitter"><div class="twitter_bird"></div><div class="twitter_handle"><a target="_blank" href="https://twitter.com/Kingz_io">@Kingz_io</a> <a target="_blank" href="https://twitter.com/hashtag/KingzioGame">#KingzioGame</a></div></div>
+
 
     <div class="microversion">{{user.microversion}}</div>
     <div class="contain_width">
@@ -68,6 +70,31 @@
     overflow: auto;
     text-align: center;
 
+    .twitter {
+      position: absolute;
+      bottom: 1.5vh;
+      left: 1.5vh;
+      z-index: 180;
+
+      .twitter_handle {
+        display: inline-block;
+        vertical-align: text-top;
+        font-size: 2vh;
+        line-height: 3vh;
+      }
+      .twitter_bird {
+        vertical-align: text-top;
+        display: inline-block;
+        width: 2.5vh;
+        height: 2.5vh;
+        margin: 0.25vh 1.25vh 0.25vh 0.25vh;
+        background-image: url('../../assets/twitter.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+    }
+
     .leaderboard {
       text-align: center;
       margin-bottom: 4vh;
@@ -86,10 +113,10 @@
 
     .microversion {
       position: absolute;
-      bottom: 1vh;
-      left: 1vh;
+      bottom: 1.5vh;
+      right: 1.5vh;
       font-size: 2vh;
-      color: darken($base, 10%)
+      color: lighten($base, 15%)
     }
 
     .sidebar {
