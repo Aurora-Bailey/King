@@ -106,21 +106,9 @@
     }
 
     .cancel {
-      display: block;
-      width: 30vh;
-      border: none;
-      font-size: 3vh;
-      padding: 1.5vh 0;
+      @include bigbutton(6vh);
       margin: 2vh auto 0;
-      background-color: $primary;
-      color: $primary-alt;
-      cursor: pointer;
-      box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
-
-      &:hover {
-        background-color: lighten($primary, 10%);
-        color: lighten($primary-alt, 10%);
-      }
+      width: 30vh;
     }
 
   }

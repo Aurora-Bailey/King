@@ -1,6 +1,6 @@
 <template>
   <div id="ds">
-    <div class="title">You have been taken over by {{deadscreen.killer}}!!!</div>
+    <div class="title">{{deadscreen.killer}} took your kingdom!!!</div>
     <div class="time">Time alive: {{deadscreen.playtime}}</div>
     <div class="kills">Kills: {{deadscreen.kills}}</div>
     <div class="place">Finish place: {{deadscreen.place}}</div>
@@ -33,7 +33,7 @@
     left: 0;
     right: 0;
     z-index: 22000;
-    width: 60vh;
+    width: 50vh;
     margin: auto;
     padding: 5vh;
     background-color: black;
@@ -45,21 +45,7 @@
   }
 
   .spectate, .leave {
-    display: block;
-    width: 30vh;
-    border: none;
-    font-size: 3vh;
-    padding: 1.5vh 0;
-    margin: 2vh auto 0;
-    background-color: $primary;
-    color: $primary-alt;
-    cursor: pointer;
-    box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
-
-    &:hover {
-      background-color: lighten($primary, 10%);
-      color: lighten($primary-alt, 10%);
-    }
+    @include bigbutton(6vh);
   }
 
 

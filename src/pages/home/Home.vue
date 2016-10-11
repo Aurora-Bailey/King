@@ -58,6 +58,8 @@
   @import "../../sass/variables";
   @import "../../sass/mixins";
 
+  @import url(https://fonts.googleapis.com/css?family=Oleo+Script);
+
   #home {
     position: absolute;
     top: 0;
@@ -141,70 +143,35 @@
     }
 
     .logo {
-      font-size: 10vh;
-      padding: 5vh 0;
-      font-weight: bold;
+      font-size: 12vh;
+      padding: 6vh 0;
+
+      font-family: 'Oleo Script', cursive;
+      color: $primary;
     }
 
     .rank {
       font-size: 3vh;
       padding: 1.5vh 0;
       text-align: left;
-      text-shadow: 0 0.1em 0.2em rgba(0,0,0,0.2);
     }
 
     .enter_name {
       padding:2vh 0;
 
       input[type="text"]{
-        display: block;
-        width: 100%;
-        height: 8vh;
-        font-size: 4vh;
-        text-align: center;
-        line-height: 8vh;
-        padding: 0 2vh;
-        color: #888;
-        background-color: white;
-        border: 0.4vh solid #888;
-        box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
-        border-radius: 1vh;
-
-        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-
-        &:focus {
-          outline: none;
-          border-color: lighten($primary, 10%);
-          box-shadow: 0 0 2vh 0 lighten($primary, 10%);
-        }
+        @include biginput(8vh);
       }
     }
 
 
     .play {
-      display: block;
-      width: 100%;
-      border: none;
-      font-size: 4vh;
-      padding: 2vh 0;
-      margin: 2vh 0;
-      background-color: $primary;
-      color: $primary-alt;
-      cursor: pointer;
-      box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
-
-      &:hover {
-        background-color: lighten($primary, 10%);
-        color: lighten($primary-alt, 10%);
-      }
+      @include bigbutton(8vh);
     }
 
     .instructions {
       font-size: 2vh;
       padding: 1vh 0;
-      text-shadow: 0 0.1em 0.2em rgba(0,0,0,0.2);
     }
 
     .footer {
@@ -215,7 +182,6 @@
       right: 0;
       left: 0;
       z-index: 110;
-      text-shadow: 0 0.1em 0.2em rgba(0,0,0,0.2);
     }
 
     .contain_width {

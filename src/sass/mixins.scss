@@ -1,3 +1,5 @@
+@import "./variables";
+
 /*SASS Mixins*/
 @mixin mobile {
   @media screen and (max-width: $mobile-width) {
@@ -20,4 +22,46 @@
   -moz-user-select: none;     /* Firefox all */
   -ms-user-select: none;      /* IE 10+ */
   user-select: none;          /* Likely future */
+}
+
+@mixin bigbutton($height) {
+  display: block;
+  width: 100%;
+  border: none;
+  font-size: $height/2;
+  padding: $height/4 0;
+  margin: $height/4 0;
+  background-color: $primary;
+  color: $primary-alt;
+  cursor: pointer;
+  box-shadow: 0 $height/8 $height/4 0 rgba(0,0,0,0.1);
+
+  &:hover {
+    background-color: lighten($primary, 10%);
+    color: lighten($primary-alt, 10%);
+  }
+}
+@mixin biginput($height) {
+  display: block;
+  width: 100%;
+  height: $height;
+  font-size: $height/2;
+  text-align: center;
+  line-height: $height;
+  padding: 0 $height/4;
+  color: #888;
+  background-color: white;
+  border: $height/16 solid #888;
+  box-shadow: 0 $height/4 $height/2 0 rgba(0,0,0,0.1);
+  border-radius: $height/8;
+
+  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+
+  &:focus {
+    outline: none;
+    border-color: lighten($primary, 10%);
+    box-shadow: 0 0 $height/4 0 lighten($primary, 10%);
+  }
 }

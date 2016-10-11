@@ -86,29 +86,9 @@
       padding: 1vh;
 
       input[type="text"]{
-        vertical-align: text-top;
-        display: inline-block;
-        width: 100%;
-        height: 4vh;
-        font-size: 2vh;
+        @include biginput(4vh);
+
         text-align: left;
-        line-height: 4vh;
-        padding: 0 1vh;
-        color: #888;
-        background-color: white;
-        border: 0.2vh solid #888;
-        box-shadow: 0 0.125em 0.5em 0 rgba(0,0,0,0.1);
-        border-radius: 0.5vh;
-
-        -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-        -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-
-        &:focus {
-          outline: none;
-          border-color: lighten($primary, 10%);
-          box-shadow: 0 0 2vh 0 lighten($primary, 10%);
-        }
       }
     }
   }

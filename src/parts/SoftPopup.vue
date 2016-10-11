@@ -56,21 +56,10 @@
       color: lighten($base, 20%);
     }
     .confirm {
+      @include bigbutton(4vh);
+
       width: 30%;
       margin: 2vh auto 0;
-      display: block;
-      border: none;
-      font-size: 2vh;
-      padding: 1vh 0;
-      background-color: $primary;
-      color: $primary-alt;
-      cursor: pointer;
-      box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
-
-      &:hover {
-        background-color: lighten($primary, 10%);
-        color: lighten($primary-alt, 10%);
-      }
     }
   }
 
