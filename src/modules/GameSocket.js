@@ -32,7 +32,7 @@ function start (obj) {
   ws.onclose = () => {
     ws.connected = false
     Data.state.gameSocket = 'dead'
-    console.log('GameSocket closed.')
+    // console.log('GameSocket closed.')
     Data.page = 'home'
     Vue.set(Data.game, 'map', [])
     Vue.set(Data.game, 'leaderboard', [])
@@ -41,7 +41,7 @@ function start (obj) {
   ws.onmessage = (e) => {
     var d = JSON.parse(e.data)
     handleMessage(d)
-    console.log(d)
+    // console.log(d)
   }
 }
 
@@ -219,7 +219,7 @@ function sendObj (object, queue = false) {
   if (Data.state.gameSocket !== 'ready') {
     if (queue) {
       sendQueue.push(object)
-      console.log('object added to web socket queue')
+      // console.log('object added to web socket queue')
     } else {
       console.warn('Game server is not connected.')
       Data.popup.show('Connection', 'You are not connected to the game server!')

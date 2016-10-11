@@ -4,7 +4,7 @@ import WebSocket from './WebSocket'
 
 // Load the SDK asynchronously
 (function (d, s, id) {
-  console.log('asdfqwerty')
+  // console.log('asdfqwerty')
   var js
   var fjs = d.getElementsByTagName(s)[0]
   if (d.getElementById(id)) return

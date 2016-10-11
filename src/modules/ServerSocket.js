@@ -45,7 +45,7 @@ function start () {
   ws.onmessage = (e) => {
     var d = JSON.parse(e.data)
     handleMessage(d)
-    console.log(d)
+    // console.log(d)
   }
 }
 
@@ -67,7 +67,7 @@ function handleMessage (d) {
     delete window.localStorage.removeItem('cookie')
     sendCookie()
   } else if (d.m === 'setname') {
-    console.log('Set name? ' + d.v)
+    // console.log('Set name? ' + d.v)
   } else if (d.m === 'leaderboard') {
     for (let i = 0; i < d.data.length; i++) { // set rank to the same if points are the same
       if (typeof d.data[i - 1] !== 'undefined' && d.data[i - 1].points === d.data[i].points) {
@@ -85,7 +85,7 @@ function handleMessage (d) {
     Data.user.points = d.data.points
     Data.user.rank = d.data.rank
   } else if (d.m === 'ready') {
-    console.log('ready')
+    // console.log('ready')
   } else if (d.m === 'join') {
     if (d.v) {
       Data.page = 'waiting'
@@ -125,10 +125,10 @@ function handleMessage (d) {
 
 function sendCookie () {
   if (typeof window.localStorage.cookie === 'undefined') {
-    console.log('No cookie.')
+    // console.log('No cookie.')
     sendObj({m: 'makecookie'}, true)
   } else {
-    console.log('Cookie')
+    // console.log('Cookie')
     sendObj({m: 'cookie', cookie: window.localStorage.cookie}, true)
   }
 }
@@ -137,7 +137,7 @@ function sendObj (object, queue = false) {
   if (Data.state.serverSocket !== 'ready') {
     if (queue) {
       sendQueue.push(object)
-      console.log('object added to web socket queue')
+      // console.log('object added to web socket queue')
     } else {
       console.warn('WebSocket is not connected.')
       Data.popup.show('Connection', 'You are not connected to the server!')

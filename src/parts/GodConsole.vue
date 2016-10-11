@@ -13,7 +13,7 @@
 
 <script>
   import GODS from '../modules/GodSocket'
-  console.log(GODS.dummy)
+  // console.log(GODS.dummy)
 
   export default {
     props: ['god'],

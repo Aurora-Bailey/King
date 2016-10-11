@@ -48,7 +48,7 @@ function start () {
   ws.onmessage = (e) => {
     var d = JSON.parse(e.data)
     handleMessage(d)
-    console.log(d)
+    // console.log(d)
   }
 }
 
@@ -78,7 +78,7 @@ function sendObj (object, queue = false) {
   if (Data.state.godSocket !== 'ready') {
     if (queue) {
       sendQueue.push(object)
-      console.log('object added to web socket queue')
+      // console.log('object added to web socket queue')
     } else {
       console.warn('WebSocket is not connected.')
       Data.popup.show('Connection', 'You are not connected to the GOD server!')
