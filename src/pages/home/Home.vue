@@ -142,10 +142,11 @@
 
     .logo {
       font-size: 12vh;
-      padding: 6vh 0;
+      padding: 4vh 0;
 
       font-family: 'Oleo Script', cursive;
-      color: $primary;
+      // color: $primary;
+      letter-spacing: 0.03em;
     }
 
     .rank {
