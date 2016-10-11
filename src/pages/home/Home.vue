@@ -58,8 +58,6 @@
   @import "../../sass/variables";
   @import "../../sass/mixins";
 
-  @import url(https://fonts.googleapis.com/css?family=Oleo+Script);
-
   #home {
     position: absolute;
     top: 0;
