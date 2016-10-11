@@ -33,14 +33,35 @@
 	==Upgrade github and make everything private
 
 
-// client
-	==style chats with color of person
-	==make server and game chats more subtle
-	==remote our server might be down from popup
-	==game leaderboard/num units
-  ==remove circlecells
-  ==make chat from admin broadcast red
+// Last Live
+  // client
+  	==style chats with color of person
+  	==make server and game chats more subtle
+  	==remote our server might be down from popup
+  	==game leaderboard/num units
+    ==remove circlecells
+    ==make chat from admin broadcast red
 
+   // both
+     ==else if on all applicable if statements
+     ==dev console on homescreen that can access stats
+   	==add chat commands for addmin
+   	==maybe put admin commands on a separate node ws.kings.io/god
+   	==// get number of running rooms
+   	==// get number of players
+   	==// get number of players in games
+   	==// broadcast message to all game chats
+     ==change zero to god in Nginx
+     ==add mod=god to mongodb
+   	==add myself as admin in mongodb
+
+   	//server
+    	==fix 200 game room limit
+    	==if all rooms are full set timeout to check again and send users the notice.
+    	==add pings to websockt, disconnect if no ping in 10 minutes
+
+
+// client
 	add about, help, contact pages
 	remove ugly time notice at some point.
 
@@ -49,18 +70,6 @@
 
 
 // both
-  ==else if on all applicable if statements
-  ==dev console on homescreen that can access stats
-	==add chat commands for addmin
-	==maybe put admin commands on a separate node ws.kings.io/god
-	==// get number of running rooms
-	==// get number of players
-	==// get number of players in games
-	==// broadcast message to all game chats
-  ==change zero to god in Nginx
-  ==add mod=god to mongodb
-	==add myself as admin in mongodb
-
 	// reset games (roomname)
 	// reset servers (servername)
 	// lock games
@@ -68,10 +77,6 @@
 
 
 //server
-	==fix 200 game room limit
-	==if all rooms are full set timeout to check again and send users the notice.
-	==add pings to websockt, disconnect if no ping in 10 minutes
-
 	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
 	points by chess ranking formula ?might come with the multi-game overhaul
 
