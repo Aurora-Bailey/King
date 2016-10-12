@@ -745,6 +745,14 @@ module.exports.setup = function (p) {
         log(err);
       }
     };
+    ws.sendBinary = function(data){
+      try{
+        ws.send(data, {binary: true});
+      }catch(err){
+        log('I failed to send binary a message.');
+        log(err);
+      }
+    };
     ws.on('message', function incoming(data) {
       try {
         var d = JSON.parse(data);

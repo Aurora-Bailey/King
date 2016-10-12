@@ -77,17 +77,16 @@
 
 
 //server
-
-
-
 	!!!!!!!! Compatable versoin change
+	==merge map solid and owner
+
+
 	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   points by chess ranking formula ?might come with the multi-game overhaul
 
 	multiple separate queues for multiple game modes all from the same server
 	different types of game servers running different logic
 	switch to binary
-	merge map solid and owner
 	collect more data from user
 	// current
 	{
