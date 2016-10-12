@@ -1,5 +1,6 @@
 var x = {};
-x.version = 'LKYHFOEIHLSKDJGEG'; // this version is live as of 10/4/2015 11:32 PM
+x.version = 'f2f9847b4b214fbe2e27736d585150fc'; // This version converts from single game to multi game
+x.microversion = 'v2000';
 x.maxnamelength = 15;
 
 x.queue = {};

@@ -1,5 +1,5 @@
 export default {
-  version: 'LKYHFOEIHLSKDJGEG', // this version is live as of 10/4/2015 11:32 PM
+  version: 'f2f9847b4b214fbe2e27736d585150fc', // This version converts from single game to multi game
   dev: {
     on: window.location.hostname === 'localhost',
     server: 'localhost',
@@ -14,7 +14,7 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v1527',
+    microversion: 'v2000',
     notes: [
       {title: 'Notice', text: 'For more players check back at the following times \n\n 6:00 AM/PM GMT \n 12:00 AM/PM GMT \n Friday 8:00 PM GMT'}
     ]
