@@ -123,7 +123,6 @@ class Game {
     this.players = [];
     this.playerarray = [];// a version of players that can be sent over the network
     this.map = {};
-    this.map.solid = [];
     this.map.units = [];
     this.map.owner = [];
 
@@ -156,13 +155,11 @@ class Game {
     this.maptotalsize = this.mapusersize * this.mapcellsize;
     // build map
     for(let y=0; y<this.maptotalsize; y++){
-      this.map.solid[y] = [];
       this.map.units[y] = [];
       this.map.owner[y] = [];
       for(let x=0; x<this.maptotalsize; x++){
-        this.map.solid[y][x] = Math.round(Math.random());
         this.map.units[y][x] = 0;
-        this.map.owner[y][x] = -1;
+        this.map.owner[y][x] = -1 - Math.round(Math.random());
       }
     }
     // rearrange solid blocks
@@ -210,7 +207,6 @@ class Game {
         if (pindex === 'empty') continue;
 
         if(typeof this.players[pindex] !== 'undefined'){
-          this.map.solid[toty][totx] = 0;
           this.map.units[toty][totx] = 2;
           this.map.owner[toty][totx] = pindex;
           this.players[pindex].kingloc = {x: totx,y: toty};
@@ -238,7 +234,7 @@ class Game {
     // clean up
     for(let y=0; y<this.maptotalsize; y++){
       for(let x=0; x<this.maptotalsize; x++){
-        if (this.map.solid[y][x] == 10) this.map.solid[y][x] = 0;
+        if (this.map.owner[y][x] == -100) this.map.owner[y][x] = -1;
       }
     }
 
@@ -246,15 +242,15 @@ class Game {
   }
 
   static mapNumEmpty(cellx, celly){
-    if (typeof this.map.solid[celly] === 'undefined') return 'edge';
-    if (typeof this.map.solid[celly][cellx] === 'undefined') return 'edge';
+    if (typeof this.map.owner[celly] === 'undefined') return 'edge';
+    if (typeof this.map.owner[celly][cellx] === 'undefined') return 'edge';
 
-    if (this.map.solid[celly][cellx] == 1) return 'solid';
+    if (this.map.owner[celly][cellx] == -2) return 'solid';
 
-    if (this.map.solid[celly][cellx] == 0) {
+    if (this.map.owner[celly][cellx] == -1) {
       let emptyneig = 1;
 
-      this.map.solid[celly][cellx] = 10;
+      this.map.owner[celly][cellx] = -100;
 
       let r = this.mapNumEmpty(cellx+1, celly);
       if (!isNaN(r)) emptyneig += r;
@@ -282,7 +278,7 @@ class Game {
     let numsolid = 0;
     for(let c=0; c<this.maptotalsize; c++){
       for(let d=0; d<this.maptotalsize; d++) {
-        if (this.map.solid[c][d] == 1) numsolid++;
+        if (this.map.owner[c][d] == -2) numsolid++;
       }
     }
 
@@ -294,22 +290,22 @@ class Game {
         for(let a=-1; a<=1; a++){
           for(let b=-1; b<=1; b++){
             if(a == 0 && b == 0) continue;// current block
-            if(typeof this.map.solid[y+a] === 'undefined') continue;
-            if(typeof this.map.solid[y+a][x+b] === 'undefined') continue;
-            if(this.map.solid[y+a][x+b] == 1) n++;
+            if(typeof this.map.owner[y+a] === 'undefined') continue;
+            if(typeof this.map.owner[y+a][x+b] === 'undefined') continue;
+            if(this.map.owner[y+a][x+b] == -2) n++;
           }
         }
 
         // live and die
         if(n < 1){// die
-          if(this.map.solid[y][x] == 1) numsolid--;
-          this.map.solid[y][x] = 0;
+          if(this.map.owner[y][x] == -2) numsolid--;
+          this.map.owner[y][x] = -1;
         }else if(n > 2){// die
-          if(this.map.solid[y][x] == 1) numsolid--;
-          this.map.solid[y][x] = 0;
+          if(this.map.owner[y][x] == -2) numsolid--;
+          this.map.owner[y][x] = -1;
         }else if(n === 2 && numsolid < maxnumsolid){// live
-          if(this.map.solid[y][x] == 0) numsolid++;
-          this.map.solid[y][x] = 1;
+          if(this.map.owner[y][x] == -1) numsolid++;
+          this.map.owner[y][x] = -2;
         }
 
       }
@@ -332,7 +328,7 @@ class Game {
     if(this.loopcount % 10 == 0){// once every 10 loops
       for(let y=0; y<this.maptotalsize; y++){
         for(let x=0; x<this.maptotalsize; x++){
-          if(this.map.owner[y][x] != -1){
+          if(this.map.owner[y][x] >= 0){
             this.map.units[y][x]++;
           }
         }
@@ -351,8 +347,8 @@ class Game {
         let percent = move[2];
         let direction= move[3];// up right down left
 
-        if(typeof Game.map.solid[y] === 'undefined') return false;
-        if(typeof Game.map.solid[y][x] === 'undefined') return false;
+        if(typeof Game.map.owner[y] === 'undefined') return false;
+        if(typeof Game.map.owner[y][x] === 'undefined') return false;
         if(Game.map.owner[y][x] !== e.pid) return false;
         if(Game.map.units[y][x] < 2) return false;
         if(percent > 100 || percent < 0) return false;
@@ -363,9 +359,9 @@ class Game {
         if(direction == 1) moveto.x++;
         if(direction == 2) moveto.y++;
         if(direction == 3) moveto.x--;
-        if(typeof Game.map.solid[moveto.y] === 'undefined') return false;
-        if(typeof Game.map.solid[moveto.y][moveto.x] === 'undefined') return false;
-        if(Game.map.solid[moveto.y][moveto.x] === 1) return false;// solid
+        if(typeof Game.map.owner[moveto.y] === 'undefined') return false;
+        if(typeof Game.map.owner[moveto.y][moveto.x] === 'undefined') return false;
+        if(Game.map.owner[moveto.y][moveto.x] === -2) return false;// solid
 
         let amount = Math.round(Game.map.units[y][x] * (percent/100));
         if(amount == Game.map.units[y][x]) amount--;// can't move all units
@@ -435,11 +431,15 @@ class Game {
     // send changes to players
     this.players.forEach((e,i)=>{
       if(!e.connected) return false;
-      e.ws.sendObj({m: 'map', type: 'units', data: Game.map.units});
-      e.ws.sendObj({m: 'map', type: 'owner', data: Game.map.owner});
+      this.sendMap(e.ws)
     });
 
     this.loopcount++;
+  }
+
+  static sendMap(ws) {
+    ws.sendObj({m: 'map', type: 'units', data: Game.map.units});
+    ws.sendObj({m: 'map', type: 'owner', data: Game.map.owner});
   }
 
   static playerDead(pid, killername){
@@ -578,9 +578,9 @@ function handleMessage(ws, d) {// websocket client messages
         ws.lastchat = Date.now();
 
         ws.sendObj({m: 'welcome', pid: pid});
-        ws.sendObj({m: 'map', type: 'solid', data: Game.map.solid});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color king location
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
+        Game.sendMap(ws);
 
         // take one point for the point pool
         db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){

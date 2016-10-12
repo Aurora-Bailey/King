@@ -77,11 +77,12 @@
 
 
 //server
-	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
-	points by chess ranking formula ?might come with the multi-game overhaul
+
 
 
 	!!!!!!!! Compatable versoin change
+	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
+  points by chess ranking formula ?might come with the multi-game overhaul
 
 	multiple separate queues for multiple game modes all from the same server
 	different types of game servers running different logic

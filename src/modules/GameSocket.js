@@ -99,7 +99,7 @@ function handleMessage (d) {
       if (typeof Data.game.map[y] === 'undefined') Vue.set(Data.game.map, y, [])
       for (let x = 0; x < d.data[y].length; x++) {
         if (typeof Data.game.map[y][x] === 'undefined') {
-          Vue.set(Data.game.map[y], x, {solid: 0, units: 0, owner: -1, color: 0, movehelp: 0, king: false, loc: {x: x, y: y}})
+          Vue.set(Data.game.map[y], x, {units: 0, owner: -1, color: 0, movehelp: 0, king: false, loc: {x: x, y: y}})
         }
 
         Vue.set(Data.game.map[y][x], d.type, d.data[y][x])
@@ -107,27 +107,29 @@ function handleMessage (d) {
         if (d.type === 'owner') {
           let id = Data.game.map[y][x].owner
 
-          if (typeof Data.game.players[id] !== 'undefined' && typeof Data.game.players[id].color !== 'undefined') {
+          if (typeof Data.game.players[id] !== 'undefined') {
             // cell has owner
 
             // compute king
             let kingloc = Data.game.players[id].kingloc
             if (kingloc.x === x && kingloc.y === y) {
-              Vue.set(Data.game.map[y][x], 'king', true)
+              Data.game.map[y][x].king = true
             } else {
-              Vue.set(Data.game.map[y][x], 'king', false)
+              Data.game.map[y][x].king = false
             }
 
             // compute color
-            Vue.set(Data.game.map[y][x], 'color', 'hsl(' + Data.game.players[id].color + ',100%,50%)')
+            Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
           } else {
             // un-owned block
 
             // comput color
-            if (Data.game.map[y][x].solid === 1) {
-              Vue.set(Data.game.map[y][x], 'color', 'hsl(0,100%,0%)')
+            if (Data.game.map[y][x].owner === -2) {
+              Data.game.map[y][x].color = 'hsl(0,100%,0%)'
+            } else if (Data.game.map[y][x].owner === -1) {
+              Data.game.map[y][x].color = 'hsl(0,100%,100%)'
             } else {
-              Vue.set(Data.game.map[y][x], 'color', 'hsl(0,100%,100%)')
+              Data.game.map[y][x].color = 'hsl(0,0%,50%)'
             }
           }
         }
