@@ -90,6 +90,7 @@
 
 	sort logs by category. pull only one category
 	keep memory of last 1000 or so logs
+	mongodb logs
 
 	put king on map.owner
 

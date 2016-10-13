@@ -18,55 +18,6 @@ var http = require('http'),
   WORKER_TYPE = false,
   NODE_ENV = false;
 
-
-var sniffers = {
-  list: [],
-  add: function(sniffer){
-    let alreadySniffing = false;
-    this.list.forEach((e,i)=>{
-      if (e.sid == sniffer.sid) alreadySniffing = true;
-    });
-
-    if(!alreadySniffing){
-      this.list.push(sniffer);
-      try {
-        process.send({
-          m: 'pass',
-          to: sniffer.rid,
-          data: {
-            m: 'godmsg',
-            s: sniffer.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing Activated!'
-          }
-        });
-      } catch(err) {
-        console.log(err);
-      }
-    }
-  },
-  remove: function(sniffer){
-    for(let i=0; i<this.list.length; i++){
-      if (this.list[i].sid == sniffer.sid){
-        this.list.splice(i, 1);
-        i--;
-        try {
-          process.send({
-            m: 'pass',
-            to: sniffer.rid,
-            data: {
-              m: 'godmsg',
-              s: sniffer.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing De-Activated!'
-            }
-          });
-        } catch(err) {
-          console.log(err);
-        }
-      }
-    }
-  }
-};
-
 /* Websockets */
 function nameClients() {
   let names = '';
@@ -128,65 +79,6 @@ function handleMessage(ws, d) {// websocket client messages
             // No arguments
             ws.sendObj({m: 'output', msg: '=== Pulling status from every node ==='});
             process.send({m: 'pass', to: 'all', data: {m: 'getstats', rid: WORKER_INDEX, sid: ws.sid}});
-          }
-        }
-
-        // sniff
-        if (query[0] === 'sniff') {
-
-          // Second word
-          if (typeof query[1] !== 'undefined') {
-            // send to specific node or type
-            ws.sendObj({m: 'output', msg: '=== Sniffing ' + query[1] + ' ==='});
-            process.send({m: 'pass', to: query[1], data: {m: 'sniff', rid: WORKER_INDEX, sid: ws.sid}});
-          } else {
-            // No arguments
-            ws.sendObj({m: 'output', msg: '=== Sniffing every node ==='});
-            process.send({m: 'pass', to: 'all', data: {m: 'sniff', rid: WORKER_INDEX, sid: ws.sid}});
-          }
-        }
-        // unsniff
-        if (query[0] === 'unsniff') {
-
-          // Second word
-          if (typeof query[1] !== 'undefined') {
-            // send to specific node or type
-            ws.sendObj({m: 'output', msg: '=== Unsniffing ' + query[1] + ' ==='});
-            process.send({m: 'pass', to: query[1], data: {m: 'unsniff', rid: WORKER_INDEX, sid: ws.sid}});
-          } else {
-            // No arguments
-            ws.sendObj({m: 'output', msg: '=== Unsniffing every node ==='});
-            process.send({m: 'pass', to: 'all', data: {m: 'unsniff', rid: WORKER_INDEX, sid: ws.sid}});
-          }
-        }
-
-        // snoop
-        // currently only game rooms listen for this.
-        if (query[0] === 'snoop') {
-
-          // Second word
-          if (typeof query[1] !== 'undefined') {
-            // send to specific node or type
-            ws.sendObj({m: 'output', msg: '=== snooping ' + query[1] + ' ==='});
-            process.send({m: 'pass', to: query[1], data: {m: 'snoop', rid: WORKER_INDEX, sid: ws.sid}});
-          } else {
-            // No arguments
-            ws.sendObj({m: 'output', msg: '=== snooping every node ==='});
-            process.send({m: 'pass', to: 'all', data: {m: 'snoop', rid: WORKER_INDEX, sid: ws.sid}});
-          }
-        }
-        // unsnoop
-        if (query[0] === 'unsnoop') {
-
-          // Second word
-          if (typeof query[1] !== 'undefined') {
-            // send to specific node or type
-            ws.sendObj({m: 'output', msg: '=== Unsnooping ' + query[1] + ' ==='});
-            process.send({m: 'pass', to: query[1], data: {m: 'unsnoop', rid: WORKER_INDEX, sid: ws.sid}});
-          } else {
-            // No arguments
-            ws.sendObj({m: 'output', msg: '=== Unsnooping every node ==='});
-            process.send({m: 'pass', to: 'all', data: {m: 'unsnoop', rid: WORKER_INDEX, sid: ws.sid}});
           }
         }
 
@@ -280,10 +172,6 @@ function handleMessage(ws, d) {// websocket client messages
         // help
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
-          ws.sendObj({m: 'output', msg: 'sniff [id/type/all] - Real time logs from every node. Options specific node/s'});
-          ws.sendObj({m: 'output', msg: 'unsniff [id/type/all] - Stop real time logs from every node. Options specific node/s'});
-          ws.sendObj({m: 'output', msg: 'snoop [id/type/all] - Real time chat from every node. Options specific node/s'});
-          ws.sendObj({m: 'output', msg: 'unsnoop [id/type/all] - Stop real time chat from every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'chatlogs [id/type/all] - Pull past chat messages. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'chat id/type/all string of text - Send chat message to room. options required'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
@@ -306,21 +194,6 @@ function log(msg){
     msg = JSON.stringify(msg);
   }
   console.log('[' + Lib.humanTimeDate(Date.now()) + ']GOD--------------Worker ' + WORKER_INDEX + ': ' + msg);
-  sniffers.list.forEach((e,i)=>{
-    try {
-      process.send({
-        m: 'pass',
-        to: e.rid,
-        data: {
-          m: 'godmsg',
-          s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + msg
-        }
-      });
-    } catch(err) {
-      console.log(err);
-    }
-  });
 }
 
 /* Setup */
@@ -350,20 +223,6 @@ module.exports.setup = function (p) {
         });
       } catch(err) {
         log('I failed to send stats to ' + WORKER_TYPE + '.');
-        console.log(err);
-      }
-    }else if (m.m === "sniff"){
-      try {
-        sniffers.add({rid: m.rid, sid: m.sid});
-      } catch(err) {
-        log('I failed to add sniffer.');
-        console.log(err);
-      }
-    }else if (m.m === "unsniff"){
-      try {
-        sniffers.remove({rid: m.rid, sid: m.sid});
-      } catch(err) {
-        log('I failed to remove sniffer.');
         console.log(err);
       }
     }
@@ -414,8 +273,6 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       log(ws.name + ' has left.');
-      handleMessage(ws, {m: 'input', msg: 'unsniff'}); // Clean up
-      handleMessage(ws, {m: 'input', msg: 'unsnoop'}); // Clean up
       ws.connected = false;
     });
 

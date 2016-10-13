@@ -26,102 +26,6 @@ var http = require('http'),
   WORKER_TYPE = false,
   NODE_ENV = false;
 
-var sniffers = {
-  list: [],
-  add: function(sniffer){
-    let alreadySniffing = false;
-    this.list.forEach((e,i)=>{
-      if (e.sid == sniffer.sid) alreadySniffing = true;
-    });
-
-    if(!alreadySniffing){
-      this.list.push(sniffer);
-      try {
-        process.send({
-          m: 'pass',
-          to: sniffer.rid,
-          data: {
-            m: 'godmsg',
-            s: sniffer.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing Activated!'
-          }
-        });
-      } catch(err) {
-        console.log(err);
-      }
-    }
-  },
-  remove: function(sniffer){
-    for(let i=0; i<this.list.length; i++){
-      if (this.list[i].sid == sniffer.sid){
-        this.list.splice(i, 1);
-        i--;
-        try {
-          process.send({
-            m: 'pass',
-            to: sniffer.rid,
-            data: {
-              m: 'godmsg',
-              s: sniffer.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing De-Activated!'
-            }
-          });
-        } catch(err) {
-          console.log(err);
-        }
-      }
-    }
-  }
-};
-
-var snoopers = {
-  list: [],
-  add: function(snooper){
-    let alreadySniffing = false;
-    this.list.forEach((e,i)=>{
-      if (e.sid == snooper.sid) alreadySniffing = true;
-    });
-
-    if(!alreadySniffing){
-      this.list.push(snooper);
-      try {
-        process.send({
-          m: 'pass',
-          to: snooper.rid,
-          data: {
-            m: 'godmsg',
-            s: snooper.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Snooping Activated!'
-          }
-        });
-      } catch(err) {
-        console.log(err);
-      }
-    }
-  },
-  remove: function(snooper){
-    for(let i=0; i<this.list.length; i++){
-      if (this.list[i].sid == snooper.sid){
-        this.list.splice(i, 1);
-        i--;
-        try {
-          process.send({
-            m: 'pass',
-            to: snooper.rid,
-            data: {
-              m: 'godmsg',
-              s: snooper.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Snooping De-Activated!'
-            }
-          });
-        } catch(err) {
-          console.log(err);
-        }
-      }
-    }
-  }
-};
-
 class Game {
   static setup(){
     // set or reset game room
@@ -545,23 +449,6 @@ function broadcastChat(from, msg) {
   wss.clients.forEach(function each(client) {
     client.sendObj({m: 'chat', from: from, message: msg});
   });
-
-  // snoop chat
-  snoopers.list.forEach((e,i)=>{
-    try {
-      process.send({
-        m: 'pass',
-        to: e.rid,
-        data: {
-          m: 'godmsg',
-          s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + logmsg
-        }
-      });
-    } catch(err) {
-      console.log(err);
-    }
-  });
 }
 
 function handleMessage(ws, d) {// websocket client messages
@@ -628,21 +515,6 @@ function log(msg){
     msg = JSON.stringify(msg);
   }
   console.log('[' + Lib.humanTimeDate(Date.now()) + ']G--------Worker ' + WORKER_INDEX + ': ' + msg);
-  sniffers.list.forEach((e,i)=>{
-    try {
-      process.send({
-        m: 'pass',
-        to: e.rid,
-        data: {
-          m: 'godmsg',
-          s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + msg
-        }
-      });
-    } catch(err) {
-      console.log(err);
-    }
-  });
 }
 
 /* Setup */
@@ -685,34 +557,6 @@ module.exports.setup = function (p) {
         });
       } catch(err) {
         log('I failed to send stats to god.');
-        console.log(err);
-      }
-    }else if (m.m === "sniff"){
-      try {
-        sniffers.add({rid: m.rid, sid: m.sid});
-      } catch(err) {
-        log('I failed to add sniffer.');
-        console.log(err);
-      }
-    }else if (m.m === "unsniff"){
-      try {
-        sniffers.remove({rid: m.rid, sid: m.sid});
-      } catch(err) {
-        log('I failed to remove sniffer.');
-        console.log(err);
-      }
-    }else if (m.m === "snoop"){
-      try {
-        snoopers.add({rid: m.rid, sid: m.sid});
-      } catch(err) {
-        log('I failed to add snooper.');
-        console.log(err);
-      }
-    }else if (m.m === "unsnoop"){
-      try {
-        snoopers.remove({rid: m.rid, sid: m.sid});
-      } catch(err) {
-        log('I failed to remove snooper.');
         console.log(err);
       }
     }else if (m.m === "chatlogs"){
