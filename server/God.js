@@ -397,8 +397,12 @@ module.exports.setup = function (p) {
     };
     ws.on('message', function incoming(data) {
       try {
-        var d = JSON.parse(data);
-        handleMessage(ws, d);
+        if (typeof data === 'string') {
+          handleMessage(ws, JSON.parse(data))
+        } else {
+          var buf = new Buffer(data, 'binary')
+          handleMessage(ws, Schema.unpack(buf))
+        }
       }
       catch (err) {
         log('HACKER!!! AKA bad client message.');

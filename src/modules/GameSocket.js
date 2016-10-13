@@ -251,4 +251,4 @@ function shortObj (object) {
   handleMessage(object)
 }
 
-export default {sendObj, shortObj, sendBinary}
+export default {sendObj, shortObj, sendBinary, start, close}

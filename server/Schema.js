@@ -30,4 +30,12 @@ type.map = avro.parse({
     {name:'data',type:{type:'array',items:{type:'array',items:'int'}}}
   ]
 });
+type.move = avro.parse({
+  name: 'Move',
+  type: 'record',
+  fields: [
+    {name:'m',type:'string'},
+    {name:'move',type:{type:'array',items:'int'}}
+  ]
+});
 /* eslint-enable */

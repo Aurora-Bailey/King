@@ -48,6 +48,7 @@
   import Chat from './Chat'
   import Leaderboard from './Leaderboard'
   import Deadscreen from './Deadscreen'
+  var Schema = require('../../../server/Schema')
 
   export default {
     props: ['game'],
@@ -136,7 +137,7 @@
       },
       movedirection: function (d) {
         this.move.direction = d
-        GS.sendObj({m: 'move', move: [this.move.loc.x, this.move.loc.y, this.move.percent, this.move.direction]})
+        GS.sendBinary(Schema.pack('move', {m: 'move', move: [this.move.loc.x, this.move.loc.y, this.move.percent, this.move.direction]}))
         this.cancelmove()
       },
       cancelmove: function () {
