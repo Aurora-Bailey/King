@@ -31,7 +31,7 @@ class Game {
     // set or reset game room
     // start will be called when all player spots are accounted for
     this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
-    log('Setup ' + WORKER_TYPE + ' ' + this.gameid);
+    log('setup', 'Setup ' + WORKER_TYPE + ' ' + this.gameid);
     this.pointpool = 0;
     this.allowplayers = {};
     this.players = [];
@@ -55,7 +55,7 @@ class Game {
     this.playersalive = this.players.length;
 
     // keep track of players
-    log('Starting ' + WORKER_TYPE + ' with ' + this.playersalive + ' players ' + this.gameid);
+    log('gameplay', 'Starting ' + WORKER_TYPE + ' with ' + this.playersalive + ' players ' + this.gameid);
 
     // close game after a long time in case of a dissconnected room or something
     this.forceclose = setTimeout(()=>{this.endgame();}, 1000*60*60*6)// 6 hours
@@ -99,8 +99,6 @@ class Game {
         let numempty = this.getMapNumEmpty(totx, toty);
 
         while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
-          log('___re-place numempty: ' + numempty + ' minempty: ' + (this.maptotalsize * this.maptotalsize / 4) );
-
           randcellx = Math.floor(Math.random() * this.mapcellsize);
           randcelly = Math.floor(Math.random() * this.mapcellsize);
 
@@ -358,7 +356,7 @@ class Game {
 
   static playerDead(pid, killername){
     broadcast({m: 'playerdead', pid: pid, timealive: Date.now() - this.starttime, place: this.playersalive, kills: this.players[pid].kills, killer: killername});
-    log('___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
+    log('gameplay', '___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
     broadcastChat('Game', this.players[pid].name + ' was taken over by ' + killername);
 
     this.playersalive--;
@@ -380,12 +378,16 @@ class Game {
       killer: killername,
       timealive: Date.now() - this.starttime
     }}}, function(err, result){
-      if(err)
+      if(err) {
+        log('err', 'Mongodb error.');
         console.log(err);
+      }
     });
     db.collection('players').updateOne({id: ws.uid}, {$inc: {numplays: 1}}, function(err, result){
-      if(err)
+      if(err) {
+        log('err', 'Mongodb error.');
         console.log(err);
+      }
     });
     let points = 0;
     if(this.players.length == 2){ // exception
@@ -403,8 +405,10 @@ class Game {
 
     if(points !== 0){
       db.collection('players').updateOne({id: ws.uid}, {$inc: {points: points}}, function(err, result){
-        if(err)
+        if(err) {
+          log('err', 'Mongodb error.');
           console.log(err);
+        }
       });
     }
   }
@@ -414,7 +418,7 @@ class Game {
     clearTimeout(this.forceclose);
 
     // keep track of players
-    log('Ending ' + WORKER_TYPE + '. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
+    log('gameplay', 'Ending ' + WORKER_TYPE + '. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
 
     // kick all players
     this.players.forEach((e,i)=>{
@@ -481,10 +485,12 @@ function handleMessage(ws, d) {// websocket client messages
 
         // take one point for the point pool
         db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){
-          if(err)
+          if(err){
+            log('err', 'Take point form player');
             console.log(err);
-          else
+          } else {
             Game.pointpool++;
+          }
         });
       }
     }else if (d.m === 'move' && ws.playing) {
@@ -505,16 +511,18 @@ function handleMessage(ws, d) {// websocket client messages
       }
     }
   }catch(err){
+    log('err', 'handleMessage error: ' + JSON.stringify(d));
     console.log(err);
   }
 }
 
 /* General */
-function log(msg){
+function log(cat, msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  console.log('[' + Lib.humanTimeDate(Date.now()) + ']G--------Worker ' + WORKER_INDEX + ': ' + msg);
+  // console.log('[' + Lib.humanTimeDate(Date.now()) + ']G--------Worker ' + WORKER_INDEX + ': ' + msg);
+  let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
 }
 
 /* Setup */
@@ -525,8 +533,8 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a ' + WORKER_TYPE + ' room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
-  log('Version: ' + GV.version);
+  log('startup', 'Hi I\'m worker ' + WORKER_INDEX + ' running as a ' + WORKER_TYPE + ' room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
+  log('startup', 'Version: ' + GV.version);
 
   process.on('message', function (m, c) {// process server messages
     // messages from the process node
@@ -556,7 +564,7 @@ module.exports.setup = function (p) {
           }
         });
       } catch(err) {
-        log('I failed to send stats to god.');
+        log('err', 'I failed to send stats to god.');
         console.log(err);
       }
     }else if (m.m === "chatlogs"){
@@ -573,21 +581,21 @@ module.exports.setup = function (p) {
           });
         });
       } catch(err) {
-        log('I failed to send chat logs to god.');
+        log('err', 'I failed to send chat logs to god.');
         console.log(err);
       }
     }else if (m.m === "godchat"){
       try {
         broadcastChat('God', m.msg);
       } catch(err) {
-        log('I failed to send chat to players.');
+        log('err', 'I failed to send chat to players.');
         console.log(err);
       }
     }
   });
 
   wss.on('connection', function connection(ws) {
-    ws.on('error', function(e) { log('Got an error'); console.log(e); return false; });
+    ws.on('error', function(e) { log('err', 'Got a ws error'); console.log(e); return false; });
 
     ws.connected = true;
     ws.sendObj = function (obj) {
@@ -596,7 +604,7 @@ module.exports.setup = function (p) {
       try {
         ws.send(JSON.stringify(obj));
       } catch (err) {
-        log('I failed to send a message.');
+        log('wsout', 'I failed to send a message.');
       }
     };
     ws.sendBinary = function(data){
@@ -605,7 +613,7 @@ module.exports.setup = function (p) {
       try{
         ws.send(data, {binary: true});
       }catch(err){
-        log('I failed to send binary a message.');
+        log('wsout', 'I failed to send binary a message.');
       }
     };
     ws.on('message', function incoming(data) {
@@ -618,7 +626,7 @@ module.exports.setup = function (p) {
         }
       }
       catch (err) {
-        log('HACKER!!! AKA bad client message.');
+        log('err', 'HACKER!!! AKA bad client message. ' + JSON.stringify(data));
         console.log(data);
         console.log(err);
       }
@@ -631,8 +639,9 @@ module.exports.setup = function (p) {
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
         // broadcast({m: 'chat', from: 'Server', message: '' + Game.players[ws.pid].name + ' has left the game.'});
         broadcastChat('Server', '' + Game.players[ws.pid].name + ' has left the game.');
-        log('___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
+        log('gameplay', '___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
       }catch(err){
+        log('err', 'Failed on player ___exit');
         console.log(err);
       }
     });
@@ -644,14 +653,14 @@ module.exports.setup = function (p) {
     try {
       res.send('WebSocket -_- ' + WORKER_INDEX);
     } catch (err) {
-      log('I failed to send a http request.');
+      log('err', 'I failed to send a http request.');
       console.log(err);
     }
   });
 
   server.on('request', app);
   server.listen(WORKER_PORT, function () {
-    log( 'I\'m listening on port ' + server.address().port)
+    log('startup', 'I\'m listening on port ' + server.address().port)
   });
 
   // setup game

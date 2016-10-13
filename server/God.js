@@ -39,7 +39,7 @@ function handleMessage(ws, d) {// websocket client messages
       db.collection('players').find({cookie: d.cookie}, {_id: 0, mod: 1, name: 1}).limit(1).toArray(function(err, docs) {
         if (err) {
           ws.sendObj({m: 'output', msg: 'Bad Cookie!'});
-          log('Error with mongodb cookie request');
+          log('err', 'Error with mongodb cookie request');
           console.log(err);
         } else if (docs.length != 0) {
           //User WAS found
@@ -159,7 +159,7 @@ function handleMessage(ws, d) {// websocket client messages
             }
           } catch(err) {
             console.log(err);
-            log('error with live');
+            log('err', 'error with live');
           }
 
         }
@@ -183,17 +183,19 @@ function handleMessage(ws, d) {// websocket client messages
     // Example broadcast to all nodes
     // process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});
   }catch(err){
+    log('err', 'handleMessage error: ' + JSON.stringify(d));
     console.log(d);
     console.log(err);
   }
 }
 
 /* General */
-function log(msg){
+function log(cat, msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  console.log('[' + Lib.humanTimeDate(Date.now()) + ']GOD--------------Worker ' + WORKER_INDEX + ': ' + msg);
+  // console.log('[' + Lib.humanTimeDate(Date.now()) + ']GOD--------------Worker ' + WORKER_INDEX + ': ' + msg);
+  let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
 }
 
 /* Setup */
@@ -204,8 +206,8 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a GOD server. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
-  log('Version: ' + GV.version);
+  log('startup', 'Hi I\'m worker ' + WORKER_INDEX + ' running as a GOD server. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
+  log('startup', 'Version: ' + GV.version);
 
   process.on('message', function (m) {// process server messages
     if (m.m === "godmsg") {
@@ -222,14 +224,14 @@ module.exports.setup = function (p) {
           }
         });
       } catch(err) {
-        log('I failed to send stats to ' + WORKER_TYPE + '.');
+        log('err', 'I failed to send stats to ' + WORKER_TYPE + '.');
         console.log(err);
       }
     }
   });
 
   wss.on('connection', function connection(ws) {
-    ws.on('error', function(e) { log('Got a ws error'); console.log(e); return false; });
+    ws.on('error', function(e) { log('er', 'Got a ws error'); console.log(e); return false; });
 
     // don't use ws.domain or ws.extensions
     ws.connected = true;
@@ -243,7 +245,7 @@ module.exports.setup = function (p) {
       try {
         ws.send(JSON.stringify(obj));
       } catch (err) {
-        log('I failed to send a message.');
+        log('wsout', 'I failed to send a message.');
       }
     };
     ws.sendBinary = function(data){
@@ -252,7 +254,7 @@ module.exports.setup = function (p) {
       try{
         ws.send(data, {binary: true});
       }catch(err){
-        log('I failed to send binary a message.');
+        log('wsout', 'I failed to send binary a message.');
       }
     };
     ws.on('message', function incoming(data) {
@@ -265,14 +267,14 @@ module.exports.setup = function (p) {
         }
       }
       catch (err) {
-        log('HACKER!!! AKA bad client message.');
+        log('err', 'HACKER!!! AKA bad client message. ' + JSON.stringify(data));
         console.log(data);
         console.log(err);
       }
     });
 
     ws.on('close', function () {
-      log(ws.name + ' has left.');
+      log('users', ws.name + ' has left.');
       ws.connected = false;
     });
 
@@ -283,14 +285,14 @@ module.exports.setup = function (p) {
     try {
       res.send('WebSocket -_- ' + WORKER_INDEX);
     } catch (err) {
-      log('I failed to send a http request.');
+      log('err', 'I failed to send a http request.');
       console.log(err);
     }
   });
 
   server.on('request', app);
   server.listen(WORKER_PORT, function () {
-    log( 'I\'m listening on port ' + server.address().port)
+    log('startup', 'I\'m listening on port ' + server.address().port)
   });
 
   process.send({m: 'ready'});

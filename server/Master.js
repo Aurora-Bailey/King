@@ -40,7 +40,7 @@ function workerMessage(worker, message, handle) {
     }
 
     if(room === false){
-      log('No open ' + message.type + ' rooms, I\'m making a new one!');
+      log('worker', 'No open ' + message.type + ' rooms, I\'m making a new one!');
       var id = workers.length;
       var port = GV.server.gameport + id;
       room = makeWorker(id, message.type, port);
@@ -48,7 +48,7 @@ function workerMessage(worker, message, handle) {
 
     if(room === false){
       // Still no room
-      log('!!! Failed to make room ' + message.type + ' ' + workers.length + ', Must be full.');
+      log('workerfull', '!!! Failed to make room ' + message.type + ' ' + workers.length + ', Must be full.');
       worker.send({m: 'getroom', fail: true});
     } else {
       room.open = false;
@@ -63,7 +63,7 @@ function workerMessage(worker, message, handle) {
   }
 }
 function workerExit(worker, code, signal) {
-  log('Worker died ' + worker.wid);
+  log('workerdead', 'Worker died ' + worker.wid);
   makeWorker(worker.wid, worker.type, worker.port);
 }
 function makeWorker(id, type, port) {
@@ -75,7 +75,7 @@ function makeWorker(id, type, port) {
   if (id >= GV.server.roomNameList.length) return false;
   let name = GV.server.roomNameList[id];
 
-  log('Making worker ' + id + '-' + name + ' ' + type);
+  log('worker', 'Making worker ' + id + '-' + name + ' ' + type);
   workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type, WORKER_NAME: name});
   workers[id].ready = false;
   workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
@@ -87,11 +87,12 @@ function makeWorker(id, type, port) {
   return workers[id];
 }
 
-function log(msg){
+function log(cat, msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  console.log('[' + Lib.humanTimeDate(Date.now()) + ']Master: ' + msg);
+  // console.log('[' + Lib.humanTimeDate(Date.now()) + ']Master: ' + msg);
+  let x = {cat, time: Date.now(), room: 'master', msg: msg}
 }
 
 module.exports.setup = function (c) {
