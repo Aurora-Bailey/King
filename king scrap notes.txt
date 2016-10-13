@@ -80,17 +80,18 @@
 	!!!!!!!! Compatable versoin change
 	==merge map solid and owner
   ==switch to binary
+  ==multiple separate queues for multiple game modes all from the same server
+  	==different types of game servers running different logic
 
   data structure for multiple types of games. like separate points
 
 	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   points by chess ranking formula ?might come with the multi-game overhaul
 
-	multiple separate queues for multiple game modes all from the same server
-	different types of game servers running different logic
-
 	sort logs by category. pull only one category
 	keep memory of last 1000 or so logs
+
+	put king on map.owner
 
 	collect more data from user
 	// current

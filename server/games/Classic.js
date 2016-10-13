@@ -220,7 +220,7 @@ class Game {
           this.map.units[toty][totx] = 2;
           this.map.owner[toty][totx] = pindex;
           this.players[pindex].kingloc = {x: totx,y: toty};
-          this.playerarray[pindex].kingloc = this.players[pindex].kingloc;
+          this.playerarray[pindex].kingloc = this.players[pindex].kingloc; // version sent to the player
         }
       }
     }
