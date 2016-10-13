@@ -129,7 +129,7 @@ class Game {
 
     this.golCalls = 0;
     this.running = false;
-    this.loopdelay = GV.game_classic.loopdelay;
+    this.loopdelay = GV.game.classic.loopdelay;
     this.loopcount = 0;
 
     this.chatlogs = [];
@@ -151,7 +151,7 @@ class Game {
     // width and height of map in user blocks
     this.mapusersize = Math.ceil(Math.sqrt(this.players.length));
     // width and height guaranteed to each user in cell blocks
-    this.mapcellsize = Math.floor(Math.sqrt(GV.game_classic.areaperplayer));
+    this.mapcellsize = Math.floor(Math.sqrt(GV.game.classic.areaperplayer));
     // total width and height in cells
     this.maptotalsize = this.mapusersize * this.mapcellsize;
     // build map
@@ -592,7 +592,7 @@ function handleMessage(ws, d) {// websocket client messages
         });
       }
     }else if (d.m === 'move' && ws.playing) {
-      if(Game.players[ws.pid].makemove.length > GV.game_classic.maxmovequeue) return false;
+      if(Game.players[ws.pid].makemove.length > GV.game.classic.maxmovequeue) return false;
       Game.players[ws.pid].makemove.push(d.move);
     }else if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago

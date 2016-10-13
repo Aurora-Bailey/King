@@ -74,7 +74,7 @@ class Queue {
     this.players = {};
   }
 
-  static resetTimer(wait = GV.queue.maxwait){
+  static resetTimer(wait = GV.game.classic.queue.maxwait){
     if (typeof this.timer !== 'undefined') clearTimeout(this.timer);
     this.timeout = Date.now() + wait;
     this.timer = setTimeout(()=>{this.startGame()}, wait);
@@ -93,9 +93,9 @@ class Queue {
     // player is eligible
     this.players[ws.data.id] = ws;
     ws.waiting = true;
-    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.queue.maxplayers, minplayers: GV.queue.minplayers});
+    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.game.classic.queue.maxplayers, minplayers: GV.game.classic.queue.minplayers});
     this.updatePlayers();
-    if(this.numPlayers() >= GV.queue.maxplayers && this.starting === false){
+    if(this.numPlayers() >= GV.game.classic.queue.maxplayers && this.starting === false){
       this.startGame();
     }
   }
@@ -123,7 +123,7 @@ class Queue {
     keys.forEach((e,i)=>{
       this.players[e].sendObj(sendObj);
     });
-    log(keys.length + '/' + GV.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
+    log(keys.length + '/' + GV.game.classic.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
   }
 
   static startGame(){
@@ -134,7 +134,7 @@ class Queue {
     clearTimeout(this.timer);
 
     // too few players?
-    if(this.numPlayers() < GV.queue.minplayers){
+    if(this.numPlayers() < GV.game.classic.queue.minplayers){
       this.resetTimer();
       if (this.numPlayers() !== 0) this.updatePlayers();
       this.starting = false;
@@ -160,7 +160,7 @@ class Queue {
     // send gameroom to player
     // set players to playing
     let keys = Object.keys(this.players);
-    let numthrough = GV.queue.maxplayers
+    let numthrough = GV.game.classic.queue.maxplayers
     keys.forEach((e,i)=>{
       if (numthrough <= 0) return false;
       numthrough--;
@@ -379,7 +379,7 @@ module.exports.setup = function (p) {
 
   // update for dev server
   if (NODE_ENV === 'development') {
-    GV.queue.maxwait = 15000; // set wait time to 15 seconds
+    GV.game.classic.queue.maxwait = 15000; // set wait time to 15 seconds
   }
 
   process.on('message', function (m) {// process server messages
@@ -403,7 +403,7 @@ module.exports.setup = function (p) {
             m: 'godmsg',
             s: m.sid,
             msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [server]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length + ' numConnected:'  + numConnected +
-            ' Waiting:' + Queue.numPlayers() + '/' + GV.queue.maxplayers + ' Timeout:' + Lib.humanTimeDiff(Date.now(), Queue.timeout)
+            ' Waiting:' + Queue.numPlayers() + '/' + GV.game.classic.queue.maxplayers + ' Timeout:' + Lib.humanTimeDiff(Date.now(), Queue.timeout)
           }
         });
       } catch(err) {
