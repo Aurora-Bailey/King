@@ -81,6 +81,8 @@
 	==merge map solid and owner
   ==switch to binary
 
+  data structure for multiple types of games. like separate points
+
 	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   points by chess ranking formula ?might come with the multi-game overhaul
 

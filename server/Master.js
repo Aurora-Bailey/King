@@ -40,7 +40,7 @@ function workerMessage(worker, message, handle) {
     }
 
     if(room === false){
-      log('No open game_classic rooms, I\'m making a new one!');
+      log('No open ' + message.type + ' rooms, I\'m making a new one!');
       var id = workers.length;
       var port = GV.server.gameport + id;
       room = makeWorker(id, message.type, port);
@@ -52,7 +52,7 @@ function workerMessage(worker, message, handle) {
       worker.send({m: 'getroom', fail: true});
     } else {
       room.open = false;
-      worker.send({m: 'getroom', port: room.port, name: room.name, id: room.wid});
+      worker.send({m: 'getroom', port: room.port, name: room.name, id: room.wid, type: message.type});
     }
   }else if(message.m === 'pass') { // to: id || type || 'all'
     workers.forEach((e, i)=> {

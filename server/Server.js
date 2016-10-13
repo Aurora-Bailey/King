@@ -10,7 +10,8 @@ var http = require('http'),
   Schema = require('./Schema'),
   wss = new WebSocketServer({server: server}),
   app = express(),
-  gameRoom = false,
+  gameRoom = {},
+  Q = {},
   process = false,
   uptime = Date.now(),
   numConnected = 0,
@@ -68,30 +69,39 @@ var sniffers = {
 };
 
 class Queue {
-  static setup(){
+  constructor(type){
     this.resetTimer();
     this.starting = false;
     this.players = {};
+    this.gametype = type;
+    process.send({m: 'getroom', type: this.gametype});
   }
 
-  static resetTimer(wait = GV.game.classic.queue.maxwait){
+  resetTimer(wait = GV.game.classic.queue.maxwait){
     if (typeof this.timer !== 'undefined') clearTimeout(this.timer);
     this.timeout = Date.now() + wait;
     this.timer = setTimeout(()=>{this.startGame()}, wait);
   }
 
-  static addPlayer(ws){
-    // short circuit if player is already in queue or already playing
-    if(typeof this.players[ws.data.id] !== 'undefined'){// player is already in queue
-      ws.sendObj({m: 'join', v: false, msg: 'You are already waiting in the queue.'});
+  addPlayer(ws){
+    // exit if player is already in another queue
+    if (ws.inqueue !== false) {
+      ws.sendObj({m: 'join', v: false, msg: 'You can\'t join two games at the same time.'});
       return false;
-    }else if(ws.playing){// player is marked as currently in a game
+    }
+
+    // Remove player if they are already in the queue
+    this.removePlayer(ws);
+
+    // short circuit if player is already playing
+    if(ws.playing){// player is marked as currently in a game
       ws.sendObj({m: 'join', v: false, msg: 'You are already playing.'});
       return false;
     }
 
     // player is eligible
     this.players[ws.data.id] = ws;
+    ws.inqueue = this.gametype;
     ws.waiting = true;
     ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.game.classic.queue.maxplayers, minplayers: GV.game.classic.queue.minplayers});
     this.updatePlayers();
@@ -100,33 +110,32 @@ class Queue {
     }
   }
 
-  static removePlayer(ws){
-    if(ws.waiting !== true) return false;
-
-    if(typeof this.players[ws.data.id] !== 'undefined'){// player is already in queue
+  removePlayer(ws){
+    if(typeof this.players[ws.data.id] !== 'undefined'){// player is in queue
+      this.players[ws.data.id].inqueue = false;
+      this.players[ws.data.id].waiting = false;
+      if (this.players[ws.data.id].connected) this.players[ws.data.id].sendObj({m: 'canceljoin', v: true});
       delete this.players[ws.data.id];
-      ws.waiting = false;
-      if (ws.connected) ws.sendObj({m: 'canceljoin', v: true});
       this.updatePlayers();
     }
   }
 
-  static numPlayers(){
+  numPlayers(){
     let keys = Object.keys(this.players);
     return keys.length;
   }
 
-  static updatePlayers(note = ''){
+  updatePlayers(note = ''){
     let keys = Object.keys(this.players);
     let sendObj = {m: 'joinupdate', players: keys.length, timeout: this.timeout}
     if (note !== '') sendObj.note = note;
     keys.forEach((e,i)=>{
       this.players[e].sendObj(sendObj);
     });
-    log(keys.length + '/' + GV.game.classic.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
+    log(this.gametype + ' ' + keys.length + '/' + GV.game.classic.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
   }
 
-  static startGame(){
+  startGame(){
     // hit max players
     // or hit timeout
 
@@ -147,7 +156,7 @@ class Queue {
     this.starting = true;
 
     // maybe wait a second for a game room
-    if(gameRoom === false || gameRoom === 'full'){
+    if(typeof gameRoom[this.gametype] === 'undefined' || gameRoom[this.gametype] === false || gameRoom[this.gametype] === 'full'){
       setTimeout(()=>{
         this.startGame()
       }, 30000); // Try to start again in 30 seconds
@@ -167,12 +176,13 @@ class Queue {
       let uid = this.players[e].data.id;
       let name = this.players[e].data.name;
       let secret = 's' + Lib.md5(Math.random() + Date.now()) + 'secret';
-      process.send({m: 'pass', to: gameRoom.id, data: {m: 'addplayer', uid: uid, secret: secret, name: name}});
+      process.send({m: 'pass', to: gameRoom[this.gametype].id, data: {m: 'addplayer', uid: uid, secret: secret, name: name}});
       if (NODE_ENV !== 'production')
-        this.players[e].sendObj({m: 'joinroom', port: gameRoom.port, secret: secret});
+        this.players[e].sendObj({m: 'joinroom', port: gameRoom[this.gametype].port, secret: secret});
       else
-        this.players[e].sendObj({m: 'joinroom', name: gameRoom.name, secret: secret});
+        this.players[e].sendObj({m: 'joinroom', name: gameRoom[this.gametype].name, secret: secret});
       this.players[e].playing = true;
+      this.players[e].inqueue = false;
       this.players[e].waiting = false;
       delete this.players[e];
     });
@@ -183,9 +193,9 @@ class Queue {
     if (this.numPlayers() !== 0) this.updatePlayers();
 
     // forget room and request another
-    process.send({m: 'pass', to: gameRoom.id, data: {m: 'start'}});
-    gameRoom = false;
-    process.send({m: 'getroom'});
+    process.send({m: 'pass', to: gameRoom[this.gametype].id, data: {m: 'start'}});
+    gameRoom[this.gametype] = false;
+    process.send({m: 'getroom', type: this.gametype});
   }
 }
 
@@ -315,9 +325,11 @@ function handleMessage(ws, d) {// websocket client messages
         }
       }
     }else if (d.m === 'join' && ws.loggedin) {
-      Queue.addPlayer(ws);
+      if (typeof d.type === 'undefined') return false;
+      if (typeof Q[d.type] === 'undefined') return false;
+      Q[d.type].addPlayer(ws);
     }else if (d.m === 'canceljoin' && ws.loggedin) {
-      Queue.removePlayer(ws);
+      if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
     }else if (d.m === 'gameover' && ws.loggedin){
       sendLeaderboard(ws);
       // update player status on ws, then send the status to user
@@ -382,14 +394,17 @@ module.exports.setup = function (p) {
     GV.game.classic.queue.maxwait = 15000; // set wait time to 15 seconds
   }
 
+  Q['game_classic'] = new Queue('game_classic');
+  Q['game_cities'] = new Queue('game_cities');
+
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
       if (typeof m.fail === 'undefined') {
-        gameRoom = {port: m.port, id: m.id, name: m.name};
+        gameRoom[m.type] = {port: m.port, id: m.id, name: m.name};
       }else{
-        gameRoom = 'full';
+        gameRoom[m.type] = 'full';
         setTimeout(()=>{
-          process.send({m: 'getroom'});
+          process.send({m: 'getroom', type: m.type});
         }, 30000); // Request another room in 30 seconds
       }
     }else if(m.m === 'broadcast'){
@@ -402,8 +417,8 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [server]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length + ' numConnected:'  + numConnected +
-            ' Waiting:' + Queue.numPlayers() + '/' + GV.game.classic.queue.maxplayers + ' Timeout:' + Lib.humanTimeDiff(Date.now(), Queue.timeout)
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [server]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
+            ' Clients:' + wss.clients.length + ' numConnected:'  + numConnected
           }
         });
       } catch(err) {
@@ -441,6 +456,7 @@ module.exports.setup = function (p) {
     ws.loggedin = false;
     ws.playing = false;
     ws.waiting = false;
+    ws.inqueue = false;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 
@@ -480,7 +496,8 @@ module.exports.setup = function (p) {
       ws.connected = false;
       numConnected--;
       log('Player disconnected. Total: ' + numConnected + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
-      Queue.removePlayer(ws);
+
+      if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
     });
 
     ws.sendObj({m: 'hi'});
@@ -500,9 +517,7 @@ module.exports.setup = function (p) {
     log( 'I\'m listening on port ' + server.address().port)
   });
 
-  Queue.setup();
   process.send({m: 'ready'});
-  process.send({m: 'getroom'});
   sendTimeoutPing();
 };
 

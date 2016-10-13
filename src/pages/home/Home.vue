@@ -23,7 +23,8 @@
       <div class="logo">Kingz.io</div>
       <div class="rank">Rank #{{user.rank}}</div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" /></div>
-      <button class="play" v-on:click="join()">Play!</button>
+      <button class="play" v-on:click="join('game_classic')">Play Classic!</button>
+      <button class="play" v-on:click="join('game_cities')">Play Cities!</button>
       <div class="instructions" v-show="false">instructions</div>
       <div class="footer" v-show="false">About | Help | Contact</div>
     </div>
@@ -47,8 +48,8 @@
           this.name = ''
         }
       },
-      join: function () {
-        SS.sendObj({m: 'join'})
+      join: function (type) {
+        SS.sendObj({m: 'join', type: type})
       }
     }
   }
