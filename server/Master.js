@@ -29,7 +29,7 @@ function workerMessage(worker, message, handle) {
     worker.ready = true;
   } else if(message.m === 'open'){
     worker.open = true;
-  } else if(message.m === 'getroom'){ // pass in type of rooom ====================================================================
+  } else if(message.m === 'getroom'){
     var room = false;
 
     for(let i=0; i<workers.length; i++){
@@ -48,7 +48,7 @@ function workerMessage(worker, message, handle) {
 
     if(room === false){
       // Still no room
-      log('!!! Failed to get room ' + message.type + workers.length);
+      log('!!! Failed to make room ' + message.type + ' ' + workers.length + ', Must be full.');
       worker.send({m: 'getroom', fail: true});
     } else {
       room.open = false;
@@ -63,7 +63,7 @@ function workerMessage(worker, message, handle) {
   }
 }
 function workerExit(worker, code, signal) {
-  log('worker died ' + worker.wid);
+  log('Worker died ' + worker.wid);
   makeWorker(worker.wid, worker.type, worker.port);
 }
 function makeWorker(id, type, port) {
@@ -75,7 +75,7 @@ function makeWorker(id, type, port) {
   if (id >= GV.server.roomNameList.length) return false;
   let name = GV.server.roomNameList[id];
 
-  log('Making worker ' + id);
+  log('Making worker ' + id + '-' + name + ' ' + type);
   workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type, WORKER_NAME: name});
   workers[id].ready = false;
   workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
