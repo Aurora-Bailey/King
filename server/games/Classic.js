@@ -15,6 +15,7 @@ var http = require('http'),
   WORKER_PORT = false,
   WORKER_INDEX = false,
   WORKER_NAME = false,
+  WORKER_TYPE = false,
   NODE_ENV = false;
 
 var sniffers = {
@@ -34,7 +35,7 @@ var sniffers = {
           data: {
             m: 'godmsg',
             s: sniffer.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Sniffing Activated!'
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing Activated!'
           }
         });
       } catch(err) {
@@ -54,7 +55,7 @@ var sniffers = {
             data: {
               m: 'godmsg',
               s: sniffer.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Sniffing De-Activated!'
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing De-Activated!'
             }
           });
         } catch(err) {
@@ -82,7 +83,7 @@ var snoopers = {
           data: {
             m: 'godmsg',
             s: snooper.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Snooping Activated!'
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Snooping Activated!'
           }
         });
       } catch(err) {
@@ -102,7 +103,7 @@ var snoopers = {
             data: {
               m: 'godmsg',
               s: snooper.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Snooping De-Activated!'
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Snooping De-Activated!'
             }
           });
         } catch(err) {
@@ -117,8 +118,8 @@ class Game {
   static setup(){
     // set or reset game room
     // start will be called when all player spots are accounted for
-    this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + 'game_classic';
-    log('Setup game_classic ' + this.gameid);
+    this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
+    log('Setup ' + WORKER_TYPE + ' ' + this.gameid);
     this.pointpool = 0;
     this.allowplayers = {};
     this.players = [];
@@ -142,7 +143,7 @@ class Game {
     this.playersalive = this.players.length;
 
     // keep track of players
-    log('Starting game_classic with ' + this.playersalive + ' players ' + this.gameid);
+    log('Starting ' + WORKER_TYPE + ' with ' + this.playersalive + ' players ' + this.gameid);
 
     // close game after a long time in case of a dissconnected room or something
     this.forceclose = setTimeout(()=>{this.endgame();}, 1000*60*60*6)// 6 hours
@@ -501,7 +502,7 @@ class Game {
     clearTimeout(this.forceclose);
 
     // keep track of players
-    log('Ending game_classic. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
+    log('Ending ' + WORKER_TYPE + '. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
 
     // kick all players
     this.players.forEach((e,i)=>{
@@ -546,7 +547,7 @@ function broadcastChat(from, msg) {
         data: {
           m: 'godmsg',
           s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + logmsg
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + logmsg
         }
       });
     } catch(err) {
@@ -627,7 +628,7 @@ function log(msg){
         data: {
           m: 'godmsg',
           s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + msg
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + msg
         }
       });
     } catch(err) {
@@ -642,8 +643,9 @@ module.exports.setup = function (p) {
   WORKER_INDEX = process.env.WORKER_INDEX;
   WORKER_PORT = process.env.WORKER_PORT;
   WORKER_NAME = process.env.WORKER_NAME;
+  WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a game_classic room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
+  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a ' + WORKER_TYPE + ' room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
   log('Version: ' + GV.version);
 
   process.on('message', function (m, c) {// process server messages
@@ -667,7 +669,7 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length +
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length +
             ' Players:' + Game.players.length + ' Playing:' + Game.running +
             ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh') +
             ' ChatLogs:' + Game.chatlogs.length
@@ -714,7 +716,7 @@ module.exports.setup = function (p) {
             data: {
               m: 'godmsg',
               s: m.sid,
-              msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + e
+              msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + e
             }
           });
         });

@@ -15,6 +15,7 @@ var http = require('http'),
   WORKER_PORT = false,
   WORKER_NAME = false,
   WORKER_INDEX = false,
+  WORKER_TYPE = false,
   NODE_ENV = false;
 
 
@@ -35,7 +36,7 @@ var sniffers = {
           data: {
             m: 'godmsg',
             s: sniffer.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [god] ' + ' Sniffing Activated!'
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing Activated!'
           }
         });
       } catch(err) {
@@ -55,7 +56,7 @@ var sniffers = {
             data: {
               m: 'godmsg',
               s: sniffer.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [god] ' + ' Sniffing De-Activated!'
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing De-Activated!'
             }
           });
         } catch(err) {
@@ -313,7 +314,7 @@ function log(msg){
         data: {
           m: 'godmsg',
           s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [god] ' + msg
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + msg
         }
       });
     } catch(err) {
@@ -328,6 +329,7 @@ module.exports.setup = function (p) {
   WORKER_INDEX = process.env.WORKER_INDEX;
   WORKER_PORT = process.env.WORKER_PORT;
   WORKER_NAME = process.env.WORKER_NAME;
+  WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
   log('Hi I\'m worker ' + WORKER_INDEX + ' running as a GOD server. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
   log('Version: ' + GV.version);
@@ -343,11 +345,11 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [god]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length + ' Names:' + nameClients()
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length + ' Names:' + nameClients()
           }
         });
       } catch(err) {
-        log('I failed to send stats to god.');
+        log('I failed to send stats to ' + WORKER_TYPE + '.');
         console.log(err);
       }
     }else if (m.m === "sniff"){

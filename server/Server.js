@@ -17,6 +17,7 @@ var http = require('http'),
   numConnected = 0,
   WORKER_PORT = false,
   WORKER_NAME = false,
+  WORKER_TYPE = false,
   WORKER_INDEX = false,
   NODE_ENV = false;
 
@@ -37,7 +38,7 @@ var sniffers = {
           data: {
             m: 'godmsg',
             s: sniffer.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [server] ' + ' Sniffing Activated!'
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing Activated!'
           }
         });
       } catch(err) {
@@ -57,7 +58,7 @@ var sniffers = {
             data: {
               m: 'godmsg',
               s: sniffer.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [server] ' + ' Sniffing De-Activated!'
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + ' Sniffing De-Activated!'
             }
           });
         } catch(err) {
@@ -370,7 +371,7 @@ function log(msg){
         data: {
           m: 'godmsg',
           s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [server] ' + msg
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + msg
         }
       });
     } catch(err) {
@@ -385,8 +386,9 @@ module.exports.setup = function (p) {
   WORKER_INDEX = process.env.WORKER_INDEX;
   WORKER_PORT = process.env.WORKER_PORT;
   WORKER_NAME = process.env.WORKER_NAME;
+  WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a server. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
+  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a ' + WORKER_TYPE + '. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
   log('Version: ' + GV.version);
 
   // update for dev server
@@ -417,7 +419,7 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [server]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
             ' Clients:' + wss.clients.length + ' numConnected:'  + numConnected
           }
         });
