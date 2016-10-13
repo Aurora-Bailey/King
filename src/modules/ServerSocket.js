@@ -1,5 +1,6 @@
 import Data from './Data'
 import GS from './GameSocket'
+var Schema = require('../../server/Schema')
 
 var ws = {}
 var sendQueue = []
@@ -16,6 +17,8 @@ function start () {
   } else {
     ws = new window.WebSocket('ws://' + Data.server)
   }
+
+  ws.binaryType = 'arraybuffer'
 
   ws.onopen = () => {
     if (ws.connected) return false // already connected
@@ -43,9 +46,12 @@ function start () {
     console.warn('ServerSocket closed.')
   }
   ws.onmessage = (e) => {
-    var d = JSON.parse(e.data)
-    handleMessage(d)
-    // console.log(d)
+    if (typeof e.data === 'string') {
+      handleMessage(JSON.parse(e.data))
+    } else {
+      var buf = new Buffer(e.data, 'binary')
+      handleMessage(Schema.unpack(buf))
+    }
   }
 }
 

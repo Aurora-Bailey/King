@@ -1,6 +1,7 @@
 import Data from './Data'
 import SS from './ServerSocket'
 import Vue from 'vue'
+var Schema = require('../../server/Schema')
 
 var ws = {}
 var sendQueue = []
@@ -15,6 +16,8 @@ function start (obj) {
   } else {
     ws = new window.WebSocket('ws://' + Data.server + '/' + obj.name)
   }
+
+  ws.binaryType = 'arraybuffer'
 
   ws.onopen = () => {
     if (ws.connected) return false // already connected
@@ -39,9 +42,12 @@ function start (obj) {
     SS.sendObj({m: 'gameover'})
   }
   ws.onmessage = (e) => {
-    var d = JSON.parse(e.data)
-    handleMessage(d)
-    // console.log(d)
+    if (typeof e.data === 'string') {
+      handleMessage(JSON.parse(e.data))
+    } else {
+      var buf = new Buffer(e.data, 'binary')
+      handleMessage(Schema.unpack(buf))
+    }
   }
 }
 

@@ -1,4 +1,5 @@
 import Data from './Data'
+var Schema = require('../../server/Schema')
 
 var ws = {}
 var sendQueue = []
@@ -23,6 +24,8 @@ function start () {
     ws = new window.WebSocket('ws://' + Data.server + '/' + Data.god.nameport)
   }
 
+  ws.binaryType = 'arraybuffer'
+
   ws.onopen = () => {
     if (ws.connected) return false // already connected
 
@@ -46,9 +49,12 @@ function start () {
     console.warn('ServerSocket closed.')
   }
   ws.onmessage = (e) => {
-    var d = JSON.parse(e.data)
-    handleMessage(d)
-    // console.log(d)
+    if (typeof e.data === 'string') {
+      handleMessage(JSON.parse(e.data))
+    } else {
+      var buf = new Buffer(e.data, 'binary')
+      handleMessage(Schema.unpack(buf))
+    }
   }
 }
 

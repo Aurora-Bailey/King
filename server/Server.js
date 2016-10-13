@@ -7,6 +7,7 @@ var http = require('http'),
   db = require('./MongoDB').getDb(),
   Lib = require('./Lib'),
   GV = require('./Globalvar'),
+  Schema = require('./Schema'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   gameRoom = false,
@@ -447,6 +448,16 @@ module.exports.setup = function (p) {
         ws.send(JSON.stringify(obj));
       } catch (err) {
         log('I failed to send a message.');
+      }
+    };
+    ws.sendBinary = function(data){
+      if(!ws.connected) return false;
+
+      try{
+        ws.send(data, {binary: true});
+      }catch(err){
+        log('I failed to send binary a message.');
+        log(err);
       }
     };
     ws.on('message', function incoming(data) {

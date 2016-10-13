@@ -1,34 +1,33 @@
-const avro = require('avsc');
+/* eslint-disable */
+const avro = require('avsc/etc/browser/avsc-types');
 
-module.exports.pack = function (message, data) {
-  return msg.toBuffer({msg: message, data: schema[message].toBuffer(data)})
+module.exports.pack = function (schema, data) {
+  return wrapper.toBuffer({schema: schema, data: type[schema].toBuffer(data)})
 }
 module.exports.unpack = function (buf) {
-  var message = msg.fromBuffer(buf);
-  var data = schema[message.msg].fromBuffer(message.data);
-
-  return {message, data};
+  var unwrapped = wrapper.fromBuffer(buf);
+  return type[unwrapped.schema].fromBuffer(unwrapped.data);
 }
+module.exports.dummy = 'asdf';
 
-const msg = avro.parse({
+const wrapper = avro.parse({
   name: 'Message',
   type: 'record',
   fields: [
-    {name: 'msg', type: 'string'},
+    {name: 'schema', type: 'string'},
     {name: 'data', type: 'bytes'}
   ]
 });
 
+const type = {};
 
-
-
-const schema = {};
-
-schema.map = avro.parse({
+type.map = avro.parse({
   name: 'Map',
   type: 'record',
   fields: [
-    {"name":"type","type":"string"},
-    {"name":"map","type":{"type":"array","items":{"type":"array","items":"int"}}}
+    {name:'m',type:'string'},
+    {name:'type',type:'string'},
+    {name:'data',type:{type:'array',items:{type:'array',items:'int'}}}
   ]
 });
+/* eslint-enable */

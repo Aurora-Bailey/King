@@ -7,6 +7,7 @@ var http = require('http'),
   db = require('./MongoDB').getDb(),
   Lib = require('./Lib'),
   GV = require('./Globalvar'),
+  Schema = require('./Schema'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
@@ -438,8 +439,13 @@ class Game {
   }
 
   static sendMap(ws) {
-    ws.sendObj({m: 'map', type: 'units', data: Game.map.units});
-    ws.sendObj({m: 'map', type: 'owner', data: Game.map.owner});
+    ws.sendBinary(Schema.pack('map', {m: 'map', type: 'units', data: Game.map.units}));
+    ws.sendBinary(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner}));
+
+    // console.log(Schema.unpack(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner})));
+
+    // ws.sendObj({m: 'map', type: 'units', data: Game.map.units});
+    // ws.sendObj({m: 'map', type: 'owner', data: Game.map.owner});
   }
 
   static playerDead(pid, killername){
@@ -746,6 +752,8 @@ module.exports.setup = function (p) {
       }
     };
     ws.sendBinary = function(data){
+      if(!ws.connected) return false;
+
       try{
         ws.send(data, {binary: true});
       }catch(err){
