@@ -16,8 +16,11 @@ if (cluster.isMaster) {
         var Server = require('./Server');
         Server.setup(process);
       }else if(process.env.WORKER_TYPE == 'game_classic'){
-        var Game = require('./games/Classic');
-        Game.setup(process);
+        var Classic = require('./games/Classic');
+        Classic.setup(process);
+      }else if(process.env.WORKER_TYPE == 'game_cities'){
+        var Cities = require('./games/Cities');
+        Cities.setup(process);
       }else if(process.env.WORKER_TYPE == 'god'){
         var God = require('./God');
         God.setup(process);
