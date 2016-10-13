@@ -1,5 +1,13 @@
 'use strict';
 
+/*
+  Note: to add new game mode, clone this file into server/games
+  1) Make up a unique worker name ex: 'game_classic'
+  2) king.js - require file and run if WORKER_TYPE == 'game_classic'
+  3) Server.js - add Queue object under WORKER_TYPE Q['game_classic'] = new Queue('game_classic');
+  4) Home.vue - add button with v-on:click="join('game_classic')"
+ */
+
 var http = require('http'),
   express = require('express'),
   WebSocketServer = require('ws').Server,
