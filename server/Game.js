@@ -441,11 +441,6 @@ class Game {
   static sendMap(ws) {
     ws.sendBinary(Schema.pack('map', {m: 'map', type: 'units', data: Game.map.units}));
     ws.sendBinary(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner}));
-
-    // console.log(Schema.unpack(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner})));
-
-    // ws.sendObj({m: 'map', type: 'units', data: Game.map.units});
-    // ws.sendObj({m: 'map', type: 'owner', data: Game.map.owner});
   }
 
   static playerDead(pid, killername){
