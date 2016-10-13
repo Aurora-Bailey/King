@@ -108,7 +108,7 @@ function handleMessage (d) {
     Data.waiting.players = d.players
     Data.waiting.timeout = d.timeout
     if (typeof d.note !== 'undefined') {
-      if (d.note === 'full') Data.popup.show('All room are full', 'Please wait a minute for a new room to open up.')
+      if (d.note === 'full') Data.popup.show('All rooms are full', 'Please wait a minute for a new room to open up.')
     }
   } else if (d.m === 'canceljoin') {
     if (d.v) { // value is true or false
@@ -153,10 +153,18 @@ function sendObj (object, queue = false) {
   ws.send(JSON.stringify(object))
 }
 
+function sendBinary (binary) {
+  if (Data.state.serverSocket !== 'ready') {
+    console.warn('WebSocket is not connected.')
+    Data.popup.show('Connection', 'You are not connected to the server!')
+    return false
+  }
+  ws.send(binary, { binary: true, mask: true })
+}
+
 // short circuit, skip the WebSocket.
 function shortObj (object) {
   handleMessage(object)
 }
 
-var dummy = 'placeholder to keep lint happy'
-export default {sendObj, shortObj, dummy}
+export default {sendObj, shortObj, sendBinary}

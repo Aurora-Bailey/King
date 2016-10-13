@@ -94,10 +94,18 @@ function sendObj (object, queue = false) {
   ws.send(JSON.stringify(object))
 }
 
+function sendBinary (binary) {
+  if (Data.state.serverSocket !== 'ready') {
+    console.warn('WebSocket is not connected.')
+    Data.popup.show('Connection', 'You are not connected to the server!')
+    return false
+  }
+  ws.send(binary, { binary: true, mask: true })
+}
+
 // short circuit, skip the WebSocket.
 function shortObj (object) {
   handleMessage(object)
 }
 
-var dummy = 'placeholder to keep lint happy'
-export default {sendObj, shortObj, dummy}
+export default {sendObj, shortObj, sendBinary}
