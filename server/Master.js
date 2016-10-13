@@ -33,17 +33,17 @@ function workerMessage(worker, message, handle) {
     var room = false;
 
     for(let i=0; i<workers.length; i++){
-      if(workers[i].type === 'game' && workers[i].open){
+      if(workers[i].type === 'game_classic' && workers[i].open){
         room = workers[i];
         break;
       }
     }
 
     if(room === false){
-      log('No open game rooms, I\'m making a new one!');
+      log('No open game_classic rooms, I\'m making a new one!');
       var id = workers.length;
       var port = GV.server.gameport + id;
-      room = makeWorker(id, 'game', port);
+      room = makeWorker(id, 'game_classic', port);
     }
 
     if(room === false){

@@ -4,10 +4,10 @@ var http = require('http'),
   express = require('express'),
   WebSocketServer = require('ws').Server,
   server = http.createServer(),
-  db = require('./MongoDB').getDb(),
-  Lib = require('./Lib'),
-  GV = require('./Globalvar'),
-  Schema = require('./Schema'),
+  db = require('../MongoDB').getDb(),
+  Lib = require('../Lib'),
+  GV = require('../Globalvar'),
+  Schema = require('../Schema'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
@@ -34,7 +34,7 @@ var sniffers = {
           data: {
             m: 'godmsg',
             s: sniffer.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + ' Sniffing Activated!'
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Sniffing Activated!'
           }
         });
       } catch(err) {
@@ -54,7 +54,7 @@ var sniffers = {
             data: {
               m: 'godmsg',
               s: sniffer.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + ' Sniffing De-Activated!'
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Sniffing De-Activated!'
             }
           });
         } catch(err) {
@@ -82,7 +82,7 @@ var snoopers = {
           data: {
             m: 'godmsg',
             s: snooper.sid,
-            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + ' Snooping Activated!'
+            msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Snooping Activated!'
           }
         });
       } catch(err) {
@@ -102,7 +102,7 @@ var snoopers = {
             data: {
               m: 'godmsg',
               s: snooper.sid,
-              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + ' Snooping De-Activated!'
+              msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + ' Snooping De-Activated!'
             }
           });
         } catch(err) {
@@ -117,8 +117,8 @@ class Game {
   static setup(){
     // set or reset game room
     // start will be called when all player spots are accounted for
-    this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + 'game';
-    log('Setup game ' + this.gameid);
+    this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + 'game_classic';
+    log('Setup game_classic ' + this.gameid);
     this.pointpool = 0;
     this.allowplayers = {};
     this.players = [];
@@ -129,7 +129,7 @@ class Game {
 
     this.golCalls = 0;
     this.running = false;
-    this.loopdelay = GV.game.loopdelay;
+    this.loopdelay = GV.game_classic.loopdelay;
     this.loopcount = 0;
 
     this.chatlogs = [];
@@ -142,7 +142,7 @@ class Game {
     this.playersalive = this.players.length;
 
     // keep track of players
-    log('Starting game with ' + this.playersalive + ' players ' + this.gameid);
+    log('Starting game_classic with ' + this.playersalive + ' players ' + this.gameid);
 
     // close game after a long time in case of a dissconnected room or something
     this.forceclose = setTimeout(()=>{this.endgame();}, 1000*60*60*6)// 6 hours
@@ -151,7 +151,7 @@ class Game {
     // width and height of map in user blocks
     this.mapusersize = Math.ceil(Math.sqrt(this.players.length));
     // width and height guaranteed to each user in cell blocks
-    this.mapcellsize = Math.floor(Math.sqrt(GV.game.areaperplayer));
+    this.mapcellsize = Math.floor(Math.sqrt(GV.game_classic.areaperplayer));
     // total width and height in cells
     this.maptotalsize = this.mapusersize * this.mapcellsize;
     // build map
@@ -501,7 +501,7 @@ class Game {
     clearTimeout(this.forceclose);
 
     // keep track of players
-    log('Ending game. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
+    log('Ending game_classic. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
 
     // kick all players
     this.players.forEach((e,i)=>{
@@ -546,7 +546,7 @@ function broadcastChat(from, msg) {
         data: {
           m: 'godmsg',
           s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + logmsg
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + logmsg
         }
       });
     } catch(err) {
@@ -592,7 +592,7 @@ function handleMessage(ws, d) {// websocket client messages
         });
       }
     }else if (d.m === 'move' && ws.playing) {
-      if(Game.players[ws.pid].makemove.length > GV.game.maxmovequeue) return false;
+      if(Game.players[ws.pid].makemove.length > GV.game_classic.maxmovequeue) return false;
       Game.players[ws.pid].makemove.push(d.move);
     }else if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago
@@ -627,7 +627,7 @@ function log(msg){
         data: {
           m: 'godmsg',
           s: e.sid,
-          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + msg
+          msg: '[' + Lib.humanTimeDate(Date.now()) + '] [' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + msg
         }
       });
     } catch(err) {
@@ -643,7 +643,7 @@ module.exports.setup = function (p) {
   WORKER_PORT = process.env.WORKER_PORT;
   WORKER_NAME = process.env.WORKER_NAME;
   NODE_ENV = process.env.NODE_ENV;
-  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a game room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
+  log('Hi I\'m worker ' + WORKER_INDEX + ' running as a game_classic room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
   log('Version: ' + GV.version);
 
   process.on('message', function (m, c) {// process server messages
@@ -667,7 +667,7 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length +
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic]' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length +
             ' Players:' + Game.players.length + ' Playing:' + Game.running +
             ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh') +
             ' ChatLogs:' + Game.chatlogs.length
@@ -714,7 +714,7 @@ module.exports.setup = function (p) {
             data: {
               m: 'godmsg',
               s: m.sid,
-              msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game] ' + e
+              msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [game_classic] ' + e
             }
           });
         });
