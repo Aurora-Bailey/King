@@ -477,11 +477,11 @@ class Game {
       timealive: Date.now() - this.starttime
     }}}, function(err, result){
       if(err)
-        log(err);
+        console.log(err);
     });
     db.collection('players').updateOne({id: ws.uid}, {$inc: {numplays: 1}}, function(err, result){
       if(err)
-        log(err);
+        console.log(err);
     });
     let points = 0;
     if(this.players.length == 2){ // exception
@@ -500,7 +500,7 @@ class Game {
     if(points !== 0){
       db.collection('players').updateOne({id: ws.uid}, {$inc: {points: points}}, function(err, result){
         if(err)
-          log(err);
+          console.log(err);
       });
     }
   }
@@ -595,7 +595,7 @@ function handleMessage(ws, d) {// websocket client messages
         // take one point for the point pool
         db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){
           if(err)
-            log(err);
+            console.log(err);
           else
             Game.pointpool++;
         });
@@ -618,7 +618,7 @@ function handleMessage(ws, d) {// websocket client messages
       }
     }
   }catch(err){
-    log(err);
+    console.log(err);
   }
 }
 
@@ -753,7 +753,6 @@ module.exports.setup = function (p) {
         ws.send(JSON.stringify(obj));
       } catch (err) {
         log('I failed to send a message.');
-        log(err);
       }
     };
     ws.sendBinary = function(data){
@@ -763,7 +762,6 @@ module.exports.setup = function (p) {
         ws.send(data, {binary: true});
       }catch(err){
         log('I failed to send binary a message.');
-        log(err);
       }
     };
     ws.on('message', function incoming(data) {
@@ -777,8 +775,8 @@ module.exports.setup = function (p) {
       }
       catch (err) {
         log('HACKER!!! AKA bad client message.');
-        log(data);
-        log(err);
+        console.log(data);
+        console.log(err);
       }
     });
 
@@ -803,7 +801,7 @@ module.exports.setup = function (p) {
       res.send('WebSocket -_- ' + WORKER_INDEX);
     } catch (err) {
       log('I failed to send a http request.');
-      log(err);
+      console.log(err);
     }
   });
 

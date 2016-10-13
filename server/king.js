@@ -10,7 +10,8 @@ if (cluster.isMaster) {
   var MongoDB = require('./MongoDB');
   MongoDB.connectToServer(function (err) {
     if (err) {
-      console.log('MongoDB Error: ', err)
+      console.log('MongoDB Error: ')
+      console.log(err)
     } else {
       if(process.env.WORKER_TYPE == 'server') {
         var Server = require('./Server');

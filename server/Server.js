@@ -475,7 +475,6 @@ module.exports.setup = function (p) {
         ws.send(data, {binary: true});
       }catch(err){
         log('I failed to send binary a message.');
-        log(err);
       }
     };
     ws.on('message', function incoming(data) {

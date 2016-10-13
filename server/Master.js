@@ -61,8 +61,6 @@ function workerMessage(worker, message, handle) {
       }
     });
   }
-
-  // log('Worker ' + worker.wid + ': ' + JSON.stringify(message));
 }
 function workerExit(worker, code, signal) {
   log('worker died ' + worker.wid);
