@@ -505,6 +505,8 @@ function handleMessage(ws, d) {// websocket client messages
         // broadcast({m: 'chat', from: ws.pid, message: msg});
         broadcastChat(ws.pid, msg);
 
+        log('chat', ws.pid + '-' + Game.players[ws.pid].name + ': ' + msg);
+
         if (d.message.length > 250) ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 250 characters.'});
       }else{
         ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 1 message per second.'})
