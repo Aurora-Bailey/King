@@ -191,6 +191,8 @@ function handleMessage(ws, d) {// websocket client messages
         // help
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'logs - Past 50 logs in each category'});
+          ws.sendObj({m: 'output', msg: 'logs on/off - Turn on/off live logs'});
           ws.sendObj({m: 'output', msg: 'chat id/type/all string of text - Send chat message to room. options required'});
           ws.sendObj({m: 'output', msg: 'live secInterval numRepeat clearWindow command - Repeat a command. {i} for index'});
         }
