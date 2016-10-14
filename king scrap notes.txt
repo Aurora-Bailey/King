@@ -70,14 +70,15 @@
 
 
 // both
+  ==queue count on play button
+
+
 	// reset games (roomname)
 	// reset servers (servername)
 	// lock games
 	// kick (player)
 
 	chatroom on homepage
-
-	queue count on play button
 
 	limit enter queue to prevent spam
 
