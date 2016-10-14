@@ -14,7 +14,6 @@ var http = require('http'),
   Q = {},
   process = false,
   uptime = Date.now(),
-  numConnected = 0,
   WORKER_PORT = false,
   WORKER_NAME = false,
   WORKER_TYPE = false,
@@ -361,7 +360,7 @@ module.exports.setup = function (p) {
             m: 'godmsg',
             s: m.sid,
             msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
-            ' Clients:' + wss.clients.length + ' numConnected:'  + numConnected
+            ' Clients:' + wss.clients.length
           }
         });
       } catch(err) {
@@ -374,8 +373,7 @@ module.exports.setup = function (p) {
   wss.on('connection', function connection(ws) {
     ws.on('error', function(e) { log('err', 'Got a ws error'); console.log(e); return false; });
 
-    numConnected++;
-    log('player', 'Player connected. Total: ' + numConnected);
+    log('player', 'Player connected. Total: ' + wss.clients.length);
 
     // don't use ws.domain or ws.extensions
     ws.connectedtime = Date.now(); // connect time
@@ -422,8 +420,7 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       ws.connected = false;
-      numConnected--;
-      log('player', 'Player disconnected. Total: ' + numConnected + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
+      log('player', 'Player disconnected. Total: ' + wss.clients.length + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
 
       if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
     });
