@@ -71,17 +71,13 @@
 
 // both
   ==queue count on play button
-
+  == DROPPED chatroom on homepage
+	==limit enter queue to prevent spam
 
 	// reset games (roomname)
 	// reset servers (servername)
 	// lock games
 	// kick (player)
-
-	chatroom on homepage
-
-	limit enter queue to prevent spam
-
 
 //server
 	!!!!!!!! Compatable versoin change
