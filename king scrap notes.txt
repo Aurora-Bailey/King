@@ -100,6 +100,8 @@
 
 	put king on map.owner
 
+	dont send map if it is equal to old map (hasn't changed)
+
 	collect more data from user
 	// current
 	{
