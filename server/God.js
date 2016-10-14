@@ -122,6 +122,26 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
+        // Pull logs from database
+        if (query[0] === 'mongologs') { // mongologs cat [hours]
+
+          if (typeof query[1] === 'undefined') return false;
+          if (typeof query[2] === 'undefined') query[2] = 24; // default to 24
+
+          let [mongologs, cat, hours] = query;
+
+          db.collection('logs').find({cat: cat, time: {$gt: Date.now() - hours*60*60*1000}}).toArray(function(err, docs) {
+            if (err) {
+              log('err', 'Error with mongodb logdb request');
+              console.log(err);
+            } else if (docs.length != 0) {
+              docs.forEach((e,i)=>{
+                ws.sendObj({m: 'output', msg: beautifyLog(e)});
+              });
+            }
+          });
+        }
+
 
         // chat
         // send message to a game room chat
@@ -191,8 +211,9 @@ function handleMessage(ws, d) {// websocket client messages
         // help
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
-          ws.sendObj({m: 'output', msg: 'logs - Past 50 logs in each category'});
+          ws.sendObj({m: 'output', msg: 'logs - Past 10 logs in each category'});
           ws.sendObj({m: 'output', msg: 'logs on/off - Turn on/off live logs'});
+          ws.sendObj({m: 'output', msg: 'mongologs cat [hours] - Pull logs of a category from database, time opt default 24.'});
           ws.sendObj({m: 'output', msg: 'chat id/type/all string of text - Send chat message to room. options required'});
           ws.sendObj({m: 'output', msg: 'live secInterval numRepeat clearWindow command - Repeat a command. {i} for index'});
         }
@@ -237,9 +258,17 @@ module.exports.setup = function (p) {
       // save
       if(typeof temp_logs[m.data.cat] === 'undefined') temp_logs[m.data.cat] = [];
       temp_logs[m.data.cat].push(m.data);
-      if(temp_logs[m.data.cat].length > 50){
+      if(temp_logs[m.data.cat].length > 10){
         temp_logs[m.data.cat].shift();
       }
+
+      // In database
+      db.collection('logs').insertOne(m.data, function(err){
+        if(err) {
+          // not log() ing this one because it could cause an infinite loop
+          console.log(err);
+        }
+      });
     } else if (m.m === "getstats"){
       try {
         process.send({
