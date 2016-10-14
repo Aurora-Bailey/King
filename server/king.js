@@ -22,7 +22,7 @@ if (cluster.isMaster) {
         Classic.setup(process);
       }else if(process.env.WORKER_TYPE == 'game_cities'){
         var Cities = require('./games/Cities');
-        // Cities.setup(process);
+        Cities.setup(process);
       }else if(process.env.WORKER_TYPE == 'god'){
         var God = require('./God');
         God.setup(process);
