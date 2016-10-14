@@ -75,22 +75,28 @@
 	// lock games
 	// kick (player)
 
+	chatroom on homepage
+
+	queue count on play button
+
+	limit enter queue to prevent spam
+
 
 //server
 	!!!!!!!! Compatable versoin change
 	==merge map solid and owner
   ==switch to binary
   ==multiple separate queues for multiple game modes all from the same server
-  	==different types of game servers running different logic
+  ==different types of game servers running different logic
+  ==sort logs by category. pull only one category
+	==keep memory of last 1000 or so logs
+	==mongodb logs
+
 
   data structure for multiple types of games. like separate points
 
 	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   points by chess ranking formula ?might come with the multi-game overhaul
-
-	sort logs by category. pull only one category
-	keep memory of last 1000 or so logs
-	mongodb logs
 
 	put king on map.owner
 
