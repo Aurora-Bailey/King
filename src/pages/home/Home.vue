@@ -23,8 +23,7 @@
       <div class="logo">Kingz.io</div>
       <div class="rank">Rank #{{user.rank}}</div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" /></div>
-      <button class="play" v-on:click="join('game_classic')">Play Classic!</button>
-      <button class="play" v-on:click="join('game_cities')">Play Cities!</button>
+      <button v-for="game in gamelist" class="play" v-on:click="join(game.type)">{{game.name}} {{game.cur > 0 ? '(' + game.cur + '/' + game.max +')':''}}</button>
       <div class="instructions" v-show="false">instructions</div>
       <div class="footer" v-show="false">About | Help | Contact</div>
     </div>
@@ -35,7 +34,7 @@
   import SS from '../../modules/ServerSocket'
 
   export default {
-    props: ['user', 'leaderboard'],
+    props: ['user', 'leaderboard', 'gamelist'],
     data () {
       return {
         name: '' // local version of name bound to the input box

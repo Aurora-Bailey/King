@@ -27,6 +27,8 @@ class Queue {
     this.gametype = type;
     this.ObjGV = ObjGV
     this.ProperName = ProperName;
+    this.maxplayers = GV.game[this.ObjGV].queue.maxplayers;
+    this.minplayers = GV.game[this.ObjGV].queue.minplayers;
     this.resetTimer();
     process.send({m: 'getroom', type: this.gametype});
   }
@@ -38,6 +40,15 @@ class Queue {
   }
 
   addPlayer(ws){
+
+    // Kick out spammers
+    if(ws.lastenterqueue > Date.now() - 1000){
+      ws.sendObj({m: 'popup', title: 'Not so fast!', msg: 'You just left another queue, wait a second.'});
+      ws.sendObj({m: 'join', v: false});
+      return false
+    }
+    ws.lastenterqueue = Date.now();
+
     // exit if player is already in another queue
     if (ws.inqueue !== false) {
       ws.sendObj({m: 'join', v: false, msg: 'You can\'t join two games at the same time.'});
@@ -57,9 +68,10 @@ class Queue {
     this.players[ws.data.id] = ws;
     ws.inqueue = this.gametype;
     ws.waiting = true;
-    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.game[this.ObjGV].queue.maxplayers, minplayers: GV.game[this.ObjGV].queue.minplayers});
+    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: this.maxplayers, minplayers: this.minplayers});
     this.updatePlayers();
-    if(this.numPlayers() >= GV.game[this.ObjGV].queue.maxplayers && this.starting === false){
+    this.updateHomePage();
+    if(this.numPlayers() >= this.maxplayers && this.starting === false){
       this.startGame();
     }
   }
@@ -71,6 +83,7 @@ class Queue {
       if (this.players[ws.data.id].connected) this.players[ws.data.id].sendObj({m: 'canceljoin', v: true});
       delete this.players[ws.data.id];
       this.updatePlayers();
+      this.updateHomePage();
     }
   }
 
@@ -86,7 +99,18 @@ class Queue {
     keys.forEach((e,i)=>{
       this.players[e].sendObj(sendObj);
     });
-    // log('queueupdate', this.gametype + ' ' + keys.length + '/' + GV.game[this.ObjGV].queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
+    // log('queueupdate', this.gametype + ' ' + keys.length + '/' + this.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
+  }
+
+  updateHomePage(){
+    // disable this when more players come
+    let numPlayers = this.numPlayers();
+    wss.clients.forEach((client, index)=>{
+      // send to EVERYONE for now
+      // if(client.inqueue === false && !client.playing) { // client on homepage
+      client.sendObj({m: 'q', type: this.gametype, n: numPlayers});
+      //}
+    })
   }
 
   startGame(){
@@ -97,7 +121,7 @@ class Queue {
     clearTimeout(this.timer);
 
     // too few players?
-    if(this.numPlayers() < GV.game[this.ObjGV].queue.minplayers){
+    if(this.numPlayers() < this.minplayers){
       this.resetTimer();
       if (this.numPlayers() !== 0) this.updatePlayers();
       this.starting = false;
@@ -123,7 +147,7 @@ class Queue {
     // send gameroom to player
     // set players to playing
     let keys = Object.keys(this.players);
-    let numthrough = GV.game[this.ObjGV].queue.maxplayers
+    let numthrough = this.maxplayers
     keys.forEach((e,i)=>{
       if (numthrough <= 0) return false;
       numthrough--;
@@ -144,7 +168,9 @@ class Queue {
     // reset for next round
     this.starting = false;
     this.resetTimer();
-    if (this.numPlayers() !== 0) this.updatePlayers();
+
+    this.updatePlayers();
+    this.updateHomePage();
 
     // forget room and request another
     process.send({m: 'pass', to: gameRoom[this.gametype].id, data: {m: 'start'}});
@@ -224,6 +250,7 @@ function handleMessage(ws, d) {// websocket client messages
 
             // Set login stuff
             sendPlayerStats(ws);
+            ws.sendObj({m: 'gamelist', v: getGameList()});
             ws.sendObj({m: 'ready'});
             ws.loggedin = true;
 
@@ -323,6 +350,16 @@ function log(cat, msg){
   let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
   process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
 }
+function getGameList(){
+  let qKeys = Object.keys(Q);
+  let games = [];
+  qKeys.forEach((e,i)=>{
+    let cq = Q[e];
+    games.push({type: cq.gametype, name: cq.ProperName, min: cq.minplayers, cur: 0, max: cq.maxplayers, main: cq.gametype === GV.mainGame});
+  });
+
+  return games;
+}
 
 /* Setup */
 module.exports.setup = function (p) {
@@ -387,6 +424,7 @@ module.exports.setup = function (p) {
     ws.playing = false;
     ws.waiting = false;
     ws.inqueue = false;
+    ws.lastenterqueue = 0;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 

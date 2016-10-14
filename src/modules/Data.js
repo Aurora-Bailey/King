@@ -7,6 +7,7 @@ export default {
   },
   server: 'ws.kingz.io',
   page: 'home',
+  gamelist: [],
   user: {
     id: 0,
     name: '',

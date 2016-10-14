@@ -101,8 +101,10 @@ function handleMessage (d) {
       Data.waiting.maxplayers = d.maxplayers
       Data.waiting.minplayers = d.minplayers
     } else {
-      console.warn(d.msg)
-      Data.popup.show('Error', d.msg)
+      if (typeof d.msg !== 'undefined') {
+        console.warn(d.msg)
+        Data.popup.show('Failed to join', d.msg)
+      }
     }
   } else if (d.m === 'joinupdate') {
     Data.waiting.players = d.players
@@ -122,6 +124,18 @@ function handleMessage (d) {
     } else {
       GS.start({port: d.port, secret: d.secret})
     }
+  } else if (d.m === 'popup') {
+    Data.popup.show(d.title, d.msg)
+  } else if (d.m === 'gamelist') {
+    d.v.forEach((e, i) => {
+      Data.gamelist.push(e)
+    })
+  } else if (d.m === 'q') {
+    Data.gamelist.forEach((e, i) => {
+      if (e.type === d.type) {
+        e.cur = d.n
+      }
+    })
   }
 
   if (typeof d.page !== 'undefined') {

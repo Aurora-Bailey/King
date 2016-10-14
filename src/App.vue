@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <home :user="user" :leaderboard="leaderboard" v-show="page=='home'"></home>
+    <home :user="user" :gamelist="gamelist" :leaderboard="leaderboard" v-show="page=='home'"></home>
     <waiting :waiting="waiting" v-show="page=='waiting'"></waiting>
     <game :game="game" v-show="page=='game'"></game>
 
