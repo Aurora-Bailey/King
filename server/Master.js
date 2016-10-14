@@ -73,7 +73,8 @@ function workerMessage(worker, message, handle) {
   }else if(message.m === 'pass') { // to: id || type || 'all'
     workers.forEach((e, i)=> {
       if (e.type === message.to || e.wid == message.to || 'all' === message.to) {// Make sure type id and all are distinct
-        e.send(message.data);
+        if(e.ready) e.send(message.data);
+        else setTimeout(()=>{e.send(message.data)}, 1000);// give a second of not ready
       }
     });
 

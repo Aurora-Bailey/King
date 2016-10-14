@@ -111,6 +111,14 @@ function handleMessage(ws, d) {// websocket client messages
             }
           } else {
             // No arguments
+            // spit out all temp logs
+            let logKeys = Object.keys(temp_logs);
+            logKeys.forEach((e,i)=>{
+              ws.sendObj({m: 'output', msg: '=== Logs for ' + e + ' ==='});
+              temp_logs[e].forEach((ele, ind)=>{
+                ws.sendObj({m: 'output', msg: beautifyLog(ele)});
+              });
+            });
           }
         }
 
@@ -223,7 +231,14 @@ module.exports.setup = function (p) {
     if (m.m === "godmsg") {
       sendToSid(m.s, {m: 'output', msg: m.msg});
     } else if (m.m === "godlog") {
-      sendLog(m.data);
+      sendLog(m.data); // to any listening gods
+
+      // save
+      if(typeof temp_logs[m.data.cat] === 'undefined') temp_logs[m.data.cat] = [];
+      temp_logs[m.data.cat].push(m.data);
+      if(temp_logs[m.data.cat].length > 3){
+        temp_logs[m.data.cat].shift();
+      }
     } else if (m.m === "getstats"){
       try {
         process.send({
