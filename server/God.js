@@ -226,8 +226,7 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('startup', 'Hi I\'m worker ' + WORKER_INDEX + ' running as a GOD server. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
-  log('startup', 'Version: ' + GV.version);
+  log('startup', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
 
   process.on('message', function (m) {// process server messages
     if (m.m === "godmsg") {

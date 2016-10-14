@@ -31,7 +31,7 @@ class Game {
     // set or reset game room
     // start will be called when all player spots are accounted for
     this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
-    log('setup', 'Setup ' + WORKER_TYPE + ' ' + this.gameid);
+    // log('setup', 'Setup ' + WORKER_TYPE + ' ' + this.gameid);
     this.pointpool = 0;
     this.allowplayers = {};
     this.players = [];
@@ -524,8 +524,7 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('startup', 'Hi I\'m worker ' + WORKER_INDEX + ' running as a ' + WORKER_TYPE + ' room. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
-  log('startup', 'Version: ' + GV.version);
+  log('startup', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
 
   process.on('message', function (m, c) {// process server messages
     // messages from the process node

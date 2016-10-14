@@ -84,7 +84,7 @@ class Queue {
     keys.forEach((e,i)=>{
       this.players[e].sendObj(sendObj);
     });
-    log('queueupdate', this.gametype + ' ' + keys.length + '/' + GV.game.classic.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
+    // log('queueupdate', this.gametype + ' ' + keys.length + '/' + GV.game.classic.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
   }
 
   startGame(){
@@ -330,8 +330,7 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('startup', 'Hi I\'m worker ' + WORKER_INDEX + ' running as a ' + WORKER_TYPE + '. {' + WORKER_NAME + '}{' + NODE_ENV + '}');
-  log('startup', 'Version: ' + GV.version);
+  log('startup', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
 
   // update for dev server
   if (NODE_ENV === 'development') {

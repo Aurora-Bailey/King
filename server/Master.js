@@ -56,7 +56,7 @@ function workerMessage(worker, message, handle) {
     }
 
     if(room === false){
-      log('worker', 'No open ' + message.type + ' rooms, I\'m making a new one!');
+      // log('worker', 'No open ' + message.type + ' rooms, I\'m making a new one!');
       var id = workers.length;
       var port = GV.server.gameport + id;
       room = makeWorker(id, message.type, port);
@@ -97,7 +97,7 @@ function makeWorker(id, type, port) {
   if (id >= GV.server.roomNameList.length) return false;
   let name = GV.server.roomNameList[id];
 
-  log('worker', 'Making worker ' + id + '-' + name + ' ' + type);
+  // log('worker', 'Making worker ' + id + '-' + name + ' ' + type);
   workers[id] = cluster.fork({WORKER_INDEX: id, WORKER_PORT: port, WORKER_TYPE: type, WORKER_NAME: name});
   workers[id].ready = false;
   workers[id].open = true;// used for game room, false when waiting on server. true when game is over and no server claims it.
