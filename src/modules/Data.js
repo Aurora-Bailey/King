@@ -1,5 +1,5 @@
 export default {
-  version: 'f2f9847b4b214fbe2e27736d585150fc', // This version converts from single game to multi game
+  version: 'FH9M2', // This version converts from single game to multi game
   dev: {
     on: window.location.hostname === 'localhost',
     server: 'localhost',
