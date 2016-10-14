@@ -9,6 +9,7 @@ if (cluster.isMaster) {
 } else {
   var MongoDB = require('./MongoDB');
   MongoDB.connectToServer(function (err) {
+    console.log('king.js starting node:' + process.env.WORKER_TYPE );
     if (err) {
       console.log('MongoDB Error: ')
       console.log(err)
