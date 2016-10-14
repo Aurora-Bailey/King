@@ -236,7 +236,7 @@ module.exports.setup = function (p) {
       // save
       if(typeof temp_logs[m.data.cat] === 'undefined') temp_logs[m.data.cat] = [];
       temp_logs[m.data.cat].push(m.data);
-      if(temp_logs[m.data.cat].length > 3){
+      if(temp_logs[m.data.cat].length > 50){
         temp_logs[m.data.cat].shift();
       }
     } else if (m.m === "getstats"){
