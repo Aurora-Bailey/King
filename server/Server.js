@@ -227,9 +227,10 @@ function handleMessage(ws, d) {// websocket client messages
 
             // Update last login
             db.collection('players').updateOne({id: ws.data.id}, {$set: {lastlogin: Date.now()}}, function(err, result){
-              if(err)
+              if(err){
                 log('err', 'Mongodb update player lastlogin');
                 console.log(err);
+              }
             });
           });
 
