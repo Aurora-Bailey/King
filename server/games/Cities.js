@@ -325,7 +325,8 @@ class Game {
                 broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
                 broadcastChat('Server', 'Server will close in 2 minutes.')
                 setTimeout(()=>{this.playerDead(e.pid, 'Server');}, 2000);// kill the winner
-                setTimeout(()=>{this.endgame();}, 120000);
+                clearTimeout(this.forceclose);
+                this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
               }
             }
           }else{
@@ -418,18 +419,19 @@ class Game {
     // save stats to database
     clearTimeout(this.forceclose);
 
+    // kick all players
+    this.players.forEach((e,i)=>{
+      if (!e.connected) return false; // never connected ws
+      if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server');
+      if (e.ws.connected)
+        e.ws.close();
+    });
+
     // keep track of players
     // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
     log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
       ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ')' + ' Game: ' + this.gameid);
 
-    // kick all players
-    this.players.forEach((e,i)=>{
-      if (!e.connected) return false;
-      if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server');
-      if (e.ws.connected)
-        e.ws.close();
-    });
     // reset the server
     this.setup();
     // mark as open
@@ -619,6 +621,12 @@ module.exports.setup = function (p) {
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
         broadcastChat('Server', '' + Game.players[ws.pid].name + ' has left the game.');
         // log('gameplay', '___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
+
+        if (wss.clients.length === 0) { // everyone left
+          if (Game.running) {
+            Game.endgame();
+          }
+        }
       }catch(err){
         log('err', 'Failed on player ___exit');
         console.log(err);
