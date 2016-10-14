@@ -82,23 +82,6 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
-        // chatlogs
-        // pull chat logs from node
-        // currently only game rooms listen for this.
-        if (query[0] === 'chatlogs') {
-
-          // Second word
-          if (typeof query[1] !== 'undefined') {
-            // send to specific node or type
-            ws.sendObj({m: 'output', msg: '=== Pulling chat logs from ' + query[1] + ' ==='});
-            process.send({m: 'pass', to: query[1], data: {m: 'chatlogs', rid: WORKER_INDEX, sid: ws.sid}});
-          } else {
-            // No arguments
-            ws.sendObj({m: 'output', msg: '=== Pulling chat logs from EVERYTHING ==='});
-            process.send({m: 'pass', to: 'all', data: {m: 'chatlogs', rid: WORKER_INDEX, sid: ws.sid}});
-          }
-        }
-
         // chat
         // send message to a game room chat
         // currently only game rooms listen for this.
@@ -172,7 +155,6 @@ function handleMessage(ws, d) {// websocket client messages
         // help
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
-          ws.sendObj({m: 'output', msg: 'chatlogs [id/type/all] - Pull past chat messages. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'chat id/type/all string of text - Send chat message to room. options required'});
           ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
           ws.sendObj({m: 'output', msg: 'live secInterval numRepeat clearWindow command - Repeat a command. {i} for index'});

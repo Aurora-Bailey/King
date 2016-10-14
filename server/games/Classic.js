@@ -44,8 +44,6 @@ class Game {
     this.running = false;
     this.loopdelay = GV.game.classic.loopdelay;
     this.loopcount = 0;
-
-    this.chatlogs = [];
   }
 
   static start(){
@@ -320,9 +318,7 @@ class Game {
 
               // you are the only one alive
               if(this.playersalive == 1){
-                // broadcast({m: 'chat', from: 'Game', message: this.players[e.pid].name + ' is the winner!!!!'});
                 broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
-                // broadcast({m: 'chat', from: 'Server', message: 'Server will close in 2 minutes.'});
                 broadcastChat('Server', 'Server will close in 2 minutes.')
                 setTimeout(()=>{this.playerDead(e.pid, 'Server');}, 2000);// kill the winner
                 setTimeout(()=>{this.endgame();}, 120000);
@@ -442,13 +438,6 @@ function broadcast(obj) {
   });
 }
 function broadcastChat(from, msg) {
-
-  // log chat
-  let name = from;
-  if (typeof Game.players[from] !== 'undefined') name = from + '-' + Game.players[from].name;
-  let logmsg = '' + name + ': ' + msg
-  Game.chatlogs.push(logmsg);
-
   // send chat
   wss.clients.forEach(function each(client) {
     client.sendObj({m: 'chat', from: from, message: msg});
@@ -561,29 +550,11 @@ module.exports.setup = function (p) {
             s: m.sid,
             msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length +
             ' Players:' + Game.players.length + ' Playing:' + Game.running +
-            ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh') +
-            ' ChatLogs:' + Game.chatlogs.length
+            ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh')
           }
         });
       } catch(err) {
         log('err', 'I failed to send stats to god.');
-        console.log(err);
-      }
-    }else if (m.m === "chatlogs"){
-      try {
-        Game.chatlogs.forEach((e,i)=>{
-          process.send({
-            m: 'pass',
-            to: m.rid,
-            data: {
-              m: 'godmsg',
-              s: m.sid,
-              msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + '] ' + e
-            }
-          });
-        });
-      } catch(err) {
-        log('err', 'I failed to send chat logs to god.');
         console.log(err);
       }
     }else if (m.m === "godchat"){
@@ -639,7 +610,6 @@ module.exports.setup = function (p) {
       try{
         if (typeof ws.pid === 'undefined') return false;
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
-        // broadcast({m: 'chat', from: 'Server', message: '' + Game.players[ws.pid].name + ' has left the game.'});
         broadcastChat('Server', '' + Game.players[ws.pid].name + ' has left the game.');
         log('gameplay', '___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
       }catch(err){
