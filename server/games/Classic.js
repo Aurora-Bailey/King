@@ -419,7 +419,7 @@ class Game {
 
     // keep track of players
     // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
-    log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) +
+    log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
       ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ')' + ' Game: ' + this.gameid);
 
     // kick all players
