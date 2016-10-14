@@ -30,7 +30,8 @@ class Game {
   static setup(){
     // set or reset game room
     // start will be called when all player spots are accounted for
-    this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
+    //this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
+    this.gameid = 'g' + Lib.randString(10,false,true,true) + WORKER_TYPE;
     // log('setup', 'Setup ' + WORKER_TYPE + ' ' + this.gameid);
     this.pointpool = 0;
     this.allowplayers = {};
