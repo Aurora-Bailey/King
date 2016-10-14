@@ -21,15 +21,17 @@ var http = require('http'),
   NODE_ENV = false;
 
 class Queue {
-  constructor(type){
-    this.resetTimer();
+  constructor(type, ObjGV, ProperName){
     this.starting = false;
     this.players = {};
     this.gametype = type;
+    this.ObjGV = ObjGV
+    this.ProperName = ProperName;
+    this.resetTimer();
     process.send({m: 'getroom', type: this.gametype});
   }
 
-  resetTimer(wait = GV.game.classic.queue.maxwait){
+  resetTimer(wait = GV.game[this.ObjGV].queue.maxwait){
     if (typeof this.timer !== 'undefined') clearTimeout(this.timer);
     this.timeout = Date.now() + wait;
     this.timer = setTimeout(()=>{this.startGame()}, wait);
@@ -55,9 +57,9 @@ class Queue {
     this.players[ws.data.id] = ws;
     ws.inqueue = this.gametype;
     ws.waiting = true;
-    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.game.classic.queue.maxplayers, minplayers: GV.game.classic.queue.minplayers});
+    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: GV.game[this.ObjGV].queue.maxplayers, minplayers: GV.game[this.ObjGV].queue.minplayers});
     this.updatePlayers();
-    if(this.numPlayers() >= GV.game.classic.queue.maxplayers && this.starting === false){
+    if(this.numPlayers() >= GV.game[this.ObjGV].queue.maxplayers && this.starting === false){
       this.startGame();
     }
   }
@@ -84,7 +86,7 @@ class Queue {
     keys.forEach((e,i)=>{
       this.players[e].sendObj(sendObj);
     });
-    // log('queueupdate', this.gametype + ' ' + keys.length + '/' + GV.game.classic.queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
+    // log('queueupdate', this.gametype + ' ' + keys.length + '/' + GV.game[this.ObjGV].queue.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
   }
 
   startGame(){
@@ -95,7 +97,7 @@ class Queue {
     clearTimeout(this.timer);
 
     // too few players?
-    if(this.numPlayers() < GV.game.classic.queue.minplayers){
+    if(this.numPlayers() < GV.game[this.ObjGV].queue.minplayers){
       this.resetTimer();
       if (this.numPlayers() !== 0) this.updatePlayers();
       this.starting = false;
@@ -121,7 +123,7 @@ class Queue {
     // send gameroom to player
     // set players to playing
     let keys = Object.keys(this.players);
-    let numthrough = GV.game.classic.queue.maxplayers
+    let numthrough = GV.game[this.ObjGV].queue.maxplayers
     keys.forEach((e,i)=>{
       if (numthrough <= 0) return false;
       numthrough--;
@@ -337,8 +339,8 @@ module.exports.setup = function (p) {
     GV.game.classic.queue.maxwait = 15000; // set wait time to 15 seconds
   }
 
-  Q['game_classic'] = new Queue('game_classic');
-  Q['game_cities'] = new Queue('game_cities');
+  Q['game_classic'] = new Queue('game_classic', 'classic', 'Classic'); // node name, GV.game name, Proper name
+  Q['game_cities'] = new Queue('game_cities', 'cities', 'Kingz and Cities');
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
