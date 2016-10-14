@@ -330,7 +330,7 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('startup', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
+  log('startnode', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
 
   // update for dev server
   if (NODE_ENV === 'development') {
@@ -440,7 +440,7 @@ module.exports.setup = function (p) {
 
   server.on('request', app);
   server.listen(WORKER_PORT, function () {
-    log('startup', 'I\'m listening on port ' + server.address().port)
+    // log('startnode', 'I\'m listening on port ' + server.address().port)
   });
 
   process.send({m: 'ready'});

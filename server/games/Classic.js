@@ -44,6 +44,9 @@ class Game {
     this.running = false;
     this.loopdelay = GV.game.classic.loopdelay;
     this.loopcount = 0;
+
+    this.chatlogs = [];
+    this.deadlogs = [];
   }
 
   static start(){
@@ -53,7 +56,7 @@ class Game {
     this.playersalive = this.players.length;
 
     // keep track of players
-    log('gameplay', 'Starting ' + WORKER_TYPE + ' with ' + this.playersalive + ' players ' + this.gameid);
+    log('gamestart', 'Starting with ' + this.playersalive + ' players. Game:' + this.gameid);
 
     // close game after a long time in case of a dissconnected room or something
     this.forceclose = setTimeout(()=>{this.endgame();}, 1000*60*60*6)// 6 hours
@@ -352,10 +355,11 @@ class Game {
 
   static playerDead(pid, killername){
     broadcast({m: 'playerdead', pid: pid, timealive: Date.now() - this.starttime, place: this.playersalive, kills: this.players[pid].kills, killer: killername});
-    log('gameplay', '___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
+    // log('gameplay', '___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
     broadcastChat('Game', this.players[pid].name + ' was taken over by ' + killername);
 
     this.playersalive--;
+    this.deadlogs.push(this.players[pid].name + '<' + killername);
     this.players[pid].dead = true;
 
     if (!this.players[pid].connected) return false;
@@ -414,7 +418,9 @@ class Game {
     clearTimeout(this.forceclose);
 
     // keep track of players
-    log('gameplay', 'Ending ' + WORKER_TYPE + '. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
+    // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
+    log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) +
+      ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ')' + ' Game: ' + this.gameid);
 
     // kick all players
     this.players.forEach((e,i)=>{
@@ -495,6 +501,7 @@ function handleMessage(ws, d) {// websocket client messages
         broadcastChat(ws.pid, msg);
 
         log('chat', ws.pid + '-' + Game.players[ws.pid].name + ': ' + msg);
+        Game.chatlogs.push(ws.pid + '-' + Game.players[ws.pid].name + ': ' + msg);
 
         if (d.message.length > 250) ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 250 characters.'});
       }else{
@@ -524,7 +531,7 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('startup', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
+  log('startnode', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
 
   process.on('message', function (m, c) {// process server messages
     // messages from the process node
@@ -610,7 +617,7 @@ module.exports.setup = function (p) {
         if (typeof ws.pid === 'undefined') return false;
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
         broadcastChat('Server', '' + Game.players[ws.pid].name + ' has left the game.');
-        log('gameplay', '___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
+        // log('gameplay', '___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
       }catch(err){
         log('err', 'Failed on player ___exit');
         console.log(err);
@@ -631,7 +638,7 @@ module.exports.setup = function (p) {
 
   server.on('request', app);
   server.listen(WORKER_PORT, function () {
-    log('startup', 'I\'m listening on port ' + server.address().port)
+    // log('startnode', 'I\'m listening on port ' + server.address().port)
   });
 
   // setup game
