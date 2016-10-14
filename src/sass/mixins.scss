@@ -27,7 +27,9 @@
 @mixin bigbutton($height) {
   display: block;
   width: 100%;
+  height: $height;
   border: none;
+  line-height: $height/2;
   font-size: $height/2;
   padding: $height/4 0;
   margin: $height/4 0;

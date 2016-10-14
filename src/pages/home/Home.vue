@@ -23,7 +23,19 @@
       <div class="logo">Kingz.io</div>
       <div class="rank">Rank #{{user.rank}}</div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" /></div>
-      <button v-for="game in gamelist" class="play" v-on:click="join(game.type)">{{game.name}} {{game.cur > 0 ? '(' + game.cur + '/' + game.max +')':''}}</button>
+      <div class="play_wrapper">
+        <button class="play" v-on:click="join(typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].type)">
+          {{typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].name}}
+          {{typeof gamelist[gamemode] !== 'undefined' && gamelist[gamemode].cur > 0 ? '' + gamelist[gamemode].cur + '/' + gamelist[gamemode].max +'':''}}
+        </button><div class="play_arrow" v-on:click="showGameOptions=!showGameOptions"></div>
+
+        <div class="game_options" v-show="showGameOptions">
+          <div class="game_options_title">Games modes</div>
+          <button v-for="(game,index) in gamelist" class="play" v-on:click="gamemode=index; showGameOptions=!showGameOptions">
+            {{game.name}} {{game.cur > 0 ? '' + game.cur + '/' + game.max +'':''}}
+          </button>
+        </div>
+      </div>
       <div class="instructions" v-show="false">instructions</div>
       <div class="footer" v-show="false">About | Help | Contact</div>
     </div>
@@ -37,7 +49,9 @@
     props: ['user', 'leaderboard', 'gamelist'],
     data () {
       return {
-        name: '' // local version of name bound to the input box
+        name: '', // local version of name bound to the input box
+        showGameOptions: false,
+        gamemode: 0
       }
     },
     methods: {
@@ -190,9 +204,48 @@
       }
     }
 
-
+    .play_wrapper {
+      position: relative;
+      white-space: nowrap;
+    }
     .play {
       @include bigbutton(8vh);
+
+      display: inline-block;
+      vertical-align: text-top;
+      width: 82%;
+    }
+    .play_arrow {
+      height: 8vh;
+      width: 18%;
+      background-color: darken($primary, 10%);
+      color: $primary-alt;
+      display: inline-block;
+      margin: 2vh 0;
+      vertical-align: text-top;
+      cursor: pointer;
+      background-image: url('../../assets/arrowdown.png');
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+
+      &:hover {
+        background-color: darken($primary, 20%);
+        color: $primary-alt;
+      }
+    }
+    .game_options {
+      background-color: lighten($base, 10%);
+      color: $base-alt;
+      white-space: normal;
+
+      .game_options_title {
+        font-size: 4vh;
+        padding: 2vh;
+      }
+      .play {
+        width: 90%;
+      }
     }
 
     .instructions {
@@ -214,7 +267,7 @@
       width: 50vh;
       margin: auto;
       position: relative;
-      z-index: 120;
+      z-index: 200;
     }
   }
 

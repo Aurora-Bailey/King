@@ -355,7 +355,10 @@ function getGameList(){
   let games = [];
   qKeys.forEach((e,i)=>{
     let cq = Q[e];
-    games.push({type: cq.gametype, name: cq.ProperName, min: cq.minplayers, cur: 0, max: cq.maxplayers, main: cq.gametype === GV.mainGame});
+    if (cq.gametype === GV.mainGame) // put the main game at the 0 position
+      games.unshift({type: cq.gametype, name: cq.ProperName, min: cq.minplayers, cur: 0, max: cq.maxplayers});
+    else
+      games.push({type: cq.gametype, name: cq.ProperName, min: cq.minplayers, cur: 0, max: cq.maxplayers});
   });
 
   return games;
@@ -377,7 +380,7 @@ module.exports.setup = function (p) {
   }
 
   Q['game_classic'] = new Queue('game_classic', 'classic', 'Classic'); // node name, GV.game name, Proper name
-  Q['game_cities'] = new Queue('game_cities', 'cities', 'Kingz and Cities');
+  Q['game_cities'] = new Queue('game_cities', 'cities', 'Kings & Cities');
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
