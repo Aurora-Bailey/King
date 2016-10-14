@@ -23,7 +23,6 @@ function workerMessage(worker, message, handle) {
         if (typeof numObj[e.type] === 'undefined') numObj[e.type] = 1;
         else numObj[e.type]++;
       });
-      worker.send({m: 'godmsg', msg: JSON.stringify(numObj), s: message.s});
 
       // Loop response back to be sent through the pass function
       workerMessage(worker, {
@@ -113,8 +112,11 @@ function log(cat, msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  // console.log('[' + Lib.humanTimeDate(Date.now()) + ']Master: ' + msg);
+
   let x = {cat, time: Date.now(), room: 'master', msg: msg}
+
+  // force message through the same way nodes do.
+  workerMessage(workers[0], {m: 'pass', to: 'god', data: {m: 'godlog', data: x}}, 'handle?');
 }
 
 module.exports.setup = function (c) {

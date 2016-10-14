@@ -512,8 +512,8 @@ function log(cat, msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  // console.log('[' + Lib.humanTimeDate(Date.now()) + ']G--------Worker ' + WORKER_INDEX + ': ' + msg);
   let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
+  process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
 }
 
 /* Setup */

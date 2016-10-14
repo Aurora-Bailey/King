@@ -16,7 +16,8 @@ var http = require('http'),
   WORKER_NAME = false,
   WORKER_INDEX = false,
   WORKER_TYPE = false,
-  NODE_ENV = false;
+  NODE_ENV = false,
+  temp_logs = {};
 
 /* Websockets */
 function nameClients() {
@@ -30,6 +31,19 @@ function sendToSid(sid, obj) {
   wss.clients.forEach(function each(client) {
     if (client.sid === sid) client.sendObj(obj);
   });
+}
+function sendLog(data) {
+  wss.clients.forEach(function each(client) {
+    if (client.mod === 'god' && client.getlogs){
+      client.sendObj({m: 'output', msg: beautifyLog(data)});
+    }
+  });
+}
+function beautifyLog(logObj) {
+  let {cat, time, room, msg} = logObj;
+
+  return '[' + Lib.humanTimeDate(time) + '][' + room + '][' + cat + '] = ' + msg
+
 }
 function handleMessage(ws, d) {// websocket client messages
   try{
@@ -81,6 +95,25 @@ function handleMessage(ws, d) {// websocket client messages
             process.send({m: 'pass', to: 'all', data: {m: 'getstats', rid: WORKER_INDEX, sid: ws.sid}});
           }
         }
+
+        // Log stuff
+        if (query[0] === 'logs') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            // send to specific node or type
+            if (query[1] === 'on') {
+              ws.getlogs = true;
+              ws.sendObj({m: 'output', msg: '=== Logs are on ==='});
+            } else if (query[1] === 'off') {
+              ws.getlogs = false;
+              ws.sendObj({m: 'output', msg: '=== Logs are off ==='});
+            }
+          } else {
+            // No arguments
+          }
+        }
+
 
         // chat
         // send message to a game room chat
@@ -170,8 +203,9 @@ function log(cat, msg){
   if(typeof msg === 'object') {
     msg = JSON.stringify(msg);
   }
-  // console.log('[' + Lib.humanTimeDate(Date.now()) + ']GOD--------------Worker ' + WORKER_INDEX + ': ' + msg);
-  let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
+
+  let x = {cat: cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
+  process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
 }
 
 /* Setup */
@@ -188,7 +222,9 @@ module.exports.setup = function (p) {
   process.on('message', function (m) {// process server messages
     if (m.m === "godmsg") {
       sendToSid(m.s, {m: 'output', msg: m.msg});
-    }else if (m.m === "getstats"){
+    } else if (m.m === "godlog") {
+      sendLog(m.data);
+    } else if (m.m === "getstats"){
       try {
         process.send({
           m: 'pass',
@@ -214,6 +250,7 @@ module.exports.setup = function (p) {
     ws.start = Date.now();
     ws.name = 'Unknown';
     ws.mod = false;
+    ws.getlogs = false;
     ws.sid = Lib.md5(Math.random() + Date.now());
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
