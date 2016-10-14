@@ -16,7 +16,7 @@ function workerMessage(worker, message, handle) {
   }
 
   // God commands
-  if (m.m === "getstats"){
+  if (message.m === "getstats"){
     try {
       let numObj = {};
       workers.forEach((e, i)=>{
@@ -25,15 +25,16 @@ function workerMessage(worker, message, handle) {
       });
       worker.send({m: 'godmsg', msg: JSON.stringify(numObj), s: message.s});
 
-      process.send({
+      // Loop response back to be sent through the pass function
+      workerMessage(worker, {
         m: 'pass',
-        to: m.rid,
+        to: message.rid,
         data: {
           m: 'godmsg',
-          s: m.sid,
+          s: message.sid,
           msg: '[master] Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Nodes:' + JSON.stringify(numObj)
         }
-      });
+      }, handle);
     } catch(err) {
       log('err', 'I failed to send stats to god.');
       console.log(err);
