@@ -147,16 +147,10 @@ function handleMessage(ws, d) {// websocket client messages
 
         }
 
-        // nodes
-        if (query[0] === 'nodes') {
-          process.send({m: 'getnodetotal', s: ws.sid});
-        }
-
         // help
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'chat id/type/all string of text - Send chat message to room. options required'});
-          ws.sendObj({m: 'output', msg: 'nodes - Number of each type of node.'});
           ws.sendObj({m: 'output', msg: 'live secInterval numRepeat clearWindow command - Repeat a command. {i} for index'});
         }
       }

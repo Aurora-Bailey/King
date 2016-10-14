@@ -4,6 +4,7 @@ var os = require('os'),
   numCores = os.cpus().length,
   GV = require('./Globalvar'),
   Lib = require('./Lib'),
+  uptime = Date.now(),
   cluster = false,
   workers = [];
 
@@ -15,13 +16,28 @@ function workerMessage(worker, message, handle) {
   }
 
   // God commands
-  if (message.m === 'getnodetotal'){
-    let numObj = {};
-    workers.forEach((e, i)=>{
-      if (typeof numObj[e.type] === 'undefined') numObj[e.type] = 1;
-      else numObj[e.type]++;
-    });
-    worker.send({m: 'godmsg', msg: JSON.stringify(numObj), s: message.s});
+  if (m.m === "getstats"){
+    try {
+      let numObj = {};
+      workers.forEach((e, i)=>{
+        if (typeof numObj[e.type] === 'undefined') numObj[e.type] = 1;
+        else numObj[e.type]++;
+      });
+      worker.send({m: 'godmsg', msg: JSON.stringify(numObj), s: message.s});
+
+      process.send({
+        m: 'pass',
+        to: m.rid,
+        data: {
+          m: 'godmsg',
+          s: m.sid,
+          msg: '[master] Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Nodes:' + JSON.stringify(numObj)
+        }
+      });
+    } catch(err) {
+      log('err', 'I failed to send stats to god.');
+      console.log(err);
+    }
   }
   // End god commands
 
@@ -60,6 +76,11 @@ function workerMessage(worker, message, handle) {
         e.send(message.data);
       }
     });
+
+    // Loop a copy back to master
+    if (message.to === 'master' || message.to === 'all') {
+      workerMessage(worker, message.data, handle)
+    }
   }
 }
 function workerExit(worker, code, signal) {
