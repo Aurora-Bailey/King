@@ -501,10 +501,13 @@ class Game {
     // save stats to database
     clearTimeout(this.forceclose);
 
+    let datausage = [];
+
     // kick all players
     this.players.forEach((e,i)=>{
       if (!e.connected) return false; // never connected ws
       if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server');
+      datausage.push(e.name + '-' + e.ws.sentBytes + ':' + e.ws.recieveBytes);
       if (e.ws.connected)
         e.ws.close();
     });
@@ -512,7 +515,7 @@ class Game {
     // keep track of players
     // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
     log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
-      ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ')' + ' Game: ' + this.gameid);
+      ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ') Data(' + datausage.join(' | ') + ')' + ' Game: ' + this.gameid);
 
     // reset the server
     this.setup();
@@ -664,7 +667,9 @@ module.exports.setup = function (p) {
     ws.on('error', function(e) { log('err', 'Got a ws error'); console.log(e); return false; });
 
     ws.connected = true;
+    ws.connecttime = Date.now();
     ws.sentBytes = 0;
+    ws.recieveBytes = 0;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 
@@ -672,7 +677,6 @@ module.exports.setup = function (p) {
         let sending = JSON.stringify(obj)
         ws.send(sending);
         ws.sentBytes += sending.length;
-        console.log(ws.sentBytes);
       } catch (err) {
         log('wsout', 'I failed to send a message.');
       }
@@ -683,7 +687,6 @@ module.exports.setup = function (p) {
       try{
         ws.send(data, {binary: true});
         ws.sentBytes += data.byteLength;
-        console.log(ws.sentBytes);
       }catch(err){
         log('wsout', 'I failed to send binary a message.');
       }
@@ -692,9 +695,11 @@ module.exports.setup = function (p) {
       try {
         if (typeof data === 'string') {
           handleMessage(ws, JSON.parse(data))
+          ws.recieveBytes += data.length;
         } else {
           var buf = new Buffer(data, 'binary')
           handleMessage(ws, Schema.unpack(buf))
+          ws.recieveBytes += data.byteLength;
         }
       }
       catch (err) {
@@ -706,6 +711,8 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       ws.connected = false;
+      // log('playerexitgame', 'Time:' + Lib.humanTimeDiff(ws.connecttime, Date.now()) + ' BytesSent:' + ws.sentBytes + ' BytesRecieved:' + ws.recieveBytes);
+
       try{
         if (typeof ws.pid === 'undefined') return false;
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
