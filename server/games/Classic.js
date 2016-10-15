@@ -371,12 +371,19 @@ class Game {
     // >> update block colors
     // >> update king positions?
     // send changes to players
-    let mapToSend = this.binaryMap(false);
+    let mapFullToSend = this.binaryMap(false);
     let mapBitToSend = this.binaryMapBit();
-    if (mapBitToSend !== false) {
+
+    // pick the smallest packet
+    let mapToSend = false;
+    if (mapFullToSend !== false && mapBitToSend !== false) { // if either one has no update send nothing
+      mapToSend = mapBitToSend.byteLength < mapFullToSend.byteLength ? mapBitToSend : mapFullToSend;
+    }
+
+    if (mapToSend !== false) {
       this.players.forEach((e,i)=>{
         if(!e.connected) return false;
-        e.ws.sendBinary(mapBitToSend);
+        e.ws.sendBinary(mapToSend);
       });
     }
 
