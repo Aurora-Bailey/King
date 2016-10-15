@@ -92,14 +92,13 @@
 	==mongodb logs
 	==put king on map.token
 	==dont send map if it hasn't changed
-
-
-  send only parts of the map that have changed insted of the entire map
+  ==send only parts of the map that have changed insted of the entire map
 
   data structure for multiple types of games. like separate points
 
 	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   points by chess ranking formula ?might come with the multi-game overhaul
+  MongoDB Cloud Manager
 
 
 
@@ -143,8 +142,6 @@
 	++	"logout": [{
 			"entertime": Date.now(),
 			"ip": "154:153:8218:1532",
-			"res": {w: 1920, h: 1080},
-			"browser": 'Browser version'
 			"numplays": 'number of plays this session'
 			"exittime": Date.now()
 		},
@@ -166,10 +163,10 @@
 		"gid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
 		"gametype": 'type of game'
 		"numplayers": 4
-		"players": [{uid: 'u8876c7728767f59642a32f6c4762bc26user', name: '', color: 0, place: 0, pid: 0 killerpid: 0, timealive: 0, timeconnected: 0}],
+		"players": [{uid: 'u8876c7728767f59642a32f6c4762bc26user', name: '', color: 0, place: 0, pid: 0 killerpid: 0, timedied: 0, timeexit: 0, datadown: 0, dataup: 0}],
 		"gamestart": Date.now(),
 		"gameclose": Date.now(),
-		"timealive": gameclose - gamestart,
+		"timeopen": gameclose - gamestart,
 		"chat": [{from: 4, msg: 'asdf'}]
 	}
 
