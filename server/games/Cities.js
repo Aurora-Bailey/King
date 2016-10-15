@@ -40,6 +40,9 @@ class Game {
     this.map = {};
     this.map.units = [];
     this.map.owner = [];
+    this.map.changed = {};
+    this.map.changed.units = true;
+    this.map.changed.owner = true;
 
     this.golCalls = 0;
     this.running = false;
@@ -244,6 +247,7 @@ class Game {
         for(let x=0; x<this.maptotalsize; x++){
           if(this.map.owner[y][x] >= 0){
             this.map.units[y][x]++;
+            this.map.changed.units = true;
           }
         }
       }
@@ -285,12 +289,15 @@ class Game {
           // my cell
           Game.map.units[moveto.y][moveto.x] += amount;
           Game.map.units[y][x] -= amount;
+          this.map.changed.units = true;
 
         }else if(Game.map.owner[moveto.y][moveto.x] === -1){
           // empty cell
           Game.map.owner[moveto.y][moveto.x] = e.pid;
           Game.map.units[moveto.y][moveto.x] += amount;
           Game.map.units[y][x] -= amount;
+          this.map.changed.units = true;
+          this.map.changed.owner = true;
 
         }else{
           // enemy cell
@@ -304,6 +311,8 @@ class Game {
             Game.map.owner[moveto.y][moveto.x] = e.pid;
             Game.map.units[moveto.y][moveto.x] = myunintsleft;
             Game.map.units[y][x] -= amount;
+            this.map.changed.units = true;
+            this.map.changed.owner = true;
 
             // take over player
             if(this.players[enemyid].kingloc.x == moveto.x && this.players[enemyid].kingloc.y == moveto.y){
@@ -316,6 +325,8 @@ class Game {
                   if(this.map.owner[ey][ex] == enemyid){
                     this.map.owner[ey][ex] = e.pid;
                     this.map.units[ey][ex] = Math.ceil(this.map.units[ey][ex] * 0.5);// you only get half the kingdom
+                    this.map.changed.units = true;
+                    this.map.changed.owner = true;
                   }
                 }
               }
@@ -332,6 +343,7 @@ class Game {
           }else{
             Game.map.units[moveto.y][moveto.x] -= amount;
             Game.map.units[y][x] -= amount;
+            this.map.changed.units = true;
           }
         }
       }
@@ -344,15 +356,19 @@ class Game {
     // send changes to players
     this.players.forEach((e,i)=>{
       if(!e.connected) return false;
-      this.sendMap(e.ws)
+      this.sendMap(e.ws, false)
     });
+
+    // Maps have been sent if true
+    this.map.changed.units = false;
+    this.map.changed.owner = false;
 
     this.loopcount++;
   }
 
-  static sendMap(ws) {
-    ws.sendBinary(Schema.pack('map', {m: 'map', type: 'units', data: Game.map.units}));
-    ws.sendBinary(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner}));
+  static sendMap(ws, force = true) {
+    if (this.map.changed.units || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'units', data: Game.map.units}));
+    if (this.map.changed.owner || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner}));
   }
 
   static playerDead(pid, killername){
@@ -479,7 +495,7 @@ function handleMessage(ws, d) {// websocket client messages
         ws.sendObj({m: 'welcome', pid: pid});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color king location
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
-        Game.sendMap(ws);
+        Game.sendMap(ws, true);
 
         // take one point for the point pool
         db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){
