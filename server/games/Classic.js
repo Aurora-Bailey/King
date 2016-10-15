@@ -657,11 +657,15 @@ module.exports.setup = function (p) {
     ws.on('error', function(e) { log('err', 'Got a ws error'); console.log(e); return false; });
 
     ws.connected = true;
+    ws.sentBytes = 0;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 
       try {
-        ws.send(JSON.stringify(obj));
+        let sending = JSON.stringify(obj)
+        ws.send(sending);
+        ws.sentBytes += sending.length;
+        console.log(ws.sentBytes);
       } catch (err) {
         log('wsout', 'I failed to send a message.');
       }
@@ -671,6 +675,8 @@ module.exports.setup = function (p) {
 
       try{
         ws.send(data, {binary: true});
+        ws.sentBytes += data.byteLength;
+        console.log(ws.sentBytes);
       }catch(err){
         log('wsout', 'I failed to send binary a message.');
       }
