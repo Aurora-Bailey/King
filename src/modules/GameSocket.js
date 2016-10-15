@@ -90,6 +90,21 @@ function updateLeaderboard () {
   })
 }
 
+function updateCellColors (x, y) {
+  let id = Data.game.map[y][x].owner
+  if (typeof Data.game.players[id] !== 'undefined') { // cell has player owner
+    Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
+  } else { // un-owned block
+    if (Data.game.map[y][x].owner === -2) { // Solid
+      Data.game.map[y][x].color = 'hsl(0,100%,0%)'
+    } else if (Data.game.map[y][x].owner === -1) { // Empty
+      Data.game.map[y][x].color = 'hsl(0,100%,100%)'
+    } else { // Other idk
+      Data.game.map[y][x].color = 'hsl(0,0%,50%)'
+    }
+  }
+}
+
 function handleMessage (d) {
   if (d.m === 'welcome') {
     Vue.set(Data.game, 'players', [])
@@ -115,24 +130,33 @@ function handleMessage (d) {
         if (d.owner.length > 0) Data.game.map[y][x].owner = d.owner[y][x]
         if (d.token.length > 0) Data.game.map[y][x].token = d.token[y][x]
 
-        // computed values (color)
-        if (d.owner.length > 0) {
-          let id = Data.game.map[y][x].owner
-
-          if (typeof Data.game.players[id] !== 'undefined') { // cell has player owner
-            Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
-          } else { // un-owned block
-            if (Data.game.map[y][x].owner === -2) { // Solid
-              Data.game.map[y][x].color = 'hsl(0,100%,0%)'
-            } else if (Data.game.map[y][x].owner === -1) { // Empty
-              Data.game.map[y][x].color = 'hsl(0,100%,100%)'
-            } else { // Other idk
-              Data.game.map[y][x].color = 'hsl(0,0%,50%)'
-            }
-          }
-        }
-        // end
+        // Compute color
+        if (d.owner.length > 0) updateCellColors(x, y)
       }
+    }
+    // Update leaderboard
+    updateLeaderboard()
+  } else if (d.m === 'mapbit') {
+    // changes, sent in blocks of 3 joined on a single array
+    for (let i = 0; i < d.units.length; i += 3) {
+      let x = d.units[i]
+      let y = d.units[i + 1]
+      let z = d.units[i + 2]
+      Data.game.map[y][x].units = z
+    }
+    for (let i = 0; i < d.owner.length; i += 3) {
+      let x = d.owner[i]
+      let y = d.owner[i + 1]
+      let z = d.owner[i + 2]
+      Data.game.map[y][x].owner = z
+      // Compute color
+      updateCellColors(x, y)
+    }
+    for (let i = 0; i < d.token.length; i += 3) {
+      let x = d.token[i]
+      let y = d.token[i + 1]
+      let z = d.token[i + 2]
+      Data.game.map[y][x].token = z
     }
     // Update leaderboard
     updateLeaderboard()

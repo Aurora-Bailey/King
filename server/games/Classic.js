@@ -372,10 +372,11 @@ class Game {
     // >> update king positions?
     // send changes to players
     let mapToSend = this.binaryMap(false);
-    if (mapToSend !== false) {
+    let mapBitToSend = this.binaryMapBit();
+    if (mapBitToSend !== false) {
       this.players.forEach((e,i)=>{
         if(!e.connected) return false;
-        e.ws.sendBinary(mapToSend);
+        e.ws.sendBinary(mapBitToSend);
       });
     }
 
@@ -383,7 +384,7 @@ class Game {
     this.loopcount++;
   }
 
-  static sendMapBit(ws) {
+  static binaryMapBit() {
     // send only the bits of map that have changed
     let changes = {};
     changes.m = 'mapbit';
@@ -395,7 +396,7 @@ class Game {
         if (this.map.units[y][x] !== this.oldmap.units[y][x]) {
           changes.units.push(x);
           changes.units.push(y);
-          changes.units.push(this.map.owner[y][x]);
+          changes.units.push(this.map.units[y][x]);
         }
         if (this.map.owner[y][x] !== this.oldmap.owner[y][x]) {
           changes.owner.push(x);
@@ -405,11 +406,12 @@ class Game {
         if (this.map.token[y][x] !== this.oldmap.token[y][x]) {
           changes.token.push(x);
           changes.token.push(y);
-          changes.token.push(this.map.owner[y][x]);
+          changes.token.push(this.map.token[y][x]);
         }
       }
     }
-    if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) ws.sendBinary(Schema.pack('mapbit', changes));
+    if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) return Schema.pack('mapbit', changes);
+    else return false;
   }
 
   static binaryMap(force = true) {
