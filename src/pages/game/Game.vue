@@ -14,7 +14,7 @@
                v-on:touchstart="movestart(x.loc.x, x.loc.y)"
                v-bind:class="{solid: x.owner === -2, me: x.owner === game.myid}"
                v-bind:style="{ backgroundColor: x.color }">
-            <div class="king" v-show="x.king"></div>
+            <div class="king" v-show="x.token === 1"></div>
             <div class="units" v-show="x.units>0">{{x.units}}</div>
             <div class="name" v-show="x.owner >= 0 && x.owner !== game.myid">{{x.owner >= 0 ? game.players[x.owner].name:''}}</div>
 

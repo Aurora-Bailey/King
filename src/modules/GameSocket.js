@@ -105,24 +105,17 @@ function handleMessage (d) {
       if (typeof Data.game.map[y] === 'undefined') Vue.set(Data.game.map, y, [])
       for (let x = 0; x < d.data[y].length; x++) {
         if (typeof Data.game.map[y][x] === 'undefined') {
-          Vue.set(Data.game.map[y], x, {units: 0, owner: -1, color: 0, movehelp: 0, king: false, loc: {x: x, y: y}})
+          Vue.set(Data.game.map[y], x, {units: 0, owner: -1, token: 0, color: 0, movehelp: 0, loc: {x: x, y: y}})
         }
 
         Vue.set(Data.game.map[y][x], d.type, d.data[y][x])
 
+        // computed values (color)
         if (d.type === 'owner') {
           let id = Data.game.map[y][x].owner
 
           if (typeof Data.game.players[id] !== 'undefined') {
             // cell has owner
-
-            // compute king
-            let kingloc = Data.game.players[id].kingloc
-            if (kingloc.x === x && kingloc.y === y) {
-              Data.game.map[y][x].king = true
-            } else {
-              Data.game.map[y][x].king = false
-            }
 
             // compute color
             Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
@@ -149,7 +142,6 @@ function handleMessage (d) {
     d.data.dead = false // inject data into data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
     setLeaderboard(d.data)
-    shortObj({m: 'scrollhome'})
   } else if (d.m === 'chat') {
     if (typeof Data.game.players[d.from] !== 'undefined') {
       // Data.game.chat.msg.push('[' + Data.game.players[d.from].name + '] ' + d.message)
@@ -201,11 +193,19 @@ function handleMessage (d) {
       // handleMessage({m: 'chat', from: 'Game', message: Data.game.players[d.pid].name + ' was taken over by ' + d.killer})
     }
   } else if (d.m === 'scrollhome') {
-    // this is in the web socke to be called when the game starts
-    // in the game.vue there is not defining line where the game starts
+    // Call this only when the map is loaded
     let w = window.innerWidth
     let h = window.innerHeight
-    let kingloc = Data.game.players[Data.game.myid].kingloc
+    let kingloc = {x: Math.floor(Data.game.map.length / 2), y: Math.floor(Data.game.map[0].length / 2)}
+
+    for (let y = 0; y < Data.game.map.length; y++) {
+      for (let x = 0; x < Data.game.map[y].length; x++) {
+        if (Data.game.map[y][x].owner === Data.game.myid && Data.game.map[y][x].token === 1) {
+          kingloc.x = x
+          kingloc.y = y
+        }
+      }
+    }
 
     Data.game.scroll.x = (kingloc.x * 50) - (w / 2) + 25
     Data.game.scroll.x = -Data.game.scroll.x
