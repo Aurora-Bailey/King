@@ -26,8 +26,19 @@ type.map = avro.parse({
   type: 'record',
   fields: [
     {name:'m',type:'string'},
-    {name:'type',type:'string'},
-    {name:'data',type:{type:'array',items:{type:'array',items:'int'}}}
+    {name:'units',type:{type:'array',items:{type:'array',items:'int'}}},
+    {name:'owner',type:{type:'array',items:{type:'array',items:'int'}}},
+    {name:'token',type:{type:'array',items:{type:'array',items:'int'}}}
+  ]
+});
+type.mapbit = avro.parse({
+  name: 'Mapbit',
+  type: 'record',
+  fields: [
+    {name:'m',type:'string'},
+    {name:'units',type:{type:'array',items:'int'}},
+    {name:'owner',type:{type:'array',items:'int'}},
+    {name:'token',type:{type:'array',items:'int'}}
   ]
 });
 type.move = avro.parse({

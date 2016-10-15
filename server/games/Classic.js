@@ -26,6 +26,8 @@ var http = require('http'),
   WORKER_TYPE = false,
   NODE_ENV = false;
 
+var now = require("performance-now");
+
 class Game {
   static setup(){
     // set or reset game room
@@ -45,6 +47,7 @@ class Game {
     this.map.changed.units = true;
     this.map.changed.owner = true;
     this.map.changed.token = true;
+    this.oldmap = Lib.deepCopy(this.map);
 
     this.golCalls = 0;
     this.running = false;
@@ -244,6 +247,14 @@ class Game {
       }, 1);
     }, this.loopdelay);
 
+    // Make a copy of map before we change anything
+    this.oldmap = Lib.deepCopy(this.map);
+
+    // Fresh loop, Set all changes to false
+    this.map.changed.units = false;
+    this.map.changed.owner = false;
+    this.map.changed.token = false;
+
     // add units
     if(this.loopcount % 10 == 0){// once every 10 loops
       for(let y=0; y<this.maptotalsize; y++){
@@ -360,23 +371,61 @@ class Game {
     // >> update block colors
     // >> update king positions?
     // send changes to players
-    this.players.forEach((e,i)=>{
-      if(!e.connected) return false;
-      this.sendMap(e.ws, false)
-    });
+    let mapToSend = this.binaryMap(false);
+    if (mapToSend !== false) {
+      this.players.forEach((e,i)=>{
+        if(!e.connected) return false;
+        e.ws.sendBinary(mapToSend);
+      });
+    }
 
-    // Maps have been sent if true
-    this.map.changed.units = false;
-    this.map.changed.owner = false;
-    this.map.changed.token = false;
-
+    // Ready for next loop
     this.loopcount++;
   }
 
-  static sendMap(ws, force = true) {
-    if (this.map.changed.units || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'units', data: Game.map.units}));
-    if (this.map.changed.owner || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner}));
-    if (this.map.changed.token || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'token', data: Game.map.token}));
+  static sendMapBit(ws) {
+    // send only the bits of map that have changed
+    let changes = {};
+    changes.m = 'mapbit';
+    changes.units = [];
+    changes.owner = [];
+    changes.token = [];
+    for(let y=0; y<this.map.owner.length; y++){
+      for(let x=0; x<this.map.owner[y].length; x++){
+        if (this.map.units[y][x] !== this.oldmap.units[y][x]) {
+          changes.units.push(x);
+          changes.units.push(y);
+          changes.units.push(this.map.owner[y][x]);
+        }
+        if (this.map.owner[y][x] !== this.oldmap.owner[y][x]) {
+          changes.owner.push(x);
+          changes.owner.push(y);
+          changes.owner.push(this.map.owner[y][x]);
+        }
+        if (this.map.token[y][x] !== this.oldmap.token[y][x]) {
+          changes.token.push(x);
+          changes.token.push(y);
+          changes.token.push(this.map.owner[y][x]);
+        }
+      }
+    }
+    if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) ws.sendBinary(Schema.pack('mapbit', changes));
+  }
+
+  static binaryMap(force = true) {
+    // force to send map regardless of change
+    let changes = {};
+    changes.m = 'map';
+    changes.units = [];
+    changes.owner = [];
+    changes.token = [];
+
+    if (this.map.changed.units || force) changes.units = this.map.units;
+    if (this.map.changed.owner || force) changes.owner = this.map.owner;
+    if (this.map.changed.token || force) changes.token = this.map.token;
+
+    if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) return Schema.pack('map', changes);
+    else return false;
   }
 
   static playerDead(pid, killername){
@@ -500,10 +549,11 @@ function handleMessage(ws, d) {// websocket client messages
         ws.secret = d.secret;
         ws.lastchat = Date.now();
 
-        ws.sendObj({m: 'welcome', pid: pid});
+        ws.sendObj({m: 'welcome', pid: pid, mapheight: Game.map.owner.length, mapwidth: Game.map.owner[0].length});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
-        Game.sendMap(ws, true);
+        let mapToSend = Game.binaryMap(true);
+        if (mapToSend !== false) ws.sendBinary(mapToSend);
         ws.sendObj({m: 'scrollhome'});
 
         // take one point for the point pool

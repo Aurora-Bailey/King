@@ -69,6 +69,8 @@
   add about, help, contact pages
 	remove ugly time notice at some point.
 
+	cean up html bloat so larger maps can be supported
+
 // both
   ==queue count on play button
   == DROPPED chatroom on homepage
@@ -88,16 +90,18 @@
   ==sort logs by category. pull only one category
 	==keep memory of last 1000 or so logs
 	==mongodb logs
+	==put king on map.token
+	==dont send map if it hasn't changed
 
+
+  send only parts of the map that have changed insted of the entire map
 
   data structure for multiple types of games. like separate points
 
 	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   points by chess ranking formula ?might come with the multi-game overhaul
 
-	put king on map.owner
 
-	dont send map if it is equal to old map (hasn't changed)
 
 	collect more data from user
 	// current

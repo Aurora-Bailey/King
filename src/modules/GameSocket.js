@@ -92,52 +92,50 @@ function updateLeaderboard () {
 
 function handleMessage (d) {
   if (d.m === 'welcome') {
-    Vue.set(Data.game, 'map', [])
     Vue.set(Data.game, 'players', [])
     Vue.set(Data.game, 'myid', d.pid)
+
+    // Set up map
+    Vue.set(Data.game, 'map', [])
+    for (let y = 0; y < d.mapheight; y++) {
+      Vue.set(Data.game.map, y, [])
+      for (let x = 0; x < d.mapwidth; x++) {
+        Vue.set(Data.game.map[y], x, {units: 0, owner: -1, token: 0, color: 'white', movehelp: 0, loc: {x: x, y: y}})
+      }
+    }
 
     Data.page = 'game'
     Data.game.playing = true
     Data.game.dead = false
     Data.game.deadscreen.spectate = false
   } else if (d.m === 'map') {
-    for (let y = 0; y < d.data.length; y++) {
-      if (typeof Data.game.map[y] === 'undefined') Vue.set(Data.game.map, y, [])
-      for (let x = 0; x < d.data[y].length; x++) {
-        if (typeof Data.game.map[y][x] === 'undefined') {
-          Vue.set(Data.game.map[y], x, {units: 0, owner: -1, token: 0, color: 0, movehelp: 0, loc: {x: x, y: y}})
-        }
-
-        Vue.set(Data.game.map[y][x], d.type, d.data[y][x])
+    for (let y = 0; y < Data.game.map.length; y++) {
+      for (let x = 0; x < Data.game.map[y].length; x++) {
+        if (d.units.length > 0) Data.game.map[y][x].units = d.units[y][x]
+        if (d.owner.length > 0) Data.game.map[y][x].owner = d.owner[y][x]
+        if (d.token.length > 0) Data.game.map[y][x].token = d.token[y][x]
 
         // computed values (color)
-        if (d.type === 'owner') {
+        if (d.owner.length > 0) {
           let id = Data.game.map[y][x].owner
 
-          if (typeof Data.game.players[id] !== 'undefined') {
-            // cell has owner
-
-            // compute color
+          if (typeof Data.game.players[id] !== 'undefined') { // cell has player owner
             Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
-          } else {
-            // un-owned block
-
-            // comput color
-            if (Data.game.map[y][x].owner === -2) {
+          } else { // un-owned block
+            if (Data.game.map[y][x].owner === -2) { // Solid
               Data.game.map[y][x].color = 'hsl(0,100%,0%)'
-            } else if (Data.game.map[y][x].owner === -1) {
+            } else if (Data.game.map[y][x].owner === -1) { // Empty
               Data.game.map[y][x].color = 'hsl(0,100%,100%)'
-            } else {
+            } else { // Other idk
               Data.game.map[y][x].color = 'hsl(0,0%,50%)'
             }
           }
         }
+        // end
       }
     }
     // Update leaderboard
-    if (d.type === 'owner') {
-      updateLeaderboard()
-    }
+    updateLeaderboard()
   } else if (d.m === 'players') {
     d.data.dead = false // inject data into data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
