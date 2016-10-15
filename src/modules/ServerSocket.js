@@ -127,6 +127,11 @@ function handleMessage (d) {
   } else if (d.m === 'popup') {
     Data.popup.show(d.title, d.msg)
   } else if (d.m === 'gamelist') {
+    // empty list
+    while (Data.gamelist.length > 0) {
+      Data.gamelist.pop()
+    }
+    // rebuild list
     d.v.forEach((e, i) => {
       Data.gamelist.push(e)
     })
