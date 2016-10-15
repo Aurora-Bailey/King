@@ -40,9 +40,11 @@ class Game {
     this.map = {};
     this.map.units = [];
     this.map.owner = [];
+    this.map.token = [];
     this.map.changed = {};
     this.map.changed.units = true;
     this.map.changed.owner = true;
+    this.map.changed.token = true;
 
     this.golCalls = 0;
     this.running = false;
@@ -76,9 +78,11 @@ class Game {
     for(let y=0; y<this.maptotalsize; y++){
       this.map.units[y] = [];
       this.map.owner[y] = [];
+      this.map.token[y] = [];
       for(let x=0; x<this.maptotalsize; x++){
         this.map.units[y][x] = 0;
         this.map.owner[y][x] = -1 - Math.round(Math.random());
+        this.map.token[y][x] = 0;
       }
     }
     // rearrange solid blocks
@@ -126,8 +130,7 @@ class Game {
         if(typeof this.players[pindex] !== 'undefined'){
           this.map.units[toty][totx] = 2;
           this.map.owner[toty][totx] = pindex;
-          this.players[pindex].kingloc = {x: totx,y: toty};
-          this.playerarray[pindex].kingloc = this.players[pindex].kingloc; // version sent to the player
+          this.map.token[toty][totx] = 1; // king
         }
       }
     }
@@ -315,7 +318,9 @@ class Game {
             this.map.changed.owner = true;
 
             // take over player
-            if(this.players[enemyid].kingloc.x == moveto.x && this.players[enemyid].kingloc.y == moveto.y){
+            if(Game.map.token[moveto.y][moveto.x] === 1){
+              Game.map.token[moveto.y][moveto.x] = 2;
+              this.map.changed.token = true;
               this.playerDead(enemyid, e.name);
               this.players[e.pid].kills++;
 
@@ -341,6 +346,7 @@ class Game {
               }
             }
           }else{
+            // you attacked but didn't have enough units
             Game.map.units[moveto.y][moveto.x] -= amount;
             Game.map.units[y][x] -= amount;
             this.map.changed.units = true;
@@ -362,6 +368,7 @@ class Game {
     // Maps have been sent if true
     this.map.changed.units = false;
     this.map.changed.owner = false;
+    this.map.changed.token = false;
 
     this.loopcount++;
   }
@@ -369,6 +376,7 @@ class Game {
   static sendMap(ws, force = true) {
     if (this.map.changed.units || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'units', data: Game.map.units}));
     if (this.map.changed.owner || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner}));
+    if (this.map.changed.token || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'token', data: Game.map.token}));
   }
 
   static playerDead(pid, killername){
@@ -493,9 +501,10 @@ function handleMessage(ws, d) {// websocket client messages
         ws.lastchat = Date.now();
 
         ws.sendObj({m: 'welcome', pid: pid});
-        ws.sendObj({m: 'players', data: Game.playerarray});// id name color king location
+        ws.sendObj({m: 'players', data: Game.playerarray});// id name color
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
         Game.sendMap(ws, true);
+        ws.sendObj({m: 'scrollhome'});
 
         // take one point for the point pool
         db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){
