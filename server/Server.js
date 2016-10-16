@@ -265,8 +265,8 @@ function handleMessage(ws, d) {// websocket client messages
         }
       });
     }else if (d.m === 'makecookie' && ws.compatible){
-      var freshCookie = 'c' + Lib.randString(14,true,true,true);
-      var uniqueId = 'u' + Lib.randString(14,true,true,true);
+      var freshCookie = 'c' + Lib.randString(15,true,true,true);
+      var uniqueId = 'u' + Lib.randString(15,true,true,true);
       var player = {
         cookie: freshCookie, // should be kept private, used for login
         facebook: false,
