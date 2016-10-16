@@ -499,12 +499,15 @@ class Game {
         });
       });
 
+      // Graceful exit
+      if (list_uid.length < 2) throw "Ranking requires 2 players, there are currently " + list_uid.length;
+
       // pull & update points
       db.collection('players').find({id: {$in: list_uid}}, {_id: 0, points: 1, id: 1}).toArray(function(err, docs) {
         if (err) {
           log('err', 'Error with mongodb points request');
           console.log(err);
-        } else if (docs.length != 0) {
+        } else if (docs.length > 1) {
           // load points into player summary
           docs.forEach((doc)=>{
             player_summary.forEach((pl)=>{

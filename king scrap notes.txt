@@ -179,10 +179,7 @@
   ==points by chess ranking formula ?might come with the multi-game overhaul
   ==remove comments from ranking system
   ==databasserestructure rebuild points to match new ranking system
-
-  MongoDB Cloud Manager
-
-  simulate players that dont connect to the second game.
+  ==simulate players that dont connect to the second game.
 
   reloading scoreboard on game end does not work any more
 
@@ -190,6 +187,7 @@
   npm install --save bufferutil
   run DatabaseRebuild
   index: cookie id gid points
+  MongoDB Cloud Manager
 
 
 
