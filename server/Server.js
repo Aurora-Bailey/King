@@ -278,7 +278,7 @@ function handleMessage(ws, d) {// websocket client messages
         lastlogin: Date.now(),
         signupdate: Date.now(),
         pastnames: [],
-        sission: [],
+        session: [],
         pastgames: []
       };
       db.collection('players').insertOne(player, function(err){
