@@ -71,6 +71,7 @@
 	subtle shadow on button text
 
 	cean up html bloat so larger maps can be supported
+	show points when you hover over leaderboard on homepage
 
 // both
   ==queue count on play button
@@ -179,6 +180,12 @@
   MongoDB Cloud Manager
 
   simulate players that dont connect to the second game.
+
+  reloading scoreboard on game end does not work any more
+
+  remove comments from ranking system
+
+  databasserestructure rebuild points to match new ranking system
 
  // on live server
   npm install --save bufferutil

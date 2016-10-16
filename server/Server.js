@@ -272,7 +272,7 @@ function handleMessage(ws, d) {// websocket client messages
         facebook: false,
         id: uniqueId, // can be public
         name: 'Nameless',
-        points: 100000,
+        points: 15000,
         totalplays: 0,
         totaltime: 0,
         lastlogin: Date.now(),

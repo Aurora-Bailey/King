@@ -13,7 +13,7 @@ MongoClient.connect('mongodb://localhost:27017/king', function (king_err, king_d
           fresh.facebook = false;
           fresh.id = old.id;
           fresh.name = old.name;
-          fresh.points = old.points;
+          fresh.points = ((old.points - 100000) * 50) + 15000 ;
           fresh.totalplays = old.numplays;
           fresh.totaltime = 0;
           fresh.lastlogin = old.lastlogin;
