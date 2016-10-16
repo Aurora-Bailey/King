@@ -316,22 +316,25 @@ function handleMessage(ws, d) {// websocket client messages
     }else if (d.m === 'canceljoin' && ws.loggedin) {
       if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
     }else if (d.m === 'gameover' && ws.loggedin){
-      sendLeaderboard(ws);
+      // Does not work because rank is computed at the end of the game now. which is after everyone leaves.
+      //
+      // sendLeaderboard(ws);
       // update player status on ws, then send the status to user
-      db.collection('players').find({cookie: ws.data.cookie}, {_id: 0, pastgames: 0, pastnames: 0, session: 0}).limit(1).toArray(function(err, docs) {
-        if (err) {
-          log('err', 'Error with mongodb refresh request');
-          console.log(err);
-        } else if (docs.length != 0) {
-          ws.data = docs[0];
-          // update rank on the fly
-          db.collection('players').find({points: {$gt: ws.data.points}}).count({}, function (err, count) {
-            ws.data.rank = count + 1; // +1 to account for yourself
-            sendPlayerStats(ws);
-            ws.playing = false;
-          });
-        }
-      });
+      // db.collection('players').find({cookie: ws.data.cookie}, {_id: 0, pastgames: 0, pastnames: 0, session: 0}).limit(1).toArray(function(err, docs) {
+      //  if (err) {
+      //    log('err', 'Error with mongodb refresh request');
+      //    console.log(err);
+      //  } else if (docs.length != 0) {
+      //    ws.data = docs[0];
+      //    // update rank on the fly
+      //    db.collection('players').find({points: {$gt: ws.data.points}}).count({}, function (err, count) {
+      //      ws.data.rank = count + 1; // +1 to account for yourself
+      //      sendPlayerStats(ws);
+      //      ws.playing = false;
+      //    });
+      //  }
+      // });
+      ws.playing = false;
     }
     // Example broadcast to all nodes
     // process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});

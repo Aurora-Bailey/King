@@ -180,8 +180,7 @@
   ==remove comments from ranking system
   ==databasserestructure rebuild points to match new ranking system
   ==simulate players that dont connect to the second game.
-
-  reloading scoreboard on game end does not work any more
+  ==reloading scoreboard on game end does not work any more
 
  // on live server
   npm install --save bufferutil
