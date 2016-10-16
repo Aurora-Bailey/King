@@ -153,7 +153,7 @@ class Queue {
       numthrough--;
       let uid = this.players[e].data.id;
       let name = this.players[e].data.name;
-      let secret = 's' + Lib.md5(Math.random() + Date.now()) + 'secret';
+      let secret = 's' + Lib.randString(14,true,true,true);
       process.send({m: 'pass', to: gameRoom[this.gametype].id, data: {m: 'addplayer', uid: uid, secret: secret, name: name}});
       if (NODE_ENV !== 'production')
         this.players[e].sendObj({m: 'joinroom', port: gameRoom[this.gametype].port, secret: secret});
@@ -265,8 +265,8 @@ function handleMessage(ws, d) {// websocket client messages
         }
       });
     }else if (d.m === 'makecookie' && ws.compatible){
-      var freshCookie = 'c' + Lib.md5(Math.random() + Date.now()) + 'cookie';
-      var uniqueId = 'u' + Lib.md5(Math.random() + Date.now()) + 'user';
+      var freshCookie = 'c' + Lib.randString(14,true,true,true);
+      var uniqueId = 'u' + Lib.randString(14,true,true,true);
       var player = {
         cookie: freshCookie, // should be kept private, used for login
         facebook: false,

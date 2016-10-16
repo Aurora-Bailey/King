@@ -296,7 +296,7 @@ module.exports.setup = function (p) {
     ws.name = 'Unknown';
     ws.mod = false;
     ws.getlogs = false;
-    ws.sid = Lib.md5(Math.random() + Date.now());
+    ws.sid = 'sid' + Lib.randString(14,true,true,true);
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 

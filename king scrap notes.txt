@@ -96,11 +96,13 @@
   ==send only parts of the map that have changed insted of the entire map
   == DROPPED data structure for multiple types of games. like separate points
 	==dont pull past games from database on cookie auth ?might come with the multi-game overhaul
+  ==enter game into MongoDB
+  ==shorten id names
+
+
 
   points by chess ranking formula ?might come with the multi-game overhaul
   MongoDB Cloud Manager
-  enter game into MongoDB
-  shorten id names
 
   // on live server
   npm install --save bufferutil
