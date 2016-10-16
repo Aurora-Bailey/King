@@ -33,7 +33,7 @@ class Game {
     // set or reset game room
     // start will be called when all player spots are accounted for
     //this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
-    this.gameid = 'g' + Lib.randString(10,false,true,true) + WORKER_TYPE;
+    this.gameid = 'g' + Lib.randString(15,true,true,true);
     // log('setup', 'Setup ' + WORKER_TYPE + ' ' + this.gameid);
     this.pointpool = 0;
     this.allowplayers = {};
@@ -55,6 +55,7 @@ class Game {
     this.loopcount = 0;
 
     this.chatlogs = [];
+    this.chatlogsdata = [];
     this.deadlogs = [];
   }
 
@@ -332,7 +333,7 @@ class Game {
             if(Game.map.token[moveto.y][moveto.x] === 1){
               Game.map.token[moveto.y][moveto.x] = 2;
               this.map.changed.token = true;
-              this.playerDead(enemyid, e.name);
+              this.playerDead(enemyid, e.name, e.pid);
               this.players[e.pid].kills++;
 
               // claim your new kingdom
@@ -351,7 +352,7 @@ class Game {
               if(this.playersalive == 1){
                 broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
                 broadcastChat('Server', 'Server will close in 2 minutes.')
-                setTimeout(()=>{this.playerDead(e.pid, 'Server');}, 2000);// kill the winner
+                setTimeout(()=>{this.playerDead(e.pid, 'Server', -1);}, 100);// kill the winner
                 clearTimeout(this.forceclose);
                 this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
               }
@@ -437,7 +438,7 @@ class Game {
     else return false;
   }
 
-  static playerDead(pid, killername){
+  static playerDead(pid, killername, killerpid){
     broadcast({m: 'playerdead', pid: pid, timealive: Date.now() - this.starttime, place: this.playersalive, kills: this.players[pid].kills, killer: killername});
     // log('gameplay', '___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
     broadcastChat('Game', this.players[pid].name + ' was taken over by ' + killername);
@@ -445,6 +446,9 @@ class Game {
     this.playersalive--;
     this.deadlogs.push(this.players[pid].name + '<' + killername);
     this.players[pid].dead = true;
+    this.players[pid].timedied = Date.now();
+    this.players[pid].killerpid = killerpid;
+    this.players[pid].place = this.playersalive + 1;
 
     if (!this.players[pid].connected) return false;
 
@@ -491,22 +495,67 @@ class Game {
   static endgame(){
     // save stats to database
     clearTimeout(this.forceclose);
+    this.running = false;
 
     let datausage = [];
 
-    // kick all players
-    this.players.forEach((e,i)=>{
-      if (!e.connected) return false; // never connected ws
-      if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server');
-      datausage.push(e.name + '-' + e.ws.sentBytes + ':' + e.ws.recieveBytes);
-      if (e.ws.connected)
-        e.ws.close();
-    });
+    try {
+      // kick all players
+      this.players.forEach((e,i)=>{
+        if (!e.connected) return false; // never connected ws
+        if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server', -1);
+        datausage.push(e.name + '-' + e.ws.sentBytes + ':' + e.ws.recieveBytes);
+        if (e.ws.connected)
+          e.ws.close();
+      });
+    } catch (err){
+      log('err', 'Trying to kick everyone from the game!');
+    }
 
     // keep track of players
     // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
     log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
       ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ') Data(' + datausage.join(' | ') + ')' + ' Game: ' + this.gameid);
+
+    try {
+      let gamelog = {};
+      gamelog.gid = this.gameid;
+      gamelog.type = WORKER_TYPE;
+      gamelog.room = '' + WORKER_INDEX + '-' + WORKER_NAME;
+      gamelog.numplayers = this.players.length;
+      gamelog.players = [];
+      this.players.forEach((player,i)=>{
+        gamelog.players.push({
+          uid: typeof player.ws !== 'undefined' ? player.ws.uid : 'Never Connected!',
+          name: player.name,
+          color: player.color,
+          kills: player.kills,
+          place: player.place,
+          pid: player.pid,
+          killerpid: player.killerpid,
+          died: typeof player.timedied !== 'undefined' ? player.timedied : Date.now(),
+          exit: typeof player.exit !== 'undefined' ? player.exit : Date.now(),
+          datadown: typeof player.ws !== 'undefined' ? player.ws.sentBytes : 'Never Connected!',
+          dataup: typeof player.ws !== 'undefined' ? player.ws.recieveBytes : 'Never Connected!'
+
+        });
+      });
+      gamelog.open = this.starttime;
+      gamelog.close = Date.now();
+      gamelog.time = Date.now() - this.starttime;
+      gamelog.chat = this.chatlogsdata;
+
+      // In database
+      db.collection('games').insertOne(gamelog, function(err){
+        if(err) {
+          log('err', 'Error, MongoDB insert game into games collection!');
+          console.log(err);
+        }
+      });
+    } catch (err){
+      log('err', 'Failed to add game entry into database!');
+      console.log(err);
+    }
 
     // reset the server
     this.setup();
@@ -583,6 +632,7 @@ function handleMessage(ws, d) {// websocket client messages
 
         log('chat', ws.pid + '-' + Game.players[ws.pid].name + ': ' + msg);
         Game.chatlogs.push(ws.pid + '-' + Game.players[ws.pid].name + ': ' + msg);
+        Game.chatlogsdata.push({from: ws.pid, msg: msg});
 
         if (d.message.length > 250) ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 250 characters.'});
       }else{
@@ -709,6 +759,8 @@ module.exports.setup = function (p) {
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
         broadcastChat('Server', '' + Game.players[ws.pid].name + ' has left the game.');
         // log('gameplay', '___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
+
+        Game.players[ws.pid].exit = Date.now();
 
         if (wss.clients.length === 0) { // everyone left
           if (Game.running) {

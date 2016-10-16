@@ -68,6 +68,7 @@
 
   add about, help, contact pages
 	remove ugly time notice at some point.
+	subtle shadow on button text
 
 	cean up html bloat so larger maps can be supported
 
@@ -98,6 +99,8 @@
 
   points by chess ranking formula ?might come with the multi-game overhaul
   MongoDB Cloud Manager
+  enter game into MongoDB
+  shorten id names
 
   // on live server
   npm install --save bufferutil
@@ -168,12 +171,13 @@
 	Games: {
 		"_id": ObjectId("57f5d5c9f2943e27285ae822"),
 		"gid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
-		"gametype": 'type of game'
+		"type": 'type of game'
+		"room": 'name of room'
 		"numplayers": 4
 		"players": [{uid: 'u8876c7728767f59642a32f6c4762bc26user', name: '', color: 0, place: 0, pid: 0 killerpid: 0, timedied: 0, timeexit: 0, datadown: 0, dataup: 0}],
-		"gamestart": Date.now(),
-		"gameclose": Date.now(),
-		"timeopen": gameclose - gamestart,
+		"open": Date.now(),
+		"close": Date.now(),
+		"time": gameclose - gamestart,
 		"chat": [{from: 4, msg: 'asdf'}]
 	}
 
