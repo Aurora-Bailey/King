@@ -160,6 +160,7 @@ class Queue {
       else
         this.players[e].sendObj({m: 'joinroom', name: gameRoom[this.gametype].name, secret: secret});
       this.players[e].playing = true;
+      this.players[e].numplays++;
       this.players[e].inqueue = false;
       this.players[e].waiting = false;
       delete this.players[e];
@@ -181,11 +182,7 @@ class Queue {
 
 /* Websockets */
 function sendPlayerStats(ws) {
-  var copy = Lib.deepCopy(ws.data);
-  delete copy._id;
-  delete copy.cookie;
-  delete copy.pastgames;
-  ws.sendObj({m: 'stats', data: copy});
+  ws.sendObj({m: 'stats', data: {id: ws.data.id, name: ws.data.name, points: ws.data.points, rank: ws.data.rank}});
 }
 function sendLeaderboard(ws) {
   db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*7)}}, {_id: 0, name: 1, points: 1}).sort({points: -1}).limit(10).toArray(function(err, docs) {
@@ -235,7 +232,7 @@ function handleMessage(ws, d) {// websocket client messages
       }
     }else if (d.m === 'cookie' && ws.compatible) {
       sendLeaderboard(ws);
-      db.collection('players').find({cookie: d.cookie}).limit(1).toArray(function(err, docs) {
+      db.collection('players').find({cookie: d.cookie}, {_id: 0, pastgames: 0, pastnames: 0, session: 0}).limit(1).toArray(function(err, docs) {
         if (err) {
           ws.sendObj({m: 'badcookie'});
           log('err', 'Error with mongodb cookie request');
@@ -272,12 +269,16 @@ function handleMessage(ws, d) {// websocket client messages
       var uniqueId = 'u' + Lib.md5(Math.random() + Date.now()) + 'user';
       var player = {
         cookie: freshCookie, // should be kept private, used for login
+        facebook: false,
         id: uniqueId, // can be public
         name: 'Nameless',
-        rank: 0,
         points: 100000,
-        numplays: 0,
+        totalplays: 0,
+        totaltime: 0,
         lastlogin: Date.now(),
+        signupdate: Date.now(),
+        pastnames: [],
+        sission: [],
         pastgames: []
       };
       db.collection('players').insertOne(player, function(err){
@@ -292,7 +293,7 @@ function handleMessage(ws, d) {// websocket client messages
         if(ws.data.name !== d.name){
           var newname = d.name.slice(0, GV.maxnamelength);
 
-          db.collection('players').updateOne({id: ws.data.id}, {$set: {name: newname}}, function(err, result){
+          db.collection('players').updateOne({id: ws.data.id}, {$set: {name: newname}, $push: {pastnames: newname}}, function(err, result){
             if (err) {
               log('err', 'Mongodb update player name.');
               console.log(err);
@@ -317,7 +318,7 @@ function handleMessage(ws, d) {// websocket client messages
     }else if (d.m === 'gameover' && ws.loggedin){
       sendLeaderboard(ws);
       // update player status on ws, then send the status to user
-      db.collection('players').find({cookie: ws.data.cookie}).limit(1).toArray(function(err, docs) {
+      db.collection('players').find({cookie: ws.data.cookie}, {_id: 0, pastgames: 0, pastnames: 0, session: 0}).limit(1).toArray(function(err, docs) {
         if (err) {
           log('err', 'Error with mongodb refresh request');
           console.log(err);
@@ -420,6 +421,7 @@ module.exports.setup = function (p) {
 
     // don't use ws.domain or ws.extensions
     ws.connectedtime = Date.now(); // connect time
+    ws.numplays = 0;
     ws.timeout = false;
     ws.connected = true;
     ws.compatible = false;
@@ -465,8 +467,15 @@ module.exports.setup = function (p) {
     ws.on('close', function () {
       ws.connected = false;
       log('player', 'Player disconnected. Total: ' + wss.clients.length + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
-
       if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
+
+      db.collection('players').updateOne({id: ws.data.id},
+        {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {entertime: ws.connectedtime, ip: 'asdf', numplays: ws.numplays, exittime: Date.now()}}}, function(err, result){
+        if (err) {
+          log('err', 'Mongodb update session.');
+          console.log(err);
+        }
+      });
     });
 
     ws.sendObj({m: 'hi'});

@@ -452,22 +452,13 @@ class Game {
     let ws = this.players[pid].ws;
 
     // database
-    db.collection('players').updateOne({id: ws.uid}, {$push: {pastgames: {
-      gameid: this.gameid,
-      name: this.players[pid].name,
-      color: this.players[pid].color,
-      place: this.playersalive + 1,
-      numplayers: this.players.length,
-      kills: this.players[pid].kills,
-      killer: killername,
-      timealive: Date.now() - this.starttime
-    }}}, function(err, result){
+    db.collection('players').updateOne({id: ws.uid}, {$push: {pastgames: this.gameid}}, function(err, result){
       if(err) {
         log('err', 'Mongodb error.');
         console.log(err);
       }
     });
-    db.collection('players').updateOne({id: ws.uid}, {$inc: {numplays: 1}}, function(err, result){
+    db.collection('players').updateOne({id: ws.uid}, {$inc: {totalplays: 1}}, function(err, result){
       if(err) {
         log('err', 'Mongodb error.');
         console.log(err);

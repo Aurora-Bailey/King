@@ -93,10 +93,9 @@
 	==put king on map.token
 	==dont send map if it hasn't changed
   ==send only parts of the map that have changed insted of the entire map
+  == DROPPED data structure for multiple types of games. like separate points
+	==dont pull past games from database on cookie auth ?might come with the multi-game overhaul
 
-  data structure for multiple types of games. like separate points
-
-	dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   points by chess ranking formula ?might come with the multi-game overhaul
   MongoDB Cloud Manager
 
@@ -139,7 +138,7 @@
 		"lastlogin": 1476008273849,
 	++	"signupdate": 'date of account creation',
 	++	"pastnames": ['sadf', ...]
-	++	"logout": [{
+	++	"session": [{
 			"entertime": Date.now(),
 			"ip": "154:153:8218:1532",
 			"numplays": 'number of plays this session'
@@ -157,6 +156,12 @@
 	--      "timealive": 262415
 		},
 		...]
+	}
+	logs: {
+	  category,
+	  time,
+	  room,
+	  msg
 	}
 	Games: {
 		"_id": ObjectId("57f5d5c9f2943e27285ae822"),

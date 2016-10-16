@@ -1,5 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
-var mongoURL = 'mongodb://localhost:27017/king';
+var mongoURL = 'mongodb://localhost:27017/kingz';
 
 var _db;
 
