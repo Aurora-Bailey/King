@@ -505,9 +505,6 @@ class Game {
           log('err', 'Error with mongodb points request');
           console.log(err);
         } else if (docs.length != 0) {
-
-          console.log(player_summary);
-
           // load points into player summary
           docs.forEach((doc)=>{
             player_summary.forEach((pl)=>{
@@ -515,32 +512,22 @@ class Game {
             });
           });
 
-          console.log(player_summary);
-
           player_summary.sort((a,b)=>{
             if (a.place > b.place) return 1;
             if (a.place < b.place) return -1;
             return 0;
           });
 
-          console.log(player_summary);
-
           let point_arr = player_summary.reduce(function(prev, curr) {
             prev.push(curr.points);
             return prev;
           }, []);
 
-          console.log(point_arr);
-
           let diff_arr = Rank.multi(point_arr);
-
-          console.log(diff_arr);
 
           diff_arr.forEach((diff, ind)=>{
             player_summary[ind].newpoints = player_summary[ind].points + diff;
           });
-
-          console.log(player_summary);
 
           player_summary.forEach((player)=>{
             db.collection('players').updateOne({id: player.uid}, {$set: {points: player.newpoints}}, function(err, result){
