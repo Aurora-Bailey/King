@@ -430,6 +430,7 @@ module.exports.setup = function (p) {
     ws.waiting = false;
     ws.inqueue = false;
     ws.lastenterqueue = 0;
+    ws.ipaddress = ws._socket.remoteAddress;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 
@@ -470,7 +471,7 @@ module.exports.setup = function (p) {
       if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
 
       db.collection('players').updateOne({id: ws.data.id},
-        {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {entertime: ws.connectedtime, ip: 'asdf', numplays: ws.numplays, exittime: Date.now()}}}, function(err, result){
+        {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {enter: ws.connectedtime, ip: ws.ipaddress, plays: ws.numplays, exit: Date.now()}}}, function(err, result){
         if (err) {
           log('err', 'Mongodb update session.');
           console.log(err);

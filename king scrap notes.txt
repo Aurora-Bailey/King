@@ -99,7 +99,9 @@
   points by chess ranking formula ?might come with the multi-game overhaul
   MongoDB Cloud Manager
 
-
+  // on live server
+  npm install --save bufferutil
+  run DatabaseRebuild
 
 	collect more data from user
 	// current
@@ -139,10 +141,10 @@
 	++	"signupdate": 'date of account creation',
 	++	"pastnames": ['sadf', ...]
 	++	"session": [{
-			"entertime": Date.now(),
+			"enter": Date.now(),
 			"ip": "154:153:8218:1532",
-			"numplays": 'number of plays this session'
-			"exittime": Date.now()
+			"plays": 'number of plays this session'
+			"exit": Date.now()
 		},
 		...]
 		"pastgames": [{
