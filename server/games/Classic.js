@@ -16,6 +16,7 @@ var http = require('http'),
   Lib = require('../Lib'),
   GV = require('../Globalvar'),
   Schema = require('../Schema'),
+  Rank = require('../Rank'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
@@ -35,7 +36,6 @@ class Game {
     //this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
     this.gameid = 'g' + Lib.randString(15,true,true,true);
     // log('setup', 'Setup ' + WORKER_TYPE + ' ' + this.gameid);
-    this.pointpool = 0;
     this.allowplayers = {};
     this.players = [];
     this.playerarray = [];// a version of players that can be sent over the network
@@ -449,47 +449,6 @@ class Game {
     this.players[pid].timedied = Date.now();
     this.players[pid].killerpid = killerpid;
     this.players[pid].place = this.playersalive + 1;
-
-    if (!this.players[pid].connected) return false;
-
-    //websocket of dead person
-    let ws = this.players[pid].ws;
-
-    // database
-    db.collection('players').updateOne({id: ws.uid}, {$push: {pastgames: this.gameid}}, function(err, result){
-      if(err) {
-        log('err', 'Mongodb error.');
-        console.log(err);
-      }
-    });
-    db.collection('players').updateOne({id: ws.uid}, {$inc: {totalplays: 1}}, function(err, result){
-      if(err) {
-        log('err', 'Mongodb error.');
-        console.log(err);
-      }
-    });
-    let points = 0;
-    if(this.players.length == 2){ // exception
-      if(this.playersalive == 1) points = 0;
-      if(this.playersalive == 0) points = 2;
-    }else if(this.players.length == 3){ // exception
-      if(this.playersalive == 2) points = 0;
-      if(this.playersalive == 1) points = 1;
-      if(this.playersalive == 0) points = 2;
-    }else{
-      if(this.playersalive == 2) points = Math.round(this.pointpool/4);
-      if(this.playersalive == 1) points = Math.round(this.pointpool/4);
-      if(this.playersalive == 0) points = Math.round(this.pointpool/2);
-    }
-
-    if(points !== 0){
-      db.collection('players').updateOne({id: ws.uid}, {$inc: {points: points}}, function(err, result){
-        if(err) {
-          log('err', 'Mongodb error.');
-          console.log(err);
-        }
-      });
-    }
   }
 
   static endgame(){
@@ -517,6 +476,91 @@ class Game {
     log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
       ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ') Data(' + datausage.join(' | ') + ')' + ' Game: ' + this.gameid);
 
+
+    // All the players database stuff
+    try {
+      // Make the data easier to work with
+      let list_uid = [];
+      let player_summary = [];
+      this.players.forEach((player,i)=>{
+        if (typeof player.ws !== 'undefined' && typeof player.ws.uid !== 'undefined') {
+          list_uid.push(player.ws.uid);
+          player_summary.push({uid: player.ws.uid, place: player.place, points: 0, newpoints: 0});
+        }
+      });
+
+      // Update: pastgames && totalplays
+      list_uid.forEach((uid)=>{
+        db.collection('players').updateOne({id: uid}, {$push: {pastgames: this.gameid}, $inc: {totalplays: 1}}, function(err, result){
+          if(err) {
+            log('err', 'Mongodb error.');
+            console.log(err);
+          }
+        });
+      });
+
+      // pull & update points
+      db.collection('players').find({id: {$in: list_uid}}, {_id: 0, points: 1, id: 1}).toArray(function(err, docs) {
+        if (err) {
+          log('err', 'Error with mongodb points request');
+          console.log(err);
+        } else if (docs.length != 0) {
+
+          console.log(player_summary);
+
+          // load points into player summary
+          docs.forEach((doc)=>{
+            player_summary.forEach((pl)=>{
+              if (pl.uid === doc.id) pl.points = doc.points;
+            });
+          });
+
+          console.log(player_summary);
+
+          player_summary.sort((a,b)=>{
+            if (a.place > b.place) return 1;
+            if (a.place < b.place) return -1;
+            return 0;
+          });
+
+          console.log(player_summary);
+
+          let point_arr = player_summary.reduce(function(prev, curr) {
+            prev.push(curr.points);
+            return prev;
+          }, []);
+
+          console.log(point_arr);
+
+          let diff_arr = Rank.multi(point_arr);
+
+          console.log(diff_arr);
+
+          diff_arr.forEach((diff, ind)=>{
+            player_summary[ind].newpoints = player_summary[ind].points + diff;
+          });
+
+          console.log(player_summary);
+
+          player_summary.forEach((player)=>{
+            db.collection('players').updateOne({id: player.uid}, {$set: {points: player.newpoints}}, function(err, result){
+              if(err){
+                log('err', 'Error setting player points to new points.');
+                console.log(err);
+              }
+            });
+          });
+        } else {
+          log('err', 'Failed to pull player points from database! No results! No players joined the game?')
+        }
+      });
+    } catch (err){
+      log('err', 'Failed to update player points!');
+      console.log(err);
+    }
+
+
+    // Add Game to database
     try {
       let gamelog = {};
       gamelog.gid = this.gameid;
@@ -607,16 +651,6 @@ function handleMessage(ws, d) {// websocket client messages
         let mapToSend = Game.binaryMap(true);
         if (mapToSend !== false) ws.sendBinary(mapToSend);
         ws.sendObj({m: 'scrollhome'});
-
-        // take one point for the point pool
-        db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){
-          if(err){
-            log('err', 'Take point form player');
-            console.log(err);
-          } else {
-            Game.pointpool++;
-          }
-        });
       }
     }else if (d.m === 'move' && ws.playing) {
       if(Game.players[ws.pid].makemove.length > GV.game.classic.maxmovequeue) return false;

@@ -178,6 +178,8 @@
   points by chess ranking formula ?might come with the multi-game overhaul
   MongoDB Cloud Manager
 
+  simulate players that dont connect to the second game.
+
  // on live server
   npm install --save bufferutil
   run DatabaseRebuild
