@@ -98,92 +98,90 @@
 	==dont pull past games from database on cookie auth ?might come with the multi-game overhaul
   ==enter game into MongoDB
   ==shorten id names
+  ==collect more data from user
+  	// current
+  	{
+  		"_id": ObjectId("57f5d5c9f2943e27285ae822"),
+  		"cookie": "c3391ef15429ee68427ed5d4c5917a9fccookie",
+  		"id": "u8876c7728767f59642a32f6c4762bc26user",
+  		"name": "Cognito",
+  		"mod": "god",
+  		"rank": 0,
+  		"points": 99960,
+  		"numplays": 32,
+  		"lastlogin": 1476008273849,
+  		"pastgames": [{
+  			"gameid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
+  			"name": "Cognito",
+  			"color": 0,
+  			"place": 2,
+  			"numplayers": 2,
+  			"kills": 0,
+  			"killer": "Nameless",
+  			"timealive": 262415
+  		}]
+  	}
+  	// future
+  	{
+  		"_id": ObjectId("57f5d5c9f2943e27285ae822"),
+  		"cookie": "c3391ef15429ee68427ed5d4c5917a9fccookie",
+  	++	"facebook": 'facebook app id',
+  		"id": "u8876c7728767f59642a32f6c4762bc26user",
+  		"name": "Cognito",
+  	--	rank
+  		"points": 99960,
+  		"totalplays": 32,
+  	++	"totaltime": 'num seconds on site total'
+  		"lastlogin": 1476008273849,
+  	++	"signupdate": 'date of account creation',
+  	++	"pastnames": ['sadf', ...]
+  	++	"session": [{
+  			"enter": Date.now(),
+  			"ip": "154:153:8218:1532",
+  			"plays": 'number of plays this session'
+  			"exit": Date.now()
+  		},
+  		...]
+  		"pastgames": [{
+  			"gameid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
+  	--      "name": "Cognito",
+  	--      "color": 0,
+  	--      "place": 2,
+  	--      "numplayers": 2,
+  	--      "kills": 0,
+  	--      "killer": "Nameless",
+  	--      "timealive": 262415
+  		},
+  		...]
+  	}
+  	logs: {
+  	  category,
+  	  time,
+  	  room,
+  	  msg
+  	}
+  	Games: {
+  		"_id": ObjectId("57f5d5c9f2943e27285ae822"),
+  		"gid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
+  		"type": 'type of game'
+  		"room": 'name of room'
+  		"numplayers": 4
+  		"players": [{uid: 'u8876c7728767f59642a32f6c4762bc26user', name: '', color: 0, place: 0, pid: 0 killerpid: 0, timedied: 0, timeexit: 0, datadown: 0, dataup: 0}],
+  		"open": Date.now(),
+  		"close": Date.now(),
+  		"time": gameclose - gamestart,
+  		"chat": [{from: 4, msg: 'asdf'}]
+  	}
 
 
 
   points by chess ranking formula ?might come with the multi-game overhaul
   MongoDB Cloud Manager
 
-  // on live server
+ // on live server
   npm install --save bufferutil
   run DatabaseRebuild
-
-	collect more data from user
-	// current
-	{
-		"_id": ObjectId("57f5d5c9f2943e27285ae822"),
-		"cookie": "c3391ef15429ee68427ed5d4c5917a9fccookie",
-		"id": "u8876c7728767f59642a32f6c4762bc26user",
-		"name": "Cognito",
-		"mod": "god",
-		"rank": 0,
-		"points": 99960,
-		"numplays": 32,
-		"lastlogin": 1476008273849,
-		"pastgames": [{
-			"gameid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
-			"name": "Cognito",
-			"color": 0,
-			"place": 2,
-			"numplayers": 2,
-			"kills": 0,
-			"killer": "Nameless",
-			"timealive": 262415
-		}]
-	}
-	// future
-	{
-		"_id": ObjectId("57f5d5c9f2943e27285ae822"),
-		"cookie": "c3391ef15429ee68427ed5d4c5917a9fccookie",
-	++	"facebook": 'facebook app id',
-		"id": "u8876c7728767f59642a32f6c4762bc26user",
-		"name": "Cognito",
-	--	rank
-		"points": 99960,
-		"totalplays": 32,
-	++	"totaltime": 'num seconds on site total'
-		"lastlogin": 1476008273849,
-	++	"signupdate": 'date of account creation',
-	++	"pastnames": ['sadf', ...]
-	++	"session": [{
-			"enter": Date.now(),
-			"ip": "154:153:8218:1532",
-			"plays": 'number of plays this session'
-			"exit": Date.now()
-		},
-		...]
-		"pastgames": [{
-			"gameid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
-	--      "name": "Cognito",
-	--      "color": 0,
-	--      "place": 2,
-	--      "numplayers": 2,
-	--      "kills": 0,
-	--      "killer": "Nameless",
-	--      "timealive": 262415
-		},
-		...]
-	}
-	logs: {
-	  category,
-	  time,
-	  room,
-	  msg
-	}
-	Games: {
-		"_id": ObjectId("57f5d5c9f2943e27285ae822"),
-		"gid": "g883b11c7b1b7fb37d4391ae60fb412d2game",
-		"type": 'type of game'
-		"room": 'name of room'
-		"numplayers": 4
-		"players": [{uid: 'u8876c7728767f59642a32f6c4762bc26user', name: '', color: 0, place: 0, pid: 0 killerpid: 0, timedied: 0, timeexit: 0, datadown: 0, dataup: 0}],
-		"open": Date.now(),
-		"close": Date.now(),
-		"time": gameclose - gamestart,
-		"chat": [{from: 4, msg: 'asdf'}]
-	}
-
-	index: cookie id gid points
+  index: cookie id gid points
 
 
 
