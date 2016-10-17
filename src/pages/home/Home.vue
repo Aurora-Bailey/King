@@ -4,8 +4,8 @@
       <div class="leaderboard">
         <div class="leaderboardtitle">Leaderboard</div>
         <div class="rankedplayer" v-for="(leader, index) in leaderboard">
-          #{{leader.rank}}
-          {{leader.name}}
+          <span class="lead_name">#{{leader.rank}} {{leader.name}}</span>
+          <span class="lead_points">★ {{leader.points}} ★</span>
         </div>
       </div>
 
@@ -21,7 +21,7 @@
     <div class="microversion">{{user.microversion}}</div>
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
-      <div class="rank">Rank #{{user.rank}}</div>
+      <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span><span class="show_points">Points ★ {{user.points}} ★</span></div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" /></div>
       <div class="play_wrapper">
         <button class="play" v-on:click="join(typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].type)">
@@ -119,9 +119,28 @@
         padding: 1vh;
       }
 
+      .lead_name {
+        display: inline-block;
+      }
+      .lead_points {
+        display: none;
+      }
+
       .rankedplayer {
         font-size: 2vh;
+        line-height: 2.4vh;
         padding: 0 1vh;
+        cursor: default;
+
+        &:hover {
+
+          .lead_name {
+            display: none;
+          }
+          .lead_points {
+            display: inline-block;
+          }
+        }
       }
     }
 
@@ -192,8 +211,26 @@
 
     .rank {
       font-size: 3vh;
+      line-height: 3.5vh;
       padding: 1.5vh 0;
       text-align: left;
+      cursor: default;
+
+      .show_rank {
+        display: inline-block;
+      }
+      .show_points {
+        display: none;
+      }
+
+      &:hover {
+        .show_rank {
+          display: none;
+        }
+        .show_points {
+          display: inline-block;
+        }
+      }
     }
 
     .enter_name {

@@ -3,7 +3,8 @@
     <chat :chat="game.chat"></chat>
     <leaderboard :leaderboard="game.leaderboard"></leaderboard>
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
-    <div class="scrollhomebutton" v-on:click="scrollhome()"></div>
+    <div class="scrollhomebutton" v-on:click="scrollhome()"
+         v-bind:style="{ backgroundColor: typeof game.players === 'undefined' || typeof game.myid === 'undefined' || typeof game.players[game.myid] === 'undefined' ? 'white' : 'hsl(' + game.players[game.myid].color + ',100%, 50%)' }"></div>
     <div class="gamescroll"
          v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
          v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
@@ -167,20 +168,16 @@
 
     .scrollhomebutton {
       position: absolute;
-      top: 1vh;
-      left: 1vh;
+      bottom: 1vh;
+      left: 51vh;
       z-index: 22000;
-      height: 10vh;
-      width: 10vh;
-      font-size: 2vh;
-      line-height: 10vh;
-      text-align: center;
+      height: 6vh;
+      width: 6vh;
       background-image: url('../../assets/crown.png');
       background-size: contain;
       background-position: center;
-      color: grey;
-      border-radius: 2.5vh;
-      border: 0.5vh solid black;
+      border-radius: 1.25vh;
+      border: 0.4vh solid black;
       cursor: pointer;
       background-color: $primary;
     }

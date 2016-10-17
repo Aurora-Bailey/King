@@ -37,6 +37,7 @@
   color: $primary-alt;
   cursor: pointer;
   box-shadow: 0 $height/8 $height/4 0 rgba(0,0,0,0.1);
+  text-shadow: 0 0 $height/16 rgba(150, 150, 150, 1);
 
   &:hover {
     background-color: lighten($primary, 10%);
