@@ -22,7 +22,7 @@
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
       <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span><span class="show_points">Points ★ {{user.points}} ★</span></div>
-      <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" /></div>
+      <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" v-on:keydown.enter="justBlur" /></div>
       <div class="play_wrapper">
         <button class="play" v-on:click="join(typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].type)">
           {{typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].name}}
@@ -63,6 +63,9 @@
       },
       join: function (type) {
         SS.sendObj({m: 'join', type: type})
+      },
+      justBlur: function (event) {
+        event.target.blur()
       }
     },
     watch: {

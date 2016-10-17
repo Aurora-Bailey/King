@@ -181,7 +181,7 @@
   ==simulate players that dont connect to the second game.
   ==reloading scoreboard on game end does not work any more
   ==points totalplays and numplays all separate for each game mode
-  pull rank and leaderboard using the new format
+  ==pull rank and leaderboard using the new format
 
  // on live server
   npm install --save bufferutil
