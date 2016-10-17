@@ -70,7 +70,9 @@ function handleMessage (d) {
     sendCookie()
   } else if (d.m === 'badcookie') {
     console.warn('Bad Cookie')
-    delete window.localStorage.removeItem('cookie')
+    if (window.confirm('Cookie not found! Reload your browser to try again. If your cookie is still not found hit ok to make a new cookie. (Warning: You will lose access to your old account!)') === false) return false
+    if (window.confirm('WARNING!!! You are about to reset the cookie that links to your account! Are you okay with this?') === false) return false
+    window.localStorage.removeItem('cookie')
     sendCookie()
   } else if (d.m === 'setname') {
     // console.log('Set name? ' + d.v)
