@@ -15,9 +15,8 @@
                v-on:touchstart="movestart(x.loc.x, x.loc.y)"
                v-bind:class="{solid: x.owner === -2, me: x.owner === game.myid}"
                v-bind:style="{ backgroundColor: x.color }">
-            <div class="king" v-show="x.token === 1"></div>
+            <div class="token" v-bind:class="{king: x.token === 1}"></div>
             <div class="units" v-show="x.units>0">{{x.units}}</div>
-            <div class="name" v-show="x.owner >= 0 && x.owner !== game.myid">{{x.owner >= 0 ? game.players[x.owner].name:''}}</div>
 
             <div class="movehelper" v-show="x.movehelp != 0">
               <div class="center"
@@ -207,23 +206,6 @@
       overflow: visible;
       text-align: center;
 
-
-      .name {
-        position: absolute;
-        top: -30px;
-        font-size: 16px;
-        padding: 5px 15px;
-        z-index: 1020;
-        margin: auto;
-        background-color: $primary;
-        color: $primary-alt;
-        display: none;
-        pointer-events: none;
-      }
-      &:hover .name {
-        display: block;
-      }
-
       .movehelper {
         position: absolute;
         top: 0;
@@ -288,19 +270,22 @@
         @include noselect;
       }
 
-      .king {
+      .token {
+        display: none;
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url('../../assets/crown.png');
-        background-size: contain;
-        background-position: center;
         pointer-events: none;
       }
 
-
+      .king {
+        display: block;
+        background-image: url('../../assets/crown.png');
+        background-size: contain;
+        background-position: center;
+      }
 
       &.me {
         @keyframes example {
