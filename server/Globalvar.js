@@ -5,24 +5,24 @@ x.maxnamelength = 15;
 
 x.game = {}
 
-x.game.classic = {};
-x.game.classic.areaperplayer = 49;// will be rounded to the closest square root number
-x.game.classic.loopdelay = 1000; // one tick per second
-x.game.classic.maxmovequeue = 30; // max number of moves you can queue up
-x.game.classic.queue = {};
-x.game.classic.queue.minplayers = 2;
-x.game.classic.queue.maxplayers = 16; // 4x4
-x.game.classic.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
+x.game.game_classic = {};
+x.game.game_classic.areaperplayer = 49;// will be rounded to the closest square root number
+x.game.game_classic.loopdelay = 1000; // one tick per second
+x.game.game_classic.maxmovequeue = 30; // max number of moves you can queue up
+x.game.game_classic.queue = {};
+x.game.game_classic.queue.minplayers = 2;
+x.game.game_classic.queue.maxplayers = 16; // 4x4
+x.game.game_classic.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
 
 
-x.game.cities = {};
-x.game.cities.areaperplayer = 49;// will be rounded to the closest square root number
-x.game.cities.loopdelay = 1000; // one tick per second
-x.game.cities.maxmovequeue = 30; // max number of moves you can queue up
-x.game.cities.queue = {};
-x.game.cities.queue.minplayers = 3;
-x.game.cities.queue.maxplayers = 9; // 3x3
-x.game.cities.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
+x.game.game_cities = {};
+x.game.game_cities.areaperplayer = 49;// will be rounded to the closest square root number
+x.game.game_cities.loopdelay = 1000; // one tick per second
+x.game.game_cities.maxmovequeue = 30; // max number of moves you can queue up
+x.game.game_cities.queue = {};
+x.game.game_cities.queue.minplayers = 3;
+x.game.game_cities.queue.maxplayers = 9; // 3x3
+x.game.game_cities.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
 
 x.mainGame = 'game_cities';
 

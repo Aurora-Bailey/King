@@ -4,7 +4,7 @@
   Note: to add new game mode, clone this file into server/games
   1) Make up a unique worker name ex: 'game_classic'
   2) king.js - require file and run if WORKER_TYPE == 'game_classic'
-  3) Server.js - add Queue object under WORKER_TYPE Q['game_classic'] = new Queue('game_classic');
+  3) Server.js - add Queue object under WORKER_TYPE Q['game_classic'] = new Queue('game_classic', 'Propper Name');
   4) Home.vue - add button with v-on:click="join('game_classic')"
  */
 
@@ -51,7 +51,7 @@ class Game {
 
     this.golCalls = 0;
     this.running = false;
-    this.loopdelay = GV.game.classic.loopdelay;
+    this.loopdelay = GV.game[WORKER_TYPE].loopdelay;
     this.loopcount = 0;
 
     this.chatlogs = [];
@@ -75,7 +75,7 @@ class Game {
     // width and height of map in user blocks
     this.mapusersize = Math.ceil(Math.sqrt(this.players.length));
     // width and height guaranteed to each user in cell blocks
-    this.mapcellsize = Math.floor(Math.sqrt(GV.game.classic.areaperplayer));
+    this.mapcellsize = Math.floor(Math.sqrt(GV.game[WORKER_TYPE].areaperplayer));
     // total width and height in cells
     this.maptotalsize = this.mapusersize * this.mapcellsize;
     // build map
@@ -497,7 +497,11 @@ class Game {
 
       // Update: pastgames && totalplays
       list_uid.forEach((uid)=>{
-        db.collection('players').updateOne({id: uid}, {$push: {pastgames: this.gameid}, $inc: {totalplays: 1}}, function(err, result){
+        let _set = {};
+        _set['$push'] = {pastgames: this.gameid};
+        _set['$inc'] = {};
+        _set['$inc']['totalplays.' + WORKER_TYPE] = 1;
+        db.collection('players').updateOne({id: uid}, _set, function(err, result){
           if(err) {
             log('err', 'Mongodb error.');
             console.log(err);
@@ -517,7 +521,7 @@ class Game {
           // load points into player summary
           docs.forEach((doc)=>{
             player_summary.forEach((pl)=>{
-              if (pl.uid === doc.id) pl.points = doc.points;
+              if (pl.uid === doc.id) pl.points = typeof doc.points[WORKER_TYPE] === 'undefined' ? 15000 : doc.points[WORKER_TYPE];
             });
           });
 
@@ -539,7 +543,10 @@ class Game {
           });
 
           player_summary.forEach((player)=>{
-            db.collection('players').updateOne({id: player.uid}, {$set: {points: player.newpoints}}, function(err, result){
+            let _set = {};
+            _set['$set'] = {};
+            _set['$set']['points.' + WORKER_TYPE] = player.newpoints;
+            db.collection('players').updateOne({id: player.uid}, _set, function(err, result){
               if(err){
                 log('err', 'Error setting player points to new points.');
                 console.log(err);
@@ -659,7 +666,7 @@ function handleMessage(ws, d) {// websocket client messages
         ws.sendObj({m: 'scrollhome'});
       }
     }else if (d.m === 'move' && ws.playing) {
-      if(Game.players[ws.pid].makemove.length > GV.game.classic.maxmovequeue) return false;
+      if(Game.players[ws.pid].makemove.length > GV.game[WORKER_TYPE].maxmovequeue) return false;
       Game.players[ws.pid].makemove.push(d.move);
     }else if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago

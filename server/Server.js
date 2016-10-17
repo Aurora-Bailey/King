@@ -21,19 +21,18 @@ var http = require('http'),
   NODE_ENV = false;
 
 class Queue {
-  constructor(type, ObjGV, ProperName){
+  constructor(type, ProperName){
     this.starting = false;
     this.players = {};
     this.gametype = type;
-    this.ObjGV = ObjGV
     this.ProperName = ProperName;
-    this.maxplayers = GV.game[this.ObjGV].queue.maxplayers;
-    this.minplayers = GV.game[this.ObjGV].queue.minplayers;
+    this.maxplayers = GV.game[this.gametype].queue.maxplayers;
+    this.minplayers = GV.game[this.gametype].queue.minplayers;
     this.resetTimer();
     process.send({m: 'getroom', type: this.gametype});
   }
 
-  resetTimer(wait = GV.game[this.ObjGV].queue.maxwait){
+  resetTimer(wait = GV.game[this.gametype].queue.maxwait){
     if (typeof this.timer !== 'undefined') clearTimeout(this.timer);
     this.timeout = Date.now() + wait;
     this.timer = setTimeout(()=>{this.startGame()}, wait);
@@ -160,9 +159,12 @@ class Queue {
       else
         this.players[e].sendObj({m: 'joinroom', name: gameRoom[this.gametype].name, secret: secret});
       this.players[e].playing = true;
-      this.players[e].numplays++;
       this.players[e].inqueue = false;
       this.players[e].waiting = false;
+
+      if (typeof this.players[e].numplays[this.gametype] === 'undefined') this.players[e].numplays[this.gametype] = 0;
+      this.players[e].numplays[this.gametype]++;
+
       delete this.players[e];
     });
 
@@ -272,8 +274,8 @@ function handleMessage(ws, d) {// websocket client messages
         facebook: false,
         id: uniqueId, // can be public
         name: 'Nameless',
-        points: 15000,
-        totalplays: 0,
+        points: {},
+        totalplays: {},
         totaltime: 0,
         lastlogin: Date.now(),
         signupdate: Date.now(),
@@ -380,11 +382,12 @@ module.exports.setup = function (p) {
 
   // update for dev server
   if (NODE_ENV === 'development') {
-    GV.game.classic.queue.maxwait = 15000; // set wait time to 15 seconds
+    GV.game['game_classic'].queue.maxwait = 15000; // set wait time to 15 seconds
+    GV.game['game_cities'].queue.maxwait = 15000; // set wait time to 15 seconds
   }
 
-  Q['game_classic'] = new Queue('game_classic', 'classic', 'Classic'); // node name, GV.game name, Proper name
-  Q['game_cities'] = new Queue('game_cities', 'cities', 'Kings & Cities');
+  Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name
+  Q['game_cities'] = new Queue('game_cities', 'Kings & Cities');
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
@@ -424,7 +427,7 @@ module.exports.setup = function (p) {
 
     // don't use ws.domain or ws.extensions
     ws.connectedtime = Date.now(); // connect time
-    ws.numplays = 0;
+    ws.numplays = {};
     ws.timeout = false;
     ws.connected = true;
     ws.compatible = false;

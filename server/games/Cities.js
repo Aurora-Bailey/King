@@ -4,7 +4,7 @@
  Note: to add new game mode, clone this file into server/games
  1) Make up a unique worker name ex: 'game_classic'
  2) king.js - require file and run if WORKER_TYPE == 'game_classic'
- 3) Server.js - add Queue object under WORKER_TYPE Q['game_classic'] = new Queue('game_classic');
+ 3) Server.js - add Queue object under WORKER_TYPE Q['game_classic'] = new Queue('game_classic', 'Propper Name');
  4) Home.vue - add button with v-on:click="join('game_classic')"
  */
 
@@ -16,6 +16,7 @@ var http = require('http'),
   Lib = require('../Lib'),
   GV = require('../Globalvar'),
   Schema = require('../Schema'),
+  Rank = require('../Rank'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   process = false,
@@ -26,14 +27,15 @@ var http = require('http'),
   WORKER_TYPE = false,
   NODE_ENV = false;
 
+var now = require("performance-now");
+
 class Game {
   static setup(){
     // set or reset game room
     // start will be called when all player spots are accounted for
     //this.gameid = 'g' + Lib.md5(Math.random() + Date.now()) + WORKER_TYPE;
-    this.gameid = 'g' + Lib.randString(10,false,true,true) + WORKER_TYPE;
+    this.gameid = 'g' + Lib.randString(15,true,true,true);
     // log('setup', 'Setup ' + WORKER_TYPE + ' ' + this.gameid);
-    this.pointpool = 0;
     this.allowplayers = {};
     this.players = [];
     this.playerarray = [];// a version of players that can be sent over the network
@@ -45,13 +47,15 @@ class Game {
     this.map.changed.units = true;
     this.map.changed.owner = true;
     this.map.changed.token = true;
+    this.oldmap = Lib.deepCopy(this.map);
 
     this.golCalls = 0;
     this.running = false;
-    this.loopdelay = GV.game.classic.loopdelay;
+    this.loopdelay = GV.game[WORKER_TYPE].loopdelay;
     this.loopcount = 0;
 
     this.chatlogs = [];
+    this.chatlogsdata = [];
     this.deadlogs = [];
   }
 
@@ -71,7 +75,7 @@ class Game {
     // width and height of map in user blocks
     this.mapusersize = Math.ceil(Math.sqrt(this.players.length));
     // width and height guaranteed to each user in cell blocks
-    this.mapcellsize = Math.floor(Math.sqrt(GV.game.classic.areaperplayer));
+    this.mapcellsize = Math.floor(Math.sqrt(GV.game[WORKER_TYPE].areaperplayer));
     // total width and height in cells
     this.maptotalsize = this.mapusersize * this.mapcellsize;
     // build map
@@ -244,6 +248,14 @@ class Game {
       }, 1);
     }, this.loopdelay);
 
+    // Make a copy of map before we change anything
+    this.oldmap = Lib.deepCopy(this.map);
+
+    // Fresh loop, Set all changes to false
+    this.map.changed.units = false;
+    this.map.changed.owner = false;
+    this.map.changed.token = false;
+
     // add units
     if(this.loopcount % 10 == 0){// once every 10 loops
       for(let y=0; y<this.maptotalsize; y++){
@@ -259,99 +271,110 @@ class Game {
     // maybe randomize the order for fairness
     // process user moves {x,y,percent,direction}
     this.players.forEach((e,i)=>{
-      if(e.makemove.length > 0){
-        let move = e.makemove.shift();
-        if(isNaN(move[0]) || isNaN(move[1]) || isNaN(move[2]) || isNaN(move[3])) return false;
+      try {
+        // try to make a move
+        if(e.makemove.length > 0){
+          let move = e.makemove.shift();
+          if(isNaN(move[0]) || isNaN(move[1]) || isNaN(move[2]) || isNaN(move[3]) || isNaN(move[4])) return false;
 
-        let x = move[0];
-        let y = move[1];
-        let percent = move[2];
-        let direction= move[3];// up right down left
+          let [x, y, percent, tox, toy] = move;
 
-        if(typeof Game.map.owner[y] === 'undefined') return false;
-        if(typeof Game.map.owner[y][x] === 'undefined') return false;
-        if(Game.map.owner[y][x] !== e.pid) return false;
-        if(Game.map.units[y][x] < 2) return false;
-        if(percent > 100 || percent < 0) return false;
-        if(direction > 3 || direction < 0) return false;
+          // convert back to direction for old classic system
+          let direction = false;// up right down left
+          if (y - 1 === toy && x === tox) direction = 0;
+          if (y + 1 === toy && x === tox) direction = 2;
+          if (y === toy && x + 1 === tox) direction = 1;
+          if (y === toy && x - 1 === tox) direction = 3;
+          if (direction === false) return false;
 
-        let moveto = {x: x, y: y};
-        if(direction == 0) moveto.y--;
-        if(direction == 1) moveto.x++;
-        if(direction == 2) moveto.y++;
-        if(direction == 3) moveto.x--;
-        if(typeof Game.map.owner[moveto.y] === 'undefined') return false;
-        if(typeof Game.map.owner[moveto.y][moveto.x] === 'undefined') return false;
-        if(Game.map.owner[moveto.y][moveto.x] === -2) return false;// solid
+          if(typeof Game.map.owner[y] === 'undefined') return false;
+          if(typeof Game.map.owner[y][x] === 'undefined') return false;
+          if(Game.map.owner[y][x] !== e.pid) return false;
+          if(Game.map.units[y][x] < 2) return false;
+          if(percent > 100 || percent < 0) return false;
+          if(direction > 3 || direction < 0) return false;
 
-        let amount = Math.round(Game.map.units[y][x] * (percent/100));
-        if(amount == Game.map.units[y][x]) amount--;// can't move all units
-        if(amount == 0) amount++;// can't move no units
+          let moveto = {x: x, y: y};
+          if(direction == 0) moveto.y--;
+          if(direction == 1) moveto.x++;
+          if(direction == 2) moveto.y++;
+          if(direction == 3) moveto.x--;
+          if(typeof Game.map.owner[moveto.y] === 'undefined') return false;
+          if(typeof Game.map.owner[moveto.y][moveto.x] === 'undefined') return false;
+          if(Game.map.owner[moveto.y][moveto.x] === -2) return false;// solid
 
-        if(Game.map.owner[moveto.y][moveto.x] === e.pid){
-          // my cell
-          Game.map.units[moveto.y][moveto.x] += amount;
-          Game.map.units[y][x] -= amount;
-          this.map.changed.units = true;
+          let amount = Math.round(Game.map.units[y][x] * (percent/100));
+          if(amount == Game.map.units[y][x]) amount--;// can't move all units
+          if(amount == 0) amount++;// can't move no units
 
-        }else if(Game.map.owner[moveto.y][moveto.x] === -1){
-          // empty cell
-          Game.map.owner[moveto.y][moveto.x] = e.pid;
-          Game.map.units[moveto.y][moveto.x] += amount;
-          Game.map.units[y][x] -= amount;
-          this.map.changed.units = true;
-          this.map.changed.owner = true;
+          if(Game.map.owner[moveto.y][moveto.x] === e.pid){
+            // my cell
+            Game.map.units[moveto.y][moveto.x] += amount;
+            Game.map.units[y][x] -= amount;
+            this.map.changed.units = true;
 
-        }else{
-          // enemy cell
-          let enemyid = Game.map.owner[moveto.y][moveto.x];
-          let enemyattack = Game.map.units[moveto.y][moveto.x];
-          let myattack = amount;
-          let myunintsleft = myattack - enemyattack;
-
-          if(myunintsleft > 0){
-            // take over cell
+          }else if(Game.map.owner[moveto.y][moveto.x] === -1){
+            // empty cell
             Game.map.owner[moveto.y][moveto.x] = e.pid;
-            Game.map.units[moveto.y][moveto.x] = myunintsleft;
+            Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
             this.map.changed.units = true;
             this.map.changed.owner = true;
 
-            // take over player
-            if(Game.map.token[moveto.y][moveto.x] === 1){
-              Game.map.token[moveto.y][moveto.x] = 2;
-              this.map.changed.token = true;
-              this.playerDead(enemyid, e.name);
-              this.players[e.pid].kills++;
+          }else{
+            // enemy cell
+            let enemyid = Game.map.owner[moveto.y][moveto.x];
+            let enemyattack = Game.map.units[moveto.y][moveto.x];
+            let myattack = amount;
+            let myunintsleft = myattack - enemyattack;
 
-              // claim your new kingdom
-              for(let ey=0; ey<this.maptotalsize; ey++){
-                for(let ex=0; ex<this.maptotalsize; ex++){
-                  if(this.map.owner[ey][ex] == enemyid){
-                    this.map.owner[ey][ex] = e.pid;
-                    this.map.units[ey][ex] = Math.ceil(this.map.units[ey][ex] * 0.5);// you only get half the kingdom
-                    this.map.changed.units = true;
-                    this.map.changed.owner = true;
+            if(myunintsleft > 0){
+              // take over cell
+              Game.map.owner[moveto.y][moveto.x] = e.pid;
+              Game.map.units[moveto.y][moveto.x] = myunintsleft;
+              Game.map.units[y][x] -= amount;
+              this.map.changed.units = true;
+              this.map.changed.owner = true;
+
+              // take over player
+              if(Game.map.token[moveto.y][moveto.x] === 1){
+                Game.map.token[moveto.y][moveto.x] = 2;
+                this.map.changed.token = true;
+                this.playerDead(enemyid, e.name, e.pid);
+                this.players[e.pid].kills++;
+
+                // claim your new kingdom
+                for(let ey=0; ey<this.maptotalsize; ey++){
+                  for(let ex=0; ex<this.maptotalsize; ex++){
+                    if(this.map.owner[ey][ex] == enemyid){
+                      this.map.owner[ey][ex] = e.pid;
+                      this.map.units[ey][ex] = Math.ceil(this.map.units[ey][ex] * 0.5);// you only get half the kingdom
+                      this.map.changed.units = true;
+                      this.map.changed.owner = true;
+                    }
                   }
                 }
-              }
 
-              // you are the only one alive
-              if(this.playersalive == 1){
-                broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
-                broadcastChat('Server', 'Server will close in 2 minutes.')
-                setTimeout(()=>{this.playerDead(e.pid, 'Server');}, 2000);// kill the winner
-                clearTimeout(this.forceclose);
-                this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
+                // you are the only one alive
+                if(this.playersalive == 1){
+                  broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
+                  broadcastChat('Server', 'Server will close in 2 minutes.')
+                  setTimeout(()=>{this.playerDead(e.pid, 'Server', -1);}, 100);// kill the winner
+                  clearTimeout(this.forceclose);
+                  this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
+                }
               }
+            }else{
+              // you attacked but didn't have enough units
+              Game.map.units[moveto.y][moveto.x] -= amount;
+              Game.map.units[y][x] -= amount;
+              this.map.changed.units = true;
             }
-          }else{
-            // you attacked but didn't have enough units
-            Game.map.units[moveto.y][moveto.x] -= amount;
-            Game.map.units[y][x] -= amount;
-            this.map.changed.units = true;
           }
         }
+      } catch(err) {
+        log('err', 'Failed to process a move!');
+        console.log(err);
       }
     });
 
@@ -360,26 +383,73 @@ class Game {
     // >> update block colors
     // >> update king positions?
     // send changes to players
-    this.players.forEach((e,i)=>{
-      if(!e.connected) return false;
-      this.sendMap(e.ws, false)
-    });
+    let mapFullToSend = this.binaryMap(false);
+    let mapBitToSend = this.binaryMapBit();
 
-    // Maps have been sent if true
-    this.map.changed.units = false;
-    this.map.changed.owner = false;
-    this.map.changed.token = false;
+    // pick the smallest packet
+    let mapToSend = false;
+    if (mapFullToSend !== false && mapBitToSend !== false) { // if either one has no update send nothing
+      mapToSend = mapBitToSend.byteLength < mapFullToSend.byteLength ? mapBitToSend : mapFullToSend;
+    }
 
+    if (mapToSend !== false) {
+      this.players.forEach((e,i)=>{
+        if(!e.connected) return false;
+        e.ws.sendBinary(mapToSend);
+      });
+    }
+
+    // Ready for next loop
     this.loopcount++;
   }
 
-  static sendMap(ws, force = true) {
-    if (this.map.changed.units || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'units', data: Game.map.units}));
-    if (this.map.changed.owner || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'owner', data: Game.map.owner}));
-    if (this.map.changed.token || force) ws.sendBinary(Schema.pack('map', {m: 'map', type: 'token', data: Game.map.token}));
+  static binaryMapBit() {
+    // send only the bits of map that have changed
+    let changes = {};
+    changes.m = 'mapbit';
+    changes.units = [];
+    changes.owner = [];
+    changes.token = [];
+    for(let y=0; y<this.map.owner.length; y++){
+      for(let x=0; x<this.map.owner[y].length; x++){
+        if (this.map.units[y][x] !== this.oldmap.units[y][x]) {
+          changes.units.push(x);
+          changes.units.push(y);
+          changes.units.push(this.map.units[y][x]);
+        }
+        if (this.map.owner[y][x] !== this.oldmap.owner[y][x]) {
+          changes.owner.push(x);
+          changes.owner.push(y);
+          changes.owner.push(this.map.owner[y][x]);
+        }
+        if (this.map.token[y][x] !== this.oldmap.token[y][x]) {
+          changes.token.push(x);
+          changes.token.push(y);
+          changes.token.push(this.map.token[y][x]);
+        }
+      }
+    }
+    if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) return Schema.pack('mapbit', changes);
+    else return false;
   }
 
-  static playerDead(pid, killername){
+  static binaryMap(force = true) {
+    // force to send map regardless of change
+    let changes = {};
+    changes.m = 'map';
+    changes.units = [];
+    changes.owner = [];
+    changes.token = [];
+
+    if (this.map.changed.units || force) changes.units = this.map.units;
+    if (this.map.changed.owner || force) changes.owner = this.map.owner;
+    if (this.map.changed.token || force) changes.token = this.map.token;
+
+    if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) return Schema.pack('map', changes);
+    else return false;
+  }
+
+  static playerDead(pid, killername, killerpid){
     broadcast({m: 'playerdead', pid: pid, timealive: Date.now() - this.starttime, place: this.playersalive, kills: this.players[pid].kills, killer: killername});
     // log('gameplay', '___dead N: ' + this.players[pid].name + ' K: ' + killername + ' T: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' P: ' + this.playersalive);
     broadcastChat('Game', this.players[pid].name + ' was taken over by ' + killername);
@@ -387,74 +457,162 @@ class Game {
     this.playersalive--;
     this.deadlogs.push(this.players[pid].name + '<' + killername);
     this.players[pid].dead = true;
-
-    if (!this.players[pid].connected) return false;
-
-    //websocket of dead person
-    let ws = this.players[pid].ws;
-
-    // database
-    db.collection('players').updateOne({id: ws.uid}, {$push: {pastgames: {
-      gameid: this.gameid,
-      name: this.players[pid].name,
-      color: this.players[pid].color,
-      place: this.playersalive + 1,
-      numplayers: this.players.length,
-      kills: this.players[pid].kills,
-      killer: killername,
-      timealive: Date.now() - this.starttime
-    }}}, function(err, result){
-      if(err) {
-        log('err', 'Mongodb error.');
-        console.log(err);
-      }
-    });
-    db.collection('players').updateOne({id: ws.uid}, {$inc: {numplays: 1}}, function(err, result){
-      if(err) {
-        log('err', 'Mongodb error.');
-        console.log(err);
-      }
-    });
-    let points = 0;
-    if(this.players.length == 2){ // exception
-      if(this.playersalive == 1) points = 0;
-      if(this.playersalive == 0) points = 2;
-    }else if(this.players.length == 3){ // exception
-      if(this.playersalive == 2) points = 0;
-      if(this.playersalive == 1) points = 1;
-      if(this.playersalive == 0) points = 2;
-    }else{
-      if(this.playersalive == 2) points = Math.round(this.pointpool/4);
-      if(this.playersalive == 1) points = Math.round(this.pointpool/4);
-      if(this.playersalive == 0) points = Math.round(this.pointpool/2);
-    }
-
-    if(points !== 0){
-      db.collection('players').updateOne({id: ws.uid}, {$inc: {points: points}}, function(err, result){
-        if(err) {
-          log('err', 'Mongodb error.');
-          console.log(err);
-        }
-      });
-    }
+    this.players[pid].timedied = Date.now();
+    this.players[pid].killerpid = killerpid;
+    this.players[pid].place = this.playersalive + 1;
   }
 
   static endgame(){
     // save stats to database
     clearTimeout(this.forceclose);
+    this.running = false;
 
-    // kick all players
-    this.players.forEach((e,i)=>{
-      if (!e.connected) return false; // never connected ws
-      if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server');
-      if (e.ws.connected)
-        e.ws.close();
-    });
+    let datausage = [];
+
+    try {
+      // kick all players
+      this.players.forEach((e,i)=>{
+        if (!e.connected) return false; // never connected ws
+        if (typeof e.dead === 'undefined' || e.dead === false) this.playerDead(e.pid, 'Server', -1);
+        datausage.push(e.name + '-' + e.ws.sentBytes + ':' + e.ws.recieveBytes);
+        if (e.ws.connected)
+          e.ws.close();
+      });
+    } catch (err){
+      log('err', 'Trying to kick everyone from the game!');
+    }
+
+    let repoint = [];
+    // All the players database stuff
+    try {
+      // Make the data easier to work with
+      let list_uid = [];
+      let player_summary = [];
+      this.players.forEach((player,i)=>{
+        if (typeof player.ws !== 'undefined' && typeof player.ws.uid !== 'undefined') {
+          list_uid.push(player.ws.uid);
+          player_summary.push({uid: player.ws.uid, place: player.place, points: 0, newpoints: 0, name: player.name, pid: player.pid});
+        }
+      });
+
+      // Update: pastgames && totalplays
+      list_uid.forEach((uid)=>{
+        let _set = {};
+        _set['$push'] = {pastgames: this.gameid};
+        _set['$inc'] = {};
+        _set['$inc']['totalplays.' + WORKER_TYPE] = 1;
+        db.collection('players').updateOne({id: uid}, _set, function(err, result){
+          if(err) {
+            log('err', 'Mongodb error.');
+            console.log(err);
+          }
+        });
+      });
+
+      // Graceful exit
+      if (list_uid.length < 2) throw "Ranking requires 2 players, there are currently " + list_uid.length;
+
+      // pull & update points
+      db.collection('players').find({id: {$in: list_uid}}, {_id: 0, points: 1, id: 1}).toArray(function(err, docs) {
+        if (err) {
+          log('err', 'Error with mongodb points request');
+          console.log(err);
+        } else if (docs.length > 1) {
+          // load points into player summary
+          docs.forEach((doc)=>{
+            player_summary.forEach((pl)=>{
+              if (pl.uid === doc.id) pl.points = typeof doc.points[WORKER_TYPE] === 'undefined' ? 15000 : doc.points[WORKER_TYPE];
+            });
+          });
+
+          player_summary.sort((a,b)=>{
+            if (a.place > b.place) return 1;
+            if (a.place < b.place) return -1;
+            return 0;
+          });
+
+          let point_arr = player_summary.reduce(function(prev, curr) {
+            prev.push(curr.points);
+            return prev;
+          }, []);
+
+          let diff_arr = Rank.multi(point_arr);
+
+          diff_arr.forEach((diff, ind)=>{
+            player_summary[ind].newpoints = player_summary[ind].points + diff;
+          });
+
+          player_summary.forEach((player)=>{
+            let _set = {};
+            _set['$set'] = {};
+            _set['$set']['points.' + WORKER_TYPE] = player.newpoints;
+            db.collection('players').updateOne({id: player.uid}, _set, function(err, result){
+              if(err){
+                log('err', 'Error setting player points to new points.');
+                console.log(err);
+              }
+            });
+
+            // log friendly version
+            repoint.push('' + player.pid + '-' + player.name + ' ' + player.points + '->' + player.newpoints);
+          });
+
+          // log point changes
+          log('repoint', repoint.join(' | '));
+        } else {
+          log('err', 'Failed to pull player points from database! No results! No players joined the game?')
+        }
+      });
+    } catch (err){
+      log('err', 'Failed to update player points!');
+      console.log(err);
+    }
+
+
+    // Add Game to database
+    try {
+      let gamelog = {};
+      gamelog.gid = this.gameid;
+      gamelog.type = WORKER_TYPE;
+      gamelog.room = '' + WORKER_INDEX + '-' + WORKER_NAME;
+      gamelog.numplayers = this.players.length;
+      gamelog.players = [];
+      this.players.forEach((player,i)=>{
+        gamelog.players.push({
+          uid: typeof player.ws !== 'undefined' ? player.ws.uid : 'Never Connected!',
+          name: player.name,
+          color: player.color,
+          kills: player.kills,
+          place: player.place,
+          pid: player.pid,
+          killerpid: player.killerpid,
+          died: typeof player.timedied !== 'undefined' ? player.timedied : Date.now(),
+          exit: typeof player.exit !== 'undefined' ? player.exit : Date.now(),
+          datadown: typeof player.ws !== 'undefined' ? player.ws.sentBytes : 'Never Connected!',
+          dataup: typeof player.ws !== 'undefined' ? player.ws.recieveBytes : 'Never Connected!'
+        });
+      });
+      gamelog.open = this.starttime;
+      gamelog.close = Date.now();
+      gamelog.time = Date.now() - this.starttime;
+      gamelog.chat = this.chatlogsdata;
+
+      // In database
+      db.collection('games').insertOne(gamelog, function(err){
+        if(err) {
+          log('err', 'Error, MongoDB insert game into games collection!');
+          console.log(err);
+        }
+      });
+    } catch (err){
+      log('err', 'Failed to add game entry into database!');
+      console.log(err);
+    }
 
     // keep track of players
     // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
     log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
-      ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ')' + ' Game: ' + this.gameid);
+      ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ') Data(' + datausage.join(' | ') + ') Game: ' + this.gameid);
 
     // reset the server
     this.setup();
@@ -500,24 +658,15 @@ function handleMessage(ws, d) {// websocket client messages
         ws.secret = d.secret;
         ws.lastchat = Date.now();
 
-        ws.sendObj({m: 'welcome', pid: pid});
+        ws.sendObj({m: 'welcome', pid: pid, mapheight: Game.map.owner.length, mapwidth: Game.map.owner[0].length});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
-        Game.sendMap(ws, true);
+        let mapToSend = Game.binaryMap(true);
+        if (mapToSend !== false) ws.sendBinary(mapToSend);
         ws.sendObj({m: 'scrollhome'});
-
-        // take one point for the point pool
-        db.collection('players').updateOne({id: ws.uid}, {$inc: {points: -1}}, function(err, result){
-          if(err){
-            log('err', 'Take point form player');
-            console.log(err);
-          } else {
-            Game.pointpool++;
-          }
-        });
       }
     }else if (d.m === 'move' && ws.playing) {
-      if(Game.players[ws.pid].makemove.length > GV.game.classic.maxmovequeue) return false;
+      if(Game.players[ws.pid].makemove.length > GV.game[WORKER_TYPE].maxmovequeue) return false;
       Game.players[ws.pid].makemove.push(d.move);
     }else if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago
@@ -530,6 +679,7 @@ function handleMessage(ws, d) {// websocket client messages
 
         log('chat', ws.pid + '-' + Game.players[ws.pid].name + ': ' + msg);
         Game.chatlogs.push(ws.pid + '-' + Game.players[ws.pid].name + ': ' + msg);
+        Game.chatlogsdata.push({from: ws.pid, msg: msg});
 
         if (d.message.length > 250) ws.sendObj({m: 'chat', from: 'Server', message: 'Limit 250 characters.'});
       }else{
@@ -605,11 +755,16 @@ module.exports.setup = function (p) {
     ws.on('error', function(e) { log('err', 'Got a ws error'); console.log(e); return false; });
 
     ws.connected = true;
+    ws.connecttime = Date.now();
+    ws.sentBytes = 0;
+    ws.recieveBytes = 0;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 
       try {
-        ws.send(JSON.stringify(obj));
+        let sending = JSON.stringify(obj)
+        ws.send(sending);
+        ws.sentBytes += sending.length;
       } catch (err) {
         log('wsout', 'I failed to send a message.');
       }
@@ -619,6 +774,7 @@ module.exports.setup = function (p) {
 
       try{
         ws.send(data, {binary: true});
+        ws.sentBytes += data.byteLength;
       }catch(err){
         log('wsout', 'I failed to send binary a message.');
       }
@@ -627,9 +783,11 @@ module.exports.setup = function (p) {
       try {
         if (typeof data === 'string') {
           handleMessage(ws, JSON.parse(data))
+          ws.recieveBytes += data.length;
         } else {
           var buf = new Buffer(data, 'binary')
           handleMessage(ws, Schema.unpack(buf))
+          ws.recieveBytes += data.byteLength;
         }
       }
       catch (err) {
@@ -641,11 +799,15 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       ws.connected = false;
+      // log('playerexitgame', 'Time:' + Lib.humanTimeDiff(ws.connecttime, Date.now()) + ' BytesSent:' + ws.sentBytes + ' BytesRecieved:' + ws.recieveBytes);
+
       try{
         if (typeof ws.pid === 'undefined') return false;
         if (typeof Game.players[ws.pid] === 'undefined' || typeof Game.players[ws.pid].name === 'undefined') return false;
         broadcastChat('Server', '' + Game.players[ws.pid].name + ' has left the game.');
         // log('gameplay', '___exit N: ' + Game.players[ws.pid].name + ' T: ' + Lib.humanTimeDiff(Game.starttime, Date.now()));
+
+        Game.players[ws.pid].exit = Date.now();
 
         if (wss.clients.length === 0) { // everyone left
           if (Game.running) {
