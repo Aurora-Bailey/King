@@ -271,99 +271,112 @@ class Game {
     // maybe randomize the order for fairness
     // process user moves {x,y,percent,direction}
     this.players.forEach((e,i)=>{
-      if(e.makemove.length > 0){
-        let move = e.makemove.shift();
-        if(isNaN(move[0]) || isNaN(move[1]) || isNaN(move[2]) || isNaN(move[3])) return false;
+      try {
+        // try to make a move
+        if(e.makemove.length > 0){
+          let move = e.makemove.shift();
+          if(isNaN(move[0]) || isNaN(move[1]) || isNaN(move[2]) || isNaN(move[3]) || isNaN(move[4])) return false;
 
-        let x = move[0];
-        let y = move[1];
-        let percent = move[2];
-        let direction= move[3];// up right down left
+          let [x, y, percent, tox, toy] = move;
 
-        if(typeof Game.map.owner[y] === 'undefined') return false;
-        if(typeof Game.map.owner[y][x] === 'undefined') return false;
-        if(Game.map.owner[y][x] !== e.pid) return false;
-        if(Game.map.units[y][x] < 2) return false;
-        if(percent > 100 || percent < 0) return false;
-        if(direction > 3 || direction < 0) return false;
+          // convert back to direction for old classic system
+          let direction = false;// up right down left
+          if (y - 1 === toy && x === tox) direction = 0;
+          if (y + 1 === toy && x === tox) direction = 2;
+          if (y === toy && x + 1 === tox) direction = 1;
+          if (y === toy && x - 1 === tox) direction = 3;
+          if (direction === false) return false;
 
-        let moveto = {x: x, y: y};
-        if(direction == 0) moveto.y--;
-        if(direction == 1) moveto.x++;
-        if(direction == 2) moveto.y++;
-        if(direction == 3) moveto.x--;
-        if(typeof Game.map.owner[moveto.y] === 'undefined') return false;
-        if(typeof Game.map.owner[moveto.y][moveto.x] === 'undefined') return false;
-        if(Game.map.owner[moveto.y][moveto.x] === -2) return false;// solid
+          console.log('makemove');
 
-        let amount = Math.round(Game.map.units[y][x] * (percent/100));
-        if(amount == Game.map.units[y][x]) amount--;// can't move all units
-        if(amount == 0) amount++;// can't move no units
+          if(typeof Game.map.owner[y] === 'undefined') return false;
+          if(typeof Game.map.owner[y][x] === 'undefined') return false;
+          if(Game.map.owner[y][x] !== e.pid) return false;
+          if(Game.map.units[y][x] < 2) return false;
+          if(percent > 100 || percent < 0) return false;
+          if(direction > 3 || direction < 0) return false;
 
-        if(Game.map.owner[moveto.y][moveto.x] === e.pid){
-          // my cell
-          Game.map.units[moveto.y][moveto.x] += amount;
-          Game.map.units[y][x] -= amount;
-          this.map.changed.units = true;
+          let moveto = {x: x, y: y};
+          if(direction == 0) moveto.y--;
+          if(direction == 1) moveto.x++;
+          if(direction == 2) moveto.y++;
+          if(direction == 3) moveto.x--;
+          if(typeof Game.map.owner[moveto.y] === 'undefined') return false;
+          if(typeof Game.map.owner[moveto.y][moveto.x] === 'undefined') return false;
+          if(Game.map.owner[moveto.y][moveto.x] === -2) return false;// solid
 
-        }else if(Game.map.owner[moveto.y][moveto.x] === -1){
-          // empty cell
-          Game.map.owner[moveto.y][moveto.x] = e.pid;
-          Game.map.units[moveto.y][moveto.x] += amount;
-          Game.map.units[y][x] -= amount;
-          this.map.changed.units = true;
-          this.map.changed.owner = true;
+          let amount = Math.round(Game.map.units[y][x] * (percent/100));
+          if(amount == Game.map.units[y][x]) amount--;// can't move all units
+          if(amount == 0) amount++;// can't move no units
 
-        }else{
-          // enemy cell
-          let enemyid = Game.map.owner[moveto.y][moveto.x];
-          let enemyattack = Game.map.units[moveto.y][moveto.x];
-          let myattack = amount;
-          let myunintsleft = myattack - enemyattack;
+          if(Game.map.owner[moveto.y][moveto.x] === e.pid){
+            // my cell
+            Game.map.units[moveto.y][moveto.x] += amount;
+            Game.map.units[y][x] -= amount;
+            this.map.changed.units = true;
 
-          if(myunintsleft > 0){
-            // take over cell
+          }else if(Game.map.owner[moveto.y][moveto.x] === -1){
+            // empty cell
             Game.map.owner[moveto.y][moveto.x] = e.pid;
-            Game.map.units[moveto.y][moveto.x] = myunintsleft;
+            Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
             this.map.changed.units = true;
             this.map.changed.owner = true;
 
-            // take over player
-            if(Game.map.token[moveto.y][moveto.x] === 1){
-              Game.map.token[moveto.y][moveto.x] = 2;
-              this.map.changed.token = true;
-              this.playerDead(enemyid, e.name, e.pid);
-              this.players[e.pid].kills++;
+          }else{
+            // enemy cell
+            let enemyid = Game.map.owner[moveto.y][moveto.x];
+            let enemyattack = Game.map.units[moveto.y][moveto.x];
+            let myattack = amount;
+            let myunintsleft = myattack - enemyattack;
 
-              // claim your new kingdom
-              for(let ey=0; ey<this.maptotalsize; ey++){
-                for(let ex=0; ex<this.maptotalsize; ex++){
-                  if(this.map.owner[ey][ex] == enemyid){
-                    this.map.owner[ey][ex] = e.pid;
-                    this.map.units[ey][ex] = Math.ceil(this.map.units[ey][ex] * 0.5);// you only get half the kingdom
-                    this.map.changed.units = true;
-                    this.map.changed.owner = true;
+            if(myunintsleft > 0){
+              // take over cell
+              Game.map.owner[moveto.y][moveto.x] = e.pid;
+              Game.map.units[moveto.y][moveto.x] = myunintsleft;
+              Game.map.units[y][x] -= amount;
+              this.map.changed.units = true;
+              this.map.changed.owner = true;
+
+              // take over player
+              if(Game.map.token[moveto.y][moveto.x] === 1){
+                Game.map.token[moveto.y][moveto.x] = 2;
+                this.map.changed.token = true;
+                this.playerDead(enemyid, e.name, e.pid);
+                this.players[e.pid].kills++;
+
+                // claim your new kingdom
+                for(let ey=0; ey<this.maptotalsize; ey++){
+                  for(let ex=0; ex<this.maptotalsize; ex++){
+                    if(this.map.owner[ey][ex] == enemyid){
+                      this.map.owner[ey][ex] = e.pid;
+                      this.map.units[ey][ex] = Math.ceil(this.map.units[ey][ex] * 0.5);// you only get half the kingdom
+                      this.map.changed.units = true;
+                      this.map.changed.owner = true;
+                    }
                   }
                 }
-              }
 
-              // you are the only one alive
-              if(this.playersalive == 1){
-                broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
-                broadcastChat('Server', 'Server will close in 2 minutes.')
-                setTimeout(()=>{this.playerDead(e.pid, 'Server', -1);}, 100);// kill the winner
-                clearTimeout(this.forceclose);
-                this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
+                // you are the only one alive
+                if(this.playersalive == 1){
+                  broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
+                  broadcastChat('Server', 'Server will close in 2 minutes.')
+                  setTimeout(()=>{this.playerDead(e.pid, 'Server', -1);}, 100);// kill the winner
+                  clearTimeout(this.forceclose);
+                  this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
+                }
               }
+            }else{
+              // you attacked but didn't have enough units
+              Game.map.units[moveto.y][moveto.x] -= amount;
+              Game.map.units[y][x] -= amount;
+              this.map.changed.units = true;
             }
-          }else{
-            // you attacked but didn't have enough units
-            Game.map.units[moveto.y][moveto.x] -= amount;
-            Game.map.units[y][x] -= amount;
-            this.map.changed.units = true;
           }
         }
+      } catch(err) {
+        log('err', 'Failed to process a move!');
+        console.log(err);
       }
     });
 

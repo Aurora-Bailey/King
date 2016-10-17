@@ -13,28 +13,10 @@
           <div v-for="x in y" class="cell"
                v-on:mousedown="movestart(x.loc.x, x.loc.y)"
                v-on:touchstart="movestart(x.loc.x, x.loc.y)"
-               v-bind:class="{solid: x.owner === -2, me: x.owner === game.myid}"
+               v-bind:class="{solid: x.owner === -2, me: x.owner === game.myid, highlight: x.highlight}"
                v-bind:style="{ backgroundColor: x.color }">
             <div class="token" v-bind:class="{king: x.token === 1}"></div>
             <div class="units" v-show="x.units>0">{{x.units}}</div>
-
-            <div class="movehelper" v-show="x.movehelp != 0">
-              <div class="center"
-                   v-on:mousedown.stop.prevent="movestart(x.loc.x, x.loc.y)"
-                   v-on:touchstart.stop.prevent="movestart(x.loc.x, x.loc.y)">{{move.percent}}%</div>
-              <div class="up"
-                   v-on:mousedown.stop.prevent="movedirection(0)"
-                   v-on:touchstart.stop.prevent="movedirection(0)"></div>
-              <div class="left"
-                   v-on:mousedown.stop.prevent="movedirection(3)"
-                   v-on:touchstart.stop.prevent="movedirection(3)"></div>
-              <div class="right"
-                   v-on:mousedown.stop.prevent="movedirection(1)"
-                   v-on:touchstart.stop.prevent="movedirection(1)"></div>
-              <div class="down"
-                   v-on:mousedown.stop.prevent="movedirection(2)"
-                   v-on:touchstart.stop.prevent="movedirection(2)"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -63,7 +45,7 @@
           inprogress: false,
           loc: {x: 0, y: 0},
           percent: 0,
-          direction: 0
+          to: {x: 0, y: 0}
         },
         scrolling: {
           mousedown: false,
@@ -113,36 +95,55 @@
         GS.shortObj({m: 'scrollhome'})
       },
       movestart: function (x, y) {
-        if (this.game.map[y][x].owner === this.game.myid) {
-          // if you click on different cell during move
-          if (this.move.inprogress && this.move.loc.x !== x || this.move.inprogress && this.move.loc.y !== y) {
-            this.cancelmove()
-            return false
+        // if you click on different cell during move
+        if (this.move.inprogress && this.move.loc.x !== x || this.move.inprogress && this.move.loc.y !== y) {
+          // if its highlighted its probably a legal move
+          if (this.game.map[y][x].highlight || 5 > 0) {
+            this.move.to.x = x
+            this.move.to.y = y
+            GS.sendBinary(Schema.pack('move', {
+              m: 'move',
+              move: [this.move.loc.x, this.move.loc.y, this.move.percent, this.move.to.x, this.move.to.y]
+            }))
           }
-
+          // move is over
+          this.cancelmove()
+          return false
+        } else if (this.game.map[y][x].owner === this.game.myid) {
+          // if you click on your own cell
           this.move.inprogress = true
           this.move.loc.x = x
           this.move.loc.y = y
 
-          let state = this.game.map[y][x].movehelp + 1
-          this.game.map[y][x].movehelp = state
+          let state = this.game.map[y][x].move_help + 1
+          this.game.map[y][x].move_help = state
+          this.game.map[y][x].highlight = true
+
+          // Highlight legal moves
+          if (typeof this.game.map[y + 1] !== 'undefined' && typeof this.game.map[y + 1][x] !== 'undefined' && this.game.map[y + 1][x].owner !== -2) this.game.map[y + 1][x].highlight = true
+          if (typeof this.game.map[y - 1] !== 'undefined' && typeof this.game.map[y - 1][x] !== 'undefined' && this.game.map[y - 1][x].owner !== -2) this.game.map[y - 1][x].highlight = true
+          if (typeof this.game.map[y] !== 'undefined' && typeof this.game.map[y][x + 1] !== 'undefined' && this.game.map[y][x + 1].owner !== -2) this.game.map[y][x + 1].highlight = true
+          if (typeof this.game.map[y] !== 'undefined' && typeof this.game.map[y][x - 1] !== 'undefined' && this.game.map[y][x - 1].owner !== -2) this.game.map[y][x - 1].highlight = true
 
           // 0 by default
           if (state === 1) this.move.percent = 100
           if (state === 2) this.move.percent = 50
           if (state === 3) this.cancelmove()
-        } else {
-          this.cancelmove()
         }
-      },
-      movedirection: function (d) {
-        this.move.direction = d
-        GS.sendBinary(Schema.pack('move', {m: 'move', move: [this.move.loc.x, this.move.loc.y, this.move.percent, this.move.direction]}))
-        this.cancelmove()
       },
       cancelmove: function () {
         this.move.inprogress = false
-        this.game.map[this.move.loc.y][this.move.loc.x].movehelp = 0
+        let x = this.move.loc.x
+        let y = this.move.loc.y
+        this.game.map[y][x].move_help = 0
+
+        // Remove all highlights
+        for (let i = 0; i < this.game.map.length; i++) {
+          for (let j = 0; j < this.game.map[i].length; j++) {
+            this.game.map[i][j].highlight = false
+          }
+        }
+        // end
       }
     }
   }
@@ -206,47 +207,6 @@
       overflow: visible;
       text-align: center;
 
-      .movehelper {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1000;
-        pointer-events: none;
-
-        .up, .down, .left, .right, .center {
-          width: 44px;
-          height: 44px;
-          line-height: 44px;// -3px*2 for border
-          position: absolute;
-          background-color: black;
-          opacity: 0.5;
-          pointer-events: auto;
-          @include noselect;
-
-          &:hover {
-            opacity: 0.8;
-          }
-        }
-
-        .up {
-          top: -50px;
-        }
-        .left {
-          left: -50px;
-        }
-        .right {
-          right: -50px;
-        }
-        .down {
-          bottom: -50px;
-        }
-        .center {
-          opacity: 0.8;
-        }
-      }
-
       .units {
         position: absolute;
         top: 0;
@@ -306,6 +266,11 @@
         .king {
           // my king
         }
+      }
+
+      &.highlight {
+        opacity: 0.4;
+        cursor: pointer;
       }
     }
   }
