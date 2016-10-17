@@ -67,11 +67,10 @@
 	==!!!!!!!! Compatable versoin change
 	==subtle shadow on button text
 	==show points when you hover over leaderboard on homepage
-
+	==cean up html bloat so larger maps can be supported
 
   add about, help, contact pages
 	remove ugly time notice at some point.
-	cean up html bloat so larger maps can be supported
 	update deadscreen
 	sound on game start
 
