@@ -64,6 +64,14 @@
       join: function (type) {
         SS.sendObj({m: 'join', type: type})
       }
+    },
+    watch: {
+      gamemode: function (curr) {
+        SS.sendObj({m: 'getranks', game: this.gamelist[curr].type})
+      },
+      gamelist: function (curr) {
+        SS.sendObj({m: 'getranks', game: curr[0].type})
+      }
     }
   }
 </script>

@@ -88,10 +88,10 @@ function handleMessage (d) {
   } else if (d.m === 'stats') {
     Data.user.id = d.data.id
     Data.user.name = d.data.name
-    Data.user.lastlogin = d.data.lastlogin
-    Data.user.numplays = d.data.numplays
-    Data.user.points = d.data.points
-    Data.user.rank = d.data.rank
+    // more stats may come later (ex: total plays)
+  } else if (d.m === 'myrank') {
+    Data.user.rank = d.rank
+    Data.user.points = d.points
   } else if (d.m === 'ready') {
     // console.log('ready')
   } else if (d.m === 'join') {

@@ -184,19 +184,44 @@ class Queue {
 
 /* Websockets */
 function sendPlayerStats(ws) {
-  ws.sendObj({m: 'stats', data: {id: ws.data.id, name: ws.data.name, points: ws.data.points, rank: ws.data.rank}});
+  ws.sendObj({m: 'stats', data: {id: ws.data.id, name: ws.data.name}});
+  // more stats may come later
 }
-function sendLeaderboard(ws) {
-  db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*7)}}, {_id: 0, name: 1, points: 1}).sort({points: -1}).limit(10).toArray(function(err, docs) {
+function sendLeaderboard(ws, game_type) {
+  // make sure logged in btw
+  // validate game type
+  if (typeof Q[game_type] === 'undefined') return false;
+
+  let _sort = {};
+  _sort['points.' + game_type] = -1;
+  db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*30)}}, {_id: 0, name: 1, points: 1}).sort(_sort).limit(10).toArray(function(err, docs) {
     if (err) {
       log('err', 'Error with mongodb leaderboard request');
       console.log(err);
     } else if (docs.length != 0) {
       //found
-      ws.sendObj({m: 'leaderboard', data: docs});
+      let _rebuild = [];
+
+      docs.forEach((doc)=>{
+        _rebuild.push({name: doc.name, points: typeof doc.points[game_type] === 'undefined' ? 0 : doc.points[game_type]});
+      });
+
+      ws.sendObj({m: 'leaderboard', data: _rebuild});
     } else {
       // no leaderboards found
     }
+  });
+}
+function sendPlayerRank(ws, game_type) {
+  // make sure logged in btw
+  // validate game type
+  if (typeof Q[game_type] === 'undefined') return false;
+  let _points = typeof ws.data.points[game_type] === 'undefined' ? 0 : ws.data.points[game_type];
+  let _find = {};
+  _find['points.' + game_type] = {$gt: _points}
+  db.collection('players').find(_find).count({}, function (err, count) {
+    // +1 to account for yourself
+    ws.sendObj({m: 'myrank', rank: count + 1, points: _points});
   });
 }
 function sendTimeoutPing() {
@@ -233,7 +258,6 @@ function handleMessage(ws, d) {// websocket client messages
         ws.sendObj({m: 'version', compatible: false});
       }
     }else if (d.m === 'cookie' && ws.compatible) {
-      sendLeaderboard(ws);
       db.collection('players').find({cookie: d.cookie}, {_id: 0, pastgames: 0, pastnames: 0, session: 0}).limit(1).toArray(function(err, docs) {
         if (err) {
           ws.sendObj({m: 'badcookie'});
@@ -243,23 +267,18 @@ function handleMessage(ws, d) {// websocket client messages
           //User WAS found
           ws.data = docs[0];
 
-          // update rank on the fly
-          db.collection('players').find({points: {$gt: ws.data.points}}).count({}, function (err, count) {
-            ws.data.rank = count + 1; // +1 to account for yourself
+          // Set login stuff
+          sendPlayerStats(ws);
+          ws.sendObj({m: 'gamelist', v: getGameList()});
+          ws.sendObj({m: 'ready'});
+          ws.loggedin = true;
 
-            // Set login stuff
-            sendPlayerStats(ws);
-            ws.sendObj({m: 'gamelist', v: getGameList()});
-            ws.sendObj({m: 'ready'});
-            ws.loggedin = true;
-
-            // Update last login
-            db.collection('players').updateOne({id: ws.data.id}, {$set: {lastlogin: Date.now()}}, function(err, result){
-              if(err){
-                log('err', 'Mongodb update player lastlogin');
-                console.log(err);
-              }
-            });
+          // Update last login
+          db.collection('players').updateOne({id: ws.data.id}, {$set: {lastlogin: Date.now()}}, function(err, result){
+            if(err){
+              log('err', 'Mongodb update player lastlogin');
+              console.log(err);
+            }
           });
 
         } else {
@@ -302,7 +321,6 @@ function handleMessage(ws, d) {// websocket client messages
             } else {
               ws.data.name = newname;
               sendPlayerStats(ws);
-              sendLeaderboard(ws);
               ws.sendObj({m: 'setname', v: true});
             }
           });
@@ -315,27 +333,13 @@ function handleMessage(ws, d) {// websocket client messages
       if (typeof d.type === 'undefined') return false;
       if (typeof Q[d.type] === 'undefined') return false;
       Q[d.type].addPlayer(ws);
+    }else if (d.m === 'getranks' && ws.loggedin) {
+      if (typeof d.game === 'undefined') return false;
+      sendLeaderboard(ws, d.game);
+      sendPlayerRank(ws, d.game);
     }else if (d.m === 'canceljoin' && ws.loggedin) {
       if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
     }else if (d.m === 'gameover' && ws.loggedin){
-      // Does not work because rank is computed at the end of the game now. which is after everyone leaves.
-      //
-      // sendLeaderboard(ws);
-      // update player status on ws, then send the status to user
-      // db.collection('players').find({cookie: ws.data.cookie}, {_id: 0, pastgames: 0, pastnames: 0, session: 0}).limit(1).toArray(function(err, docs) {
-      //  if (err) {
-      //    log('err', 'Error with mongodb refresh request');
-      //    console.log(err);
-      //  } else if (docs.length != 0) {
-      //    ws.data = docs[0];
-      //    // update rank on the fly
-      //    db.collection('players').find({points: {$gt: ws.data.points}}).count({}, function (err, count) {
-      //      ws.data.rank = count + 1; // +1 to account for yourself
-      //      sendPlayerStats(ws);
-      //      ws.playing = false;
-      //    });
-      //  }
-      // });
       ws.playing = false;
     }
     // Example broadcast to all nodes

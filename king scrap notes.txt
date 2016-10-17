@@ -73,6 +73,7 @@
 	remove ugly time notice at some point.
 	cean up html bloat so larger maps can be supported
 	update deadscreen
+	sound on game start
 
 // both
   ==queue count on play button
@@ -179,6 +180,8 @@
   ==databasserestructure rebuild points to match new ranking system
   ==simulate players that dont connect to the second game.
   ==reloading scoreboard on game end does not work any more
+  ==points totalplays and numplays all separate for each game mode
+  pull rank and leaderboard using the new format
 
  // on live server
   npm install --save bufferutil
