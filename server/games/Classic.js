@@ -287,8 +287,6 @@ class Game {
           if (y === toy && x - 1 === tox) direction = 3;
           if (direction === false) return false;
 
-          console.log('makemove');
-
           if(typeof Game.map.owner[y] === 'undefined') return false;
           if(typeof Game.map.owner[y][x] === 'undefined') return false;
           if(Game.map.owner[y][x] !== e.pid) return false;
