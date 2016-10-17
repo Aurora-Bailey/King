@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="godin">
-      <input v-model="textinput" type="text" v-on:keyup.enter="sendInput()" v-on:keyup.up="cycleHistory(-1)" v-on:keyup.down="cycleHistory(1)"/>
+      <input id="asdf" v-model="textinput" type="text" v-on:keyup.enter="sendInput()" v-on:keyup.up="cycleHistory(-1)" v-on:keyup.down="cycleHistory(1)"/>
     </div>
   </div>
 </template>

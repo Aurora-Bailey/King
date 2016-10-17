@@ -11,6 +11,9 @@ window.addEventListener('keydown', (e) => {
   if (e.keyCode === 191 && e.shiftKey && e.ctrlKey) {
     Data.god.show = !Data.god.show
     if (Data.god.show) start()
+    setTimeout(() => {
+      window.document.getElementById('asdf').focus()
+    }, 1)
   }
 }, false)
 
