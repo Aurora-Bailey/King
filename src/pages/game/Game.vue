@@ -98,7 +98,7 @@
         // if you click on different cell during move
         if (this.move.inprogress && this.move.loc.x !== x || this.move.inprogress && this.move.loc.y !== y) {
           // if its highlighted its probably a legal move
-          if (this.game.map[y][x].highlight || 5 > 0) {
+          if (this.game.map[y][x].highlight) {
             this.move.to.x = x
             this.move.to.y = y
             GS.sendBinary(Schema.pack('move', {
