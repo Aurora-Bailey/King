@@ -172,6 +172,7 @@
   		"close": Date.now(),
   		"time": gameclose - gamestart,
   		"chat": [{from: 4, msg: 'asdf'}]
+  		"repoint": [pid, oldpoints, newpoints]
   	}
 
 

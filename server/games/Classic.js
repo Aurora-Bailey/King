@@ -471,12 +471,7 @@ class Game {
       log('err', 'Trying to kick everyone from the game!');
     }
 
-    // keep track of players
-    // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
-    log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
-      ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ') Data(' + datausage.join(' | ') + ')' + ' Game: ' + this.gameid);
-
-
+    let repoint = [];
     // All the players database stuff
     try {
       // Make the data easier to work with
@@ -485,7 +480,7 @@ class Game {
       this.players.forEach((player,i)=>{
         if (typeof player.ws !== 'undefined' && typeof player.ws.uid !== 'undefined') {
           list_uid.push(player.ws.uid);
-          player_summary.push({uid: player.ws.uid, place: player.place, points: 0, newpoints: 0});
+          player_summary.push({uid: player.ws.uid, place: player.place, points: 0, newpoints: 0, name: player.name, pid: player.pid});
         }
       });
 
@@ -539,7 +534,13 @@ class Game {
                 console.log(err);
               }
             });
+
+            // log friendly version
+            repoint.push('' + player.pid + '-' + player.name + ' ' + player.points + '->' + player.newpoints);
           });
+
+          // log point changes
+          log('repoint', repoint.join(' | '));
         } else {
           log('err', 'Failed to pull player points from database! No results! No players joined the game?')
         }
@@ -571,7 +572,6 @@ class Game {
           exit: typeof player.exit !== 'undefined' ? player.exit : Date.now(),
           datadown: typeof player.ws !== 'undefined' ? player.ws.sentBytes : 'Never Connected!',
           dataup: typeof player.ws !== 'undefined' ? player.ws.recieveBytes : 'Never Connected!'
-
         });
       });
       gamelog.open = this.starttime;
@@ -590,6 +590,11 @@ class Game {
       log('err', 'Failed to add game entry into database!');
       console.log(err);
     }
+
+    // keep track of players
+    // log('gameplay', 'Endgame. Time: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Alive: ' + this.playersalive + ' Game: ' + this.gameid);
+    log('gamesummary', ' TimeOpen: ' + Lib.humanTimeDiff(this.starttime, Date.now()) + ' Players:' + this.players.length +
+      ' Play(' + this.deadlogs.join(' | ') + ') Chat(' + this.chatlogs.join(' | ') + ') Data(' + datausage.join(' | ') + ') Game: ' + this.gameid);
 
     // reset the server
     this.setup();
