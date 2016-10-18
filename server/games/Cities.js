@@ -295,7 +295,7 @@ class Game {
           if(typeof Game.map.owner[y] === 'undefined') return false;
           if(typeof Game.map.owner[y][x] === 'undefined') return false;
           if(Game.map.owner[y][x] !== e.pid) return false;
-          if(Game.map.units[y][x] < 2) return false;
+          if(Game.map.units[y][x] < 1) return false;
           if(percent > 100 || percent < 0) return false;
           if(direction > 3 || direction < 0) return false;
 
