@@ -407,8 +407,23 @@ class Game {
       }
     }
 
-    // set first oldfog to a blank map
-    if (typeof player.oldfog === 'undefined') player.oldfog = Lib.deepCopy(fog);
+    // set first oldfog to a blank map (no fog, so the frist send will send fog)
+    if (typeof player.oldfog === 'undefined'){
+      player.oldfog = {};
+      player.oldfog.units = [];
+      player.oldfog.owner = [];
+      player.oldfog.token = [];
+      for (let k = 0; k < this.map.owner.length; k++) {
+        player.oldfog.units[k] = [];
+        player.oldfog.owner[k] = [];
+        player.oldfog.token[k] = [];
+        for (let m = 0; m < this.map.owner[k].length; m++) {
+          player.oldfog.units[k][m] = 0;
+          player.oldfog.owner[k][m] = -1; // empty
+          player.oldfog.token[k][m] = 0;
+        }
+      }
+    }
 
     // copy visible parts into fog
     for (let k = 0; k < this.map.owner.length; k++) {
@@ -682,7 +697,7 @@ function handleMessage(ws, d) {// websocket client messages
         ws.lastchat = Date.now();
 
         ws.sendObj({m: 'welcome', pid: pid, mapheight: Game.map.owner.length, mapwidth: Game.map.owner[0].length,
-          mods: {fog: true}});
+          mods: {fog: true}}); // fog no longer needs to be sent. Its just a placeholder for the mods setting.
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
         Game.sendMapFog(Game.players[pid]);
