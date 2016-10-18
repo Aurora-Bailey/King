@@ -407,14 +407,6 @@ class Game {
       }
     }
 
-    leaderboard.sort((a,b)=>{
-      if (a.units > b.units) return -1
-      if (a.units < b.units) return 1
-      if (a.cells > b.cells) return -1
-      if (a.cells < b.cells) return 1
-      return 0
-    });
-
     this.players.forEach((player)=>{
       if(!player.connected) return false;
       player.ws.sendBinary(Schema.pack('leaderboard', {m: 'leaderboard', data: leaderboard}));
