@@ -63,23 +63,20 @@ function setLeaderboard (players) {
     })
   }
 }
-function updateLeaderboard () {
+function updateLeaderboard (data) {
   for (let i = 0; i < Data.game.leaderboard.length; i++) {
     Data.game.leaderboard[i].units = 0
     Data.game.leaderboard[i].blocks = 0
   }
-  for (let y = 0; y < Data.game.map.length; y++) {
-    for (let x = 0; x < Data.game.map[y].length; x++) {
-      let cell = Data.game.map[y][x]
-      for (let i = 0; i < Data.game.leaderboard.length; i++) {
-        if (Data.game.leaderboard[i].pid === cell.owner) {
-          Data.game.leaderboard[i].units += cell.units
-          Data.game.leaderboard[i].blocks += 1
-          break
-        }
+
+  data.forEach((lead) => {
+    Data.game.leaderboard.forEach((old) => {
+      if (old.pid === lead.pid) {
+        old.blocks = lead.cells
+        old.units = lead.units
       }
-    }
-  }
+    })
+  })
 
   Data.game.leaderboard.sort(function (a, b) {
     if (a.units > b.units) return -1
@@ -146,8 +143,6 @@ function handleMessage (d) {
         if (d.owner.length > 0) updateCellColors(x, y)
       }
     }
-    // Update leaderboard
-    updateLeaderboard()
   } else if (d.m === 'mapbit') {
     // changes, sent in blocks of 3 joined on a single array
     for (let i = 0; i < d.units.length; i += 3) {
@@ -170,12 +165,12 @@ function handleMessage (d) {
       let z = d.token[i + 2]
       Data.game.map[y][x].token = z
     }
-    // Update leaderboard
-    updateLeaderboard()
   } else if (d.m === 'players') {
     d.data.dead = false // inject data into data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
     setLeaderboard(d.data)
+  } else if (d.m === 'leaderboard') {
+    updateLeaderboard(d.data)
   } else if (d.m === 'chat') {
     if (typeof Data.game.players[d.from] !== 'undefined') {
       // Data.game.chat.msg.push('[' + Data.game.players[d.from].name + '] ' + d.message)
