@@ -8,6 +8,23 @@
  4) Home.vue - add button with v-on:click="join('game_classic')"
  */
 
+/*
+  Numbers and meanings
+
+  map.owner:
+  -3 == 'fog'
+  -2 == 'solid'
+  -1 == 'empty'
+  0+ == player id
+
+  map.token:
+  1 == 'king'
+
+  map.units:
+  0+ == number of units
+
+*/
+
 var http = require('http'),
   express = require('express'),
   WebSocketServer = require('ws').Server,
@@ -43,10 +60,6 @@ class Game {
     this.map.units = [];
     this.map.owner = [];
     this.map.token = [];
-    this.map.changed = {};
-    this.map.changed.units = true;
-    this.map.changed.owner = true;
-    this.map.changed.token = true;
     this.oldmap = Lib.deepCopy(this.map);
 
     this.golCalls = 0;
@@ -251,19 +264,11 @@ class Game {
     // Make a copy of map before we change anything
     this.oldmap = Lib.deepCopy(this.map);
 
-    // Fresh loop, Set all changes to false
-    this.map.changed.units = false;
-    this.map.changed.owner = false;
-    this.map.changed.token = false;
-
     // add units
-    if(this.loopcount % 10 == 0){// once every 10 loops
-      for(let y=0; y<this.maptotalsize; y++){
-        for(let x=0; x<this.maptotalsize; x++){
-          if(this.map.owner[y][x] >= 0){
-            this.map.units[y][x]++;
-            this.map.changed.units = true;
-          }
+    for(let y=0; y<this.maptotalsize; y++){
+      for(let x=0; x<this.maptotalsize; x++){
+        if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === 1){
+          this.map.units[y][x]++;
         }
       }
     }
@@ -304,22 +309,17 @@ class Game {
           if(Game.map.owner[moveto.y][moveto.x] === -2) return false;// solid
 
           let amount = Math.round(Game.map.units[y][x] * (percent/100));
-          if(amount == Game.map.units[y][x]) amount--;// can't move all units
-          if(amount == 0) amount++;// can't move no units
 
           if(Game.map.owner[moveto.y][moveto.x] === e.pid){
             // my cell
             Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
-            this.map.changed.units = true;
 
           }else if(Game.map.owner[moveto.y][moveto.x] === -1){
             // empty cell
             Game.map.owner[moveto.y][moveto.x] = e.pid;
             Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
-            this.map.changed.units = true;
-            this.map.changed.owner = true;
 
           }else{
             // enemy cell
@@ -333,13 +333,10 @@ class Game {
               Game.map.owner[moveto.y][moveto.x] = e.pid;
               Game.map.units[moveto.y][moveto.x] = myunintsleft;
               Game.map.units[y][x] -= amount;
-              this.map.changed.units = true;
-              this.map.changed.owner = true;
 
               // take over player
               if(Game.map.token[moveto.y][moveto.x] === 1){
                 Game.map.token[moveto.y][moveto.x] = 2;
-                this.map.changed.token = true;
                 this.playerDead(enemyid, e.name, e.pid);
                 this.players[e.pid].kills++;
 
@@ -349,8 +346,6 @@ class Game {
                     if(this.map.owner[ey][ex] == enemyid){
                       this.map.owner[ey][ex] = e.pid;
                       this.map.units[ey][ex] = Math.ceil(this.map.units[ey][ex] * 0.5);// you only get half the kingdom
-                      this.map.changed.units = true;
-                      this.map.changed.owner = true;
                     }
                   }
                 }
@@ -368,9 +363,11 @@ class Game {
               // you attacked but didn't have enough units
               Game.map.units[moveto.y][moveto.x] -= amount;
               Game.map.units[y][x] -= amount;
-              this.map.changed.units = true;
             }
           }
+
+          // Make cell neutral if you moved all your units off and its not your king
+          if(Game.map.units[y][x] === 0 && Game.map.token[y][x] !== 1) Game.map.owner[y][x] = -1;
         }
       } catch(err) {
         log('err', 'Failed to process a move!');
@@ -383,69 +380,95 @@ class Game {
     // >> update block colors
     // >> update king positions?
     // send changes to players
-    let mapFullToSend = this.binaryMap(false);
-    let mapBitToSend = this.binaryMapBit();
-
-    // pick the smallest packet
-    let mapToSend = false;
-    if (mapFullToSend !== false && mapBitToSend !== false) { // if either one has no update send nothing
-      mapToSend = mapBitToSend.byteLength < mapFullToSend.byteLength ? mapBitToSend : mapFullToSend;
-    }
-
-    if (mapToSend !== false) {
-      this.players.forEach((e,i)=>{
-        if(!e.connected) return false;
-        e.ws.sendBinary(mapToSend);
-      });
-    }
+    this.players.forEach((player)=>{
+      this.sendMapFog(player);
+    });
 
     // Ready for next loop
     this.loopcount++;
   }
 
-  static binaryMapBit() {
+  static sendMapFog(player) {
+    if(!player.connected) return false;
+
+    // make blank map with only fog
+    let fog = {};
+    fog.units = [];
+    fog.owner = [];
+    fog.token = [];
+    for (let k = 0; k < this.map.owner.length; k++) {
+      fog.units[k] = [];
+      fog.owner[k] = [];
+      fog.token[k] = [];
+      for (let m = 0; m < this.map.owner[k].length; m++) {
+        fog.units[k][m] = 0;
+        fog.owner[k][m] = -3;
+        fog.token[k][m] = 0;
+      }
+    }
+
+    // set first oldfog to a blank map
+    if (typeof player.oldfog === 'undefined') player.oldfog = Lib.deepCopy(fog);
+
+    // copy visible parts into fog
+    for (let k = 0; k < this.map.owner.length; k++) {
+      for (let m = 0; m < this.map.owner[k].length; m++) {
+        if (this.map.owner[k][m] === player.pid) {
+          // player owns this block
+
+          let view = 1;
+          if (this.map.token[k][m] === 1) view = 3;
+
+          // loop through visible map
+          for (var r = -Math.abs(view); r <= Math.abs(view); r++) {
+            for (var s = -Math.abs(view); s <= Math.abs(view); s++) {
+              // Copy over any existing values
+              if (typeof this.map.owner[k+r] !== 'undefined' && typeof this.map.owner[k+r][m+s] !== 'undefined'){
+                fog.units[k+r][m+s] = this.map.units[k+r][m+s];
+                fog.owner[k+r][m+s] = this.map.owner[k+r][m+s];
+                fog.token[k+r][m+s] = this.map.token[k+r][m+s];
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // get changes in binary
+    let mapBit = this.binarMapChanges(fog, player.oldfog);
+    if (mapBit !== false) player.ws.sendBinary(mapBit);
+
+    // Set oldfog to compare with next loop
+    player.oldfog = Lib.deepCopy(fog);
+  }
+
+  static binarMapChanges(map, oldmap) {
     // send only the bits of map that have changed
     let changes = {};
     changes.m = 'mapbit';
     changes.units = [];
     changes.owner = [];
     changes.token = [];
-    for(let y=0; y<this.map.owner.length; y++){
-      for(let x=0; x<this.map.owner[y].length; x++){
-        if (this.map.units[y][x] !== this.oldmap.units[y][x]) {
+    for(let y=0; y<map.owner.length; y++){
+      for(let x=0; x<map.owner[y].length; x++){
+        if (map.units[y][x] !== oldmap.units[y][x]) {
           changes.units.push(x);
           changes.units.push(y);
-          changes.units.push(this.map.units[y][x]);
+          changes.units.push(map.units[y][x]);
         }
-        if (this.map.owner[y][x] !== this.oldmap.owner[y][x]) {
+        if (map.owner[y][x] !== oldmap.owner[y][x]) {
           changes.owner.push(x);
           changes.owner.push(y);
-          changes.owner.push(this.map.owner[y][x]);
+          changes.owner.push(map.owner[y][x]);
         }
-        if (this.map.token[y][x] !== this.oldmap.token[y][x]) {
+        if (map.token[y][x] !== oldmap.token[y][x]) {
           changes.token.push(x);
           changes.token.push(y);
-          changes.token.push(this.map.token[y][x]);
+          changes.token.push(map.token[y][x]);
         }
       }
     }
     if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) return Schema.pack('mapbit', changes);
-    else return false;
-  }
-
-  static binaryMap(force = true) {
-    // force to send map regardless of change
-    let changes = {};
-    changes.m = 'map';
-    changes.units = [];
-    changes.owner = [];
-    changes.token = [];
-
-    if (this.map.changed.units || force) changes.units = this.map.units;
-    if (this.map.changed.owner || force) changes.owner = this.map.owner;
-    if (this.map.changed.token || force) changes.token = this.map.token;
-
-    if (changes.units.length > 0 || changes.owner.length > 0 || changes.token.length > 0) return Schema.pack('map', changes);
     else return false;
   }
 
@@ -661,8 +684,8 @@ function handleMessage(ws, d) {// websocket client messages
         ws.sendObj({m: 'welcome', pid: pid, mapheight: Game.map.owner.length, mapwidth: Game.map.owner[0].length});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
-        let mapToSend = Game.binaryMap(true);
-        if (mapToSend !== false) ws.sendBinary(mapToSend);
+        ws.sendObj({m: 'mods', fog: true});
+        Game.sendMapFog(Game.players[pid]);
         ws.sendObj({m: 'scrollhome'});
       }
     }else if (d.m === 'move' && ws.playing) {
