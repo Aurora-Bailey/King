@@ -384,8 +384,41 @@ class Game {
       this.sendMapFog(player);
     });
 
+    // send leaderboard
+    this.sendLeaderboard();
+
     // Ready for next loop
     this.loopcount++;
+  }
+
+  static sendLeaderboard() {
+    let leaderboard = [];
+    this.players.forEach((player)=>{
+      leaderboard[player.pid] = {pid: player.pid, units: 0, cells: 0};
+    });
+
+    for(let y=0; y<this.map.owner.length; y++){
+      for(let x=0; x<this.map.owner[y].length; x++){
+        let owner = this.map.owner[y][x];
+        if (owner < 0) continue;
+
+        leaderboard[owner].cells++;
+        leaderboard[owner].units += this.map.units[y][x];
+      }
+    }
+
+    leaderboard.sort((a,b)=>{
+      if (a.units > b.units) return -1
+      if (a.units < b.units) return 1
+      if (a.cells > b.cells) return -1
+      if (a.cells < b.cells) return 1
+      return 0
+    });
+
+    this.players.forEach((player)=>{
+      if(!player.connected) return false;
+      player.ws.sendBinary(Schema.pack('leaderboard', {m: 'leaderboard', data: leaderboard}));
+    });
   }
 
   static sendMapFog(player) {
