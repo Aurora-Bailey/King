@@ -385,7 +385,8 @@ class Game {
     });
 
     // send leaderboard every third tick
-    if (this.loopcount % 3 === 0) this.sendLeaderboard();
+    // if (this.loopcount % 3 === 0)
+    this.sendLeaderboard();
 
     // Ready for next loop
     this.loopcount++;
