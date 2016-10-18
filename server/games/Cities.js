@@ -681,10 +681,10 @@ function handleMessage(ws, d) {// websocket client messages
         ws.secret = d.secret;
         ws.lastchat = Date.now();
 
-        ws.sendObj({m: 'welcome', pid: pid, mapheight: Game.map.owner.length, mapwidth: Game.map.owner[0].length});
+        ws.sendObj({m: 'welcome', pid: pid, mapheight: Game.map.owner.length, mapwidth: Game.map.owner[0].length,
+          mods: {fog: true}});
         ws.sendObj({m: 'players', data: Game.playerarray});// id name color
         ws.sendObj({m: 'chat', from: 'Server', message: 'Welcome to Kingz.io'});
-        ws.sendObj({m: 'mods', fog: true});
         Game.sendMapFog(Game.players[pid]);
         ws.sendObj({m: 'scrollhome'});
       }
