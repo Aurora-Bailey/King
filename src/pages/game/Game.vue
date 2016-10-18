@@ -5,15 +5,18 @@
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
     <div class="scrollhomebutton" v-on:click="scrollhome()"
          v-bind:style="{ backgroundColor: typeof game.players === 'undefined' || typeof game.myid === 'undefined' || typeof game.players[game.myid] === 'undefined' ? 'white' : 'hsl(' + game.players[game.myid].color + ',100%, 50%)' }"></div>
+    <div class="graphics_toggle"
+         v-bind:class="{on: graphics_hq}"
+         v-on:click="graphics_hq = !graphics_hq"><span class="hq">HQ</span><span class="lq">LQ</span></div>
     <div class="gamescroll"
          v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
          v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
-      <div class="gamemap" v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }">
+      <div class="gamemap" v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }" v-bind:class="{hq_textures: graphics_hq}">
         <div v-for="y in game.map" class="row">
           <div v-for="x in y" class="cell"
                v-on:mousedown="movestart(x.loc.x, x.loc.y)"
                v-on:touchstart="movestart(x.loc.x, x.loc.y)"
-               v-bind:class="{solid: x.owner === -2, fog: x.owner === -3, me: x.owner === game.myid, highlight: x.highlight}"
+               v-bind:class="{player: x.owner >= 0, solid: x.owner === -2, fog: x.owner === -3, empty: x.owner === -1, me: x.owner === game.myid, highlight: x.highlight}"
                v-bind:style="{ backgroundColor: x.color }">
             <div class="token" v-bind:class="{king: x.token === 1}"></div>
             <div class="units" v-show="x.units>0">{{x.units}}</div>
@@ -41,6 +44,7 @@
     },
     data () {
       return {
+        graphics_hq: true,
         move: {
           inprogress: false,
           loc: {x: 0, y: 0},
@@ -168,8 +172,8 @@
 
     .scrollhomebutton {
       position: absolute;
-      bottom: 1vh;
-      left: 51vh;
+      top: 8vh;
+      left: 1vh;
       z-index: 22000;
       height: 6vh;
       width: 6vh;
@@ -181,6 +185,38 @@
       cursor: pointer;
       background-color: $primary;
     }
+    .graphics_toggle {
+      position: absolute;
+      top: 1vh;
+      left: 1vh;
+      z-index: 22000;
+      height: 6vh;
+      width: 6vh;
+      border-radius: 1.25vh;
+      border: 0.4vh solid black;
+      cursor: pointer;
+      background-color: $base-alt;
+      color: $base;
+      font-size: 2.5vh;
+      font-weight: bold;
+      line-height: 5.2vh; // acount for border
+      text-align: center;
+
+      .hq {
+        display: none;
+      }
+      .lq {
+        display: inline-block;
+      }
+      &.on {
+        .hq {
+          display: inline-block;
+        }
+        .lq {
+          display: none;
+        }
+      }
+    }
 
     .gamescroll {
       overflow: hidden;
@@ -190,6 +226,28 @@
     .gamemap {
       margin-top: 0;
       margin-left: 0;
+
+      &.hq_textures {
+        .fog {
+          background-image: url('../../assets/cloud.jpg');
+          background-size: cover;
+        }
+        .solid {
+          background-image: url('../../assets/mountain.jpg');
+          background-size: cover;
+        }
+        .empty {
+          background-image: url('../../assets/map.jpg');
+          background-size: cover;
+        }
+        .player {
+          border: 2px solid grey;
+        }
+
+        .cell:not(.player){
+          border: none;
+        }
+      }
     }
 
     .row {
