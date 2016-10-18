@@ -428,9 +428,8 @@ class Game {
     // copy visible parts into fog
     for (let k = 0; k < this.map.owner.length; k++) {
       for (let m = 0; m < this.map.owner[k].length; m++) {
+        // player owns this block
         if (this.map.owner[k][m] === player.pid) {
-          // player owns this block
-
           let view = 1;
           if (this.map.token[k][m] === 1) view = 3;
 
@@ -446,6 +445,11 @@ class Game {
             }
           }
         }
+        // solid blocks show through the fog
+        if (this.map.owner[k][m] === -2) {
+          fog.owner[k][m] = this.map.owner[k][m];
+        }
+        //end
       }
     }
 
