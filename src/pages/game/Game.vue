@@ -13,7 +13,7 @@
           <div v-for="x in y" class="cell"
                v-on:mousedown="movestart(x.loc.x, x.loc.y)"
                v-on:touchstart="movestart(x.loc.x, x.loc.y)"
-               v-bind:class="{solid: x.owner === -2, me: x.owner === game.myid, highlight: x.highlight}"
+               v-bind:class="{solid: x.owner === -2, fog: x.owner === -3, me: x.owner === game.myid, highlight: x.highlight}"
                v-bind:style="{ backgroundColor: x.color }">
             <div class="token" v-bind:class="{king: x.token === 1}"></div>
             <div class="units" v-show="x.units>0">{{x.units}}</div>
@@ -203,9 +203,17 @@
       white-space: nowrap;
       position: relative;
       border: 1px solid #ccc;
-      background-color: white;
       overflow: visible;
       text-align: center;
+      background-color: white; // default cell color
+
+      &.solid {
+        // style for solid blocks
+      }
+
+      &.fog {
+        // style for fog
+      }
 
       .units {
         position: absolute;

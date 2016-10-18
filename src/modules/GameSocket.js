@@ -95,7 +95,9 @@ function updateCellColors (x, y) {
   if (typeof Data.game.players[id] !== 'undefined') { // cell has player owner
     Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
   } else { // un-owned block
-    if (Data.game.map[y][x].owner === -2) { // Solid
+    if (Data.game.map[y][x].owner === -3) { // Fog
+      Data.game.map[y][x].color = 'hsl(0,0%,20%)'
+    } else if (Data.game.map[y][x].owner === -2) { // Solid
       Data.game.map[y][x].color = 'hsl(0,100%,0%)'
     } else if (Data.game.map[y][x].owner === -1) { // Empty
       Data.game.map[y][x].color = 'hsl(0,100%,100%)'
@@ -107,6 +109,16 @@ function updateCellColors (x, y) {
 
 function handleMessage (d) {
   if (d.m === 'welcome') {
+    // Settings
+    let fog = false
+
+    // Modify settings
+    if (typeof d.mods !== 'undefined') {
+      if (d.mods.fog) {
+        fog = true // This value is not used any more, its just a place holder for the settings structure
+      }
+    }
+
     Vue.set(Data.game, 'players', [])
     Vue.set(Data.game, 'myid', d.pid)
 
