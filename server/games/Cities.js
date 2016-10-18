@@ -407,9 +407,12 @@ class Game {
       }
     }
 
+    // compute outside of loop
+    let leadBinary = Schema.pack('leaderboard', {m: 'leaderboard', data: leaderboard});
+
     this.players.forEach((player)=>{
       if(!player.connected) return false;
-      player.ws.sendBinary(Schema.pack('leaderboard', {m: 'leaderboard', data: leaderboard}));
+      player.ws.sendBinary(leadBinary);
     });
   }
 
