@@ -96,7 +96,7 @@ function updateCellColors (x, y) {
     Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
   } else { // un-owned block
     if (Data.game.map[y][x].owner === -3) { // Fog
-      Data.game.map[y][x].color = 'hsl(0,0%,20%)'
+      Data.game.map[y][x].color = 'hsl(0,90%,100%)'
     } else if (Data.game.map[y][x].owner === -2) { // Solid
       Data.game.map[y][x].color = 'hsl(0,100%,0%)'
     } else if (Data.game.map[y][x].owner === -1) { // Empty
