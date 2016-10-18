@@ -384,8 +384,8 @@ class Game {
       this.sendMapFog(player);
     });
 
-    // send leaderboard
-    this.sendLeaderboard();
+    // send leaderboard every third tick
+    if (this.loopcount % 3 === 0) this.sendLeaderboard();
 
     // Ready for next loop
     this.loopcount++;
