@@ -23,6 +23,7 @@
                v-on:touchstart="movestart(x.loc.x, x.loc.y)"
                v-bind:class="{player: x.owner >= 0, solid: x.owner === -2, fog: x.owner === -3, empty: x.owner === -1, me: x.owner === game.myid, highlight: x.highlight, moving: x.moving}"
                v-bind:style="{ backgroundColor: x.color }">
+            <div class="tint"></div>
             <div class="token" v-bind:class="{king: x.token === 1}"></div>
             <div class="units" v-show="x.units>0">{{move.percent > 0 && x.move_help > 0 ? move.percent + '%':x.units}}</div>
           </div>
@@ -360,6 +361,16 @@
         @include noselect;
       }
 
+      .tint {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
       .token {
         display: none;
         position: absolute;
@@ -399,11 +410,15 @@
       }
 
       &.highlight {
-        opacity: 0.4;
         cursor: pointer;
+        .tint {
+          background-color: black;
+        }
       }
       &.moving {
-        opacity: 0.6;
+        .tint {
+          background-color: white;
+        }
       }
     }
   }
