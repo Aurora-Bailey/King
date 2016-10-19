@@ -124,7 +124,7 @@ function handleMessage (d) {
     for (let y = 0; y < d.mapheight; y++) {
       Vue.set(Data.game.map, y, [])
       for (let x = 0; x < d.mapwidth; x++) {
-        Vue.set(Data.game.map[y], x, {units: 0, owner: -1, token: 0, color: 'white', highlight: false, move_help: 0, loc: {x: x, y: y}})
+        Vue.set(Data.game.map[y], x, {units: 0, owner: -1, token: 0, color: 'white', highlight: false, move_help: 0, moving: false, loc: {x: x, y: y}})
       }
     }
 
@@ -176,6 +176,8 @@ function handleMessage (d) {
     d.data.dead = false // inject data into data
     Data.game.players = Object.assign({}, Data.game.players, d.data)
     setLeaderboard(d.data)
+  } else if (d.m === 'movedone') {
+    Data.game.map[d.y][d.x].moving = false
   } else if (d.m === 'leaderboard') {
     updateLeaderboard(d.data)
   } else if (d.m === 'chat') {

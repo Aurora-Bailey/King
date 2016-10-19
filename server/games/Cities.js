@@ -284,6 +284,8 @@ class Game {
 
           let [x, y, percent, tox, toy] = move;
 
+          e.ws.sendBinary(Schema.pack('movedone', {m: 'movedone', x: x, y: y}));
+
           // convert back to direction for old classic system
           let direction = false;// up right down left
           if (y - 1 === toy && x === tox) direction = 0;

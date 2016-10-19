@@ -69,11 +69,12 @@
 	==show points when you hover over leaderboard on homepage
 	==cean up html bloat so larger maps can be supported
 	==show move percent on move_help
+	==sound on game start
+
 
   add about, help, contact pages
 	remove ugly time notice at some point.
 	update deadscreen
-	sound on game start
 
 // both
   ==queue count on play button
@@ -184,10 +185,11 @@
   ==pull rank and leaderboard using the new format
 
   kingz and cities game
-  a.i.
+  ==in game leaderboard will have to move to server for fog of war
+  ==leaderboard from server
 
-  in game leaderboard will have to move to server for fog of war
-  leaderboard from server
+  a.i.
+  movelock
 
  // on live server
   npm install --save bufferutil
@@ -206,6 +208,9 @@
     blockaid
     watch tower
     catapult
+    horse
+    cannon
+    ram
 
 	Populate everything (current)
 	single player (AI)

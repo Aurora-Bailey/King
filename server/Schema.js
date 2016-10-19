@@ -14,7 +14,7 @@ const wrapper = avro.parse({
   name: 'Message',
   type: 'record',
   fields: [
-    {name: 'schema', type: {name: 'Schema', type: 'enum', symbols: ['map', 'mapbit', 'move', 'leaderboard']}},
+    {name: 'schema', type: {name: 'Schema', type: 'enum', symbols: ['map', 'mapbit', 'move', 'leaderboard', 'movedone']}},
     {name: 'data', type: 'bytes'}
   ]
 });
@@ -59,6 +59,15 @@ type.leaderboard = avro.parse({
       {name:'units',type:'int'},
       {name:'cells',type:'int'}
     ]}}}
+  ]
+});
+type.movedone = avro.parse({
+  name: 'Movedone',
+  type: 'record',
+  fields: [
+    {name: 'm', type: {name: 'M', type: 'enum', symbols: ['movedone']}},
+    {name: 'x',type: 'int'},
+    {name: 'y',type: 'int'}
   ]
 });
 // add name to wrapper enum for each new type
