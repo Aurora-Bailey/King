@@ -1,5 +1,7 @@
 <template xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div id="game">
+    <audio id="game_ready_sound" src="/static/sound/ready.mp3"></audio>
+    <audio id="game_message_sound" src="/static/sound/message.mp3"></audio>
     <chat :chat="game.chat"></chat>
     <leaderboard :leaderboard="game.leaderboard"></leaderboard>
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
@@ -7,7 +9,10 @@
          v-bind:style="{ backgroundColor: typeof game.players === 'undefined' || typeof game.myid === 'undefined' || typeof game.players[game.myid] === 'undefined' ? 'white' : 'hsl(' + game.players[game.myid].color + ',100%, 50%)' }"></div>
     <div class="graphics_toggle"
          v-bind:class="{on: graphics_hq}"
-         v-on:click="graphics_hq = !graphics_hq"><span class="hq">HQ</span><span class="lq">LQ</span></div>
+         v-on:click="graphics_hq = !graphics_hq"><span class="hq">HQ</span><span class="lq">LQ</span>
+    </div><div class="audio_toggle"
+         v-bind:class="{mute: audio_level === 0, low: audio_level === 1, full: audio_level === 2}"
+         v-on:click="audio_level = (audio_level + 1) % 3"></div>
     <div class="gamescroll"
          v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
          v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
@@ -44,6 +49,7 @@
     },
     data () {
       return {
+        audio_level: 0,
         graphics_hq: true,
         move: {
           inprogress: false,
@@ -59,7 +65,34 @@
         }
       }
     },
+    mounted: function () {
+      if (typeof window.localStorage.audio !== 'undefined') this.audio_level = parseInt(window.localStorage.audio)
+      else this.audio_level = 1
+      this.changeaudio(this.audio_level)
+    },
+    watch: {
+      audio_level: function (curr) {
+        this.changeaudio(curr)
+      }
+    },
     methods: {
+      changeaudio: function (curr) {
+        let ready = document.getElementById('game_ready_sound')
+        let message = document.getElementById('game_message_sound')
+        if (curr === 0) {
+          window.localStorage.audio = 0
+          ready.volume = 0.1 // Don't turn off ready sound
+          message.volume = 0
+        } else if (curr === 1) {
+          window.localStorage.audio = 1
+          ready.volume = 0.1
+          message.volume = 0.1
+        } else if (curr === 2) {
+          window.localStorage.audio = 2
+          ready.volume = 0.8
+          message.volume = 0.8
+        }
+      },
       mousemove: function (e) {
         if (typeof e.touches !== 'undefined') {
           e = e.touches[0]
@@ -173,7 +206,7 @@
 
     .scrollhomebutton {
       position: absolute;
-      top: 8vh;
+      top: 15vh;
       left: 1vh;
       z-index: 22000;
       height: 6vh;
@@ -216,6 +249,35 @@
         .lq {
           display: none;
         }
+      }
+    }
+    .audio_toggle {
+      position: absolute;
+      top: 8vh;
+      left: 1vh;
+      z-index: 22000;
+      height: 6vh;
+      width: 6vh;
+      border-radius: 1.25vh;
+      border: 0.4vh solid black;
+      cursor: pointer;
+      background-color: $base-alt;
+      color: $base;
+      font-size: 2.5vh;
+      font-weight: bold;
+      line-height: 5.2vh; // acount for border
+      text-align: center;
+      background-size: contain;
+      background-position: center;
+
+      &.full {
+        background-image: url('../../assets/audio_full_b.png');
+      }
+      &.low {
+        background-image: url('../../assets/audio_low_b.png');
+      }
+      &.mute {
+        background-image: url('../../assets/audio_mute_b.png');
       }
     }
 

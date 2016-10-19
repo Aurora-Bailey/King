@@ -194,6 +194,7 @@
   run DatabaseRebuild
   index: cookie id gid points
   MongoDB Cloud Manager
+  copy ready.mp3 from /static/static/sound to /static/sound
 
 
 

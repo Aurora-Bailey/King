@@ -128,6 +128,13 @@ function handleMessage (d) {
       }
     }
 
+    // Play sound
+    let sound = document.getElementById('game_ready_sound')
+    if (sound.canPlayType('audio/mpeg')) {
+      sound.currentTime = 0
+      sound.play()
+    }
+
     Data.page = 'game'
     Data.game.playing = true
     Data.game.dead = false
@@ -179,6 +186,14 @@ function handleMessage (d) {
         name: Data.game.players[d.from].name,
         color: 'hsl(' + Data.game.players[d.from].color + ',100%,80%)'
       })
+      // From player - Play sound
+      if (d.from !== Data.game.myid) {
+        let sound = document.getElementById('game_message_sound')
+        if (sound.canPlayType('audio/mpeg')) {
+          sound.currentTime = 0
+          sound.play()
+        }
+      }
     } else {
       // Data.game.chat.msg.push('*' + d.from + '* ' + d.message)
       let color = 'hsl(0,0%,70%)'
