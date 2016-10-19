@@ -19,7 +19,7 @@
                v-bind:class="{player: x.owner >= 0, solid: x.owner === -2, fog: x.owner === -3, empty: x.owner === -1, me: x.owner === game.myid, highlight: x.highlight}"
                v-bind:style="{ backgroundColor: x.color }">
             <div class="token" v-bind:class="{king: x.token === 1}"></div>
-            <div class="units" v-show="x.units>0">{{x.units}}</div>
+            <div class="units" v-show="x.units>0">{{move.percent > 0 && x.move_help > 0 ? move.percent + '%':x.units}}</div>
           </div>
         </div>
       </div>
@@ -137,6 +137,7 @@
       },
       cancelmove: function () {
         this.move.inprogress = false
+        this.move.percent = 0
         let x = this.move.loc.x
         let y = this.move.loc.y
         this.game.map[y][x].move_help = 0
