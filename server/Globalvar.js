@@ -16,7 +16,7 @@ x.game.game_classic.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
 
 
 x.game.game_cities = {};
-x.game.game_cities.areaperplayer = 81;// will be rounded to the closest square root number
+x.game.game_cities.areaperplayer = 150;// will be rounded to the closest square root number
 x.game.game_cities.loopdelay = 1000; // one tick per second
 x.game.game_cities.maxmovequeue = 30; // max number of moves you can queue up
 x.game.game_cities.queue = {};
