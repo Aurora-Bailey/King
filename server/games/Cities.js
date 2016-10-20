@@ -265,11 +265,22 @@ class Game {
     // Make a copy of map before we change anything
     this.oldmap = Lib.deepCopy(this.map);
 
-    // add units
+    // Add units
+    // King
     for(let y=0; y<this.maptotalsize; y++){
       for(let x=0; x<this.maptotalsize; x++){
         if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === 1){
           this.map.units[y][x]++;
+        }
+      }
+    }
+    // Owned Cells
+    if(this.loopcount % 30 == 0){// once every 30 loops
+      for(let y=0; y<this.maptotalsize; y++){
+        for(let x=0; x<this.maptotalsize; x++){
+          if(this.map.owner[y][x] >= 0){
+            this.map.units[y][x]++;
+          }
         }
       }
     }
@@ -335,6 +346,8 @@ class Game {
           if(Game.map.owner[moveto.y][moveto.x] === -2) return false;// solid
 
           let amount = Math.round(Game.map.units[y][x] * (percent/100));
+          if(amount == Game.map.units[y][x]) amount--;// can't move all units
+          if(amount == 0) amount++;// can't move no units
 
           // Compute move
           if(Game.map.owner[moveto.y][moveto.x] === e.pid){
