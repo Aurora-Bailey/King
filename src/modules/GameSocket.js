@@ -92,7 +92,9 @@ function updateCellColors (x, y) {
   if (typeof Data.game.players[id] !== 'undefined') { // cell has player owner
     Data.game.map[y][x].color = 'hsl(' + Data.game.players[id].color + ',100%,50%)'
   } else { // un-owned block
-    if (Data.game.map[y][x].owner === -3) { // Fog
+    if (Data.game.map[y][x].owner === -4) { // City
+      Data.game.map[y][x].color = '#FFF'
+    } else if (Data.game.map[y][x].owner === -3) { // Fog
       Data.game.map[y][x].color = '#DDD'
     } else if (Data.game.map[y][x].owner === -2) { // Solid
       Data.game.map[y][x].color = '#000'

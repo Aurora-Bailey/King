@@ -21,10 +21,10 @@
           <div v-for="x in y" class="cell"
                v-on:mousedown="movestart(x.loc.x, x.loc.y)"
                v-on:touchstart="movestart(x.loc.x, x.loc.y)"
-               v-bind:class="{player: x.owner >= 0, solid: x.owner === -2, fog: x.owner === -3, empty: x.owner === -1, me: x.owner === game.myid, highlight: x.highlight, moving: x.moving}"
+               v-bind:class="{player: x.owner >= 0, solid: x.owner === -2, fog: x.owner === -3, empty: x.owner === -1 || x.owner === -4, me: x.owner === game.myid, highlight: x.highlight, moving: x.moving}"
                v-bind:style="{ backgroundColor: x.color }">
             <div class="tint"></div>
-            <div class="token" v-bind:class="{king: x.token === 1}"></div>
+            <div class="token" v-bind:class="{king: x.token === 1, city: x.token === 4}"></div>
             <div class="units" v-show="x.units>0">{{move.percent > 0 && x.move_help > 0 ? move.percent + '%':x.units}}</div>
           </div>
         </div>
@@ -384,6 +384,12 @@
       .king {
         display: block;
         background-image: url('../../assets/crown.png');
+        background-size: contain;
+        background-position: center;
+      }
+      .city {
+        display: block;
+        background-image: url('../../assets/city.png');
         background-size: contain;
         background-position: center;
       }
