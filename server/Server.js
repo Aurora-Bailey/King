@@ -391,7 +391,7 @@ module.exports.setup = function (p) {
   }
 
   Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name
-  Q['game_cities'] = new Queue('game_cities', 'Kings & Cities');
+  Q['game_cities'] = new Queue('game_cities', 'Kingz & Cities');
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
