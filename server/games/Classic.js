@@ -277,7 +277,30 @@ class Game {
           let move = e.makemove.shift();
           if(isNaN(move[0]) || isNaN(move[1]) || isNaN(move[2]) || isNaN(move[3]) || isNaN(move[4])) return false;
 
-          let [x, y, percent, tox, toy] = move;
+          let [x, y, percent, tox, toy, delay] = move;
+
+          if(typeof Game.map.owner[y] === 'undefined') return false;
+          if(typeof Game.map.owner[y][x] === 'undefined') return false;
+
+          /*
+          // Delay a move
+          if (Game.map.owner[y][x] === e.pid) {
+            // trying to move king
+            if (Game.map.token[y][x] === 1) {
+
+              // set delay
+              if (typeof delay === 'undefined') {
+                e.makemove.unshift([x, y, percent, tox, toy, 4]);// push move back into queue
+                return false; // exit move logic
+              } else if (delay <= 0) {
+                // let the move past
+              } else {
+                e.makemove.unshift([x, y, percent, tox, toy, delay - 1]);// push move back into queue
+                return false; // exit move logic
+              }
+            }
+          }
+          */
 
           e.ws.sendBinary(Schema.pack('movedone', {m: 'movedone', x: x, y: y}));
 
@@ -289,8 +312,7 @@ class Game {
           if (y === toy && x - 1 === tox) direction = 3;
           if (direction === false) return false;
 
-          if(typeof Game.map.owner[y] === 'undefined') return false;
-          if(typeof Game.map.owner[y][x] === 'undefined') return false;
+          // validate move
           if(Game.map.owner[y][x] !== e.pid) return false;
           if(Game.map.units[y][x] < 2) return false;
           if(percent > 100 || percent < 0) return false;
@@ -309,6 +331,7 @@ class Game {
           if(amount == Game.map.units[y][x]) amount--;// can't move all units
           if(amount == 0) amount++;// can't move no units
 
+          // Compute move
           if(Game.map.owner[moveto.y][moveto.x] === e.pid){
             // my cell
             Game.map.units[moveto.y][moveto.x] += amount;
@@ -698,7 +721,7 @@ function handleMessage(ws, d) {// websocket client messages
       }
     }else if (d.m === 'move' && ws.playing) {
       if(Game.players[ws.pid].makemove.length > GV.game[WORKER_TYPE].maxmovequeue) return false;
-      Game.players[ws.pid].makemove.push(d.move);
+      Game.players[ws.pid].makemove.push(d.move.slice(0, 5));// Make sure a move only has 5 elements
     }else if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago
         d.message = '' + d.message; // force string
