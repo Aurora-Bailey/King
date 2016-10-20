@@ -342,17 +342,11 @@ class Game {
             Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
 
-            Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
-            Game.map.token[y][x] = 0;
-
           }else if(Game.map.owner[moveto.y][moveto.x] === -1){
             // empty cell
             Game.map.owner[moveto.y][moveto.x] = e.pid;
             Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
-
-            Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
-            Game.map.token[y][x] = 0;
 
           }else{
             // enemy cell
@@ -366,9 +360,6 @@ class Game {
               Game.map.owner[moveto.y][moveto.x] = e.pid;
               Game.map.units[moveto.y][moveto.x] = myunintsleft;
               Game.map.units[y][x] -= amount;
-
-              Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
-              Game.map.token[y][x] = 0;
 
               // take over player
               if(Game.map.token[moveto.y][moveto.x] === 1){
@@ -402,8 +393,13 @@ class Game {
             }
           }
 
-          // Make cell neutral if you moved all your units off and its not your king
-          if(Game.map.units[y][x] === 0 && Game.map.token[y][x] !== 1) Game.map.owner[y][x] = -1;
+          // Move token
+          if(Game.map.units[y][x] === 0){
+            if (Game.map.token[moveto.y][moveto.x] === 0) Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
+            Game.map.token[y][x] = 0;
+            Game.map.owner[y][x] = -1;
+          }
+
         }
       } catch(err) {
         log('err', 'Failed to process a move!');
