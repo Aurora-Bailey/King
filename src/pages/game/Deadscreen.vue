@@ -1,6 +1,6 @@
 <template>
   <div id="ds">
-    <div class="title">{{deadscreen.killer}} took your kingdom!!!</div>
+    <div class="title">{{deadscreen.killer}} took your King!!!</div>
     <div class="time">Time alive: {{deadscreen.playtime}}</div>
     <div class="kills">Kills: {{deadscreen.kills}}</div>
     <div class="place">Finish place: {{deadscreen.place}}</div>
