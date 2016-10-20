@@ -299,11 +299,11 @@ class Game {
           if(typeof Game.map.owner[y] === 'undefined') return false;
           if(typeof Game.map.owner[y][x] === 'undefined') return false;
 
-          // Delay a move
+          /*// Delay a move
           if (Game.map.owner[y][x] === e.pid) {
+
             // trying to move king
             if (Game.map.token[y][x] === 1) {
-
               // set delay
               if (typeof delay === 'undefined') {
                 // this counts for +1 delay.
@@ -318,7 +318,7 @@ class Game {
                 return false; // exit move logic
               }
             }
-          }
+          }*/
 
           e.ws.sendBinary(Schema.pack('movedone', {m: 'movedone', x: x, y: y}));
 
