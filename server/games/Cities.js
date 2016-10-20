@@ -156,7 +156,7 @@ class Game {
       }
     }
 
-    // Place neutral cities
+    // Place neutral cities (adsf)
     for(let y=0; y<this.mapusersize; y++){
       for(let x=0; x<this.mapusersize; x++){
 
