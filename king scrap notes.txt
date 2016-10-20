@@ -70,11 +70,10 @@
 	==cean up html bloat so larger maps can be supported
 	==show move percent on move_help
 	==sound on game start
-
+	==update deadscreen
 
   add about, help, contact pages
 	remove ugly time notice at some point.
-	update deadscreen
 
 // both
   ==queue count on play button
