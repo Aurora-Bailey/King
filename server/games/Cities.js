@@ -406,12 +406,16 @@ class Game {
             }
           }
 
-          // Move token
+          // Move token (this won't trigger because you can't move all your units)
           if(Game.map.units[y][x] === 0){
-            if (Game.map.token[moveto.y][moveto.x] === 0) {
+            if (Game.map.token[moveto.y][moveto.x] === 0) { // move to non token cell
               Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
               Game.map.token[y][x] = 0;
               Game.map.owner[y][x] = -1;
+            } else if (Game.map.token[y][x] === 0) { // move to cell with token, without a token
+              Game.map.owner[y][x] = -1;
+            } else {
+              // move with token to a cell with a token
             }
           }
 
