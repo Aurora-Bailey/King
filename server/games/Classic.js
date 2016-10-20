@@ -314,7 +314,7 @@ class Game {
 
           // validate move
           if(Game.map.owner[y][x] !== e.pid) return false;
-          if(Game.map.units[y][x] < 2) return false;
+          if(Game.map.units[y][x] < 2) return false; // Min 2 unit to move
           if(percent > 100 || percent < 0) return false;
           if(direction > 3 || direction < 0) return false;
 

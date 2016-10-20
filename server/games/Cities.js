@@ -12,6 +12,7 @@
   Numbers and meanings
 
   map.owner:
+  -4 == 'neutral city
   -3 == 'fog'
   -2 == 'solid'
   -1 == 'empty'
@@ -20,6 +21,8 @@
   map.token:
   1 == 'king'
   2 == 'fallen king
+
+  4 == 'city'
 
   map.units:
   0+ == number of units
@@ -153,6 +156,40 @@ class Game {
       }
     }
 
+    // Place neutral cities
+    for(let y=0; y<this.mapusersize; y++){
+      for(let x=0; x<this.mapusersize; x++){
+
+        let randcellx = Math.floor(Math.random() * this.mapcellsize);
+        let randcelly = Math.floor(Math.random() * this.mapcellsize);
+
+        let offsetx = x * this.mapcellsize;
+        let offsety = y * this.mapcellsize;
+
+        let totx = offsetx + randcellx;
+        let toty = offsety + randcelly;
+
+        let numempty = this.getMapNumEmpty(totx, toty);
+
+        while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
+          randcellx = Math.floor(Math.random() * this.mapcellsize);
+          randcelly = Math.floor(Math.random() * this.mapcellsize);
+
+          offsetx = x * this.mapcellsize;
+          offsety = y * this.mapcellsize;
+
+          totx = offsetx + randcellx;
+          toty = offsety + randcelly;
+
+          numempty = this.getMapNumEmpty(totx, toty);
+        }
+
+        this.map.units[toty][totx] = Math.floor(Math.random() * 100) + 20;
+        this.map.owner[toty][totx] = -4;
+        this.map.token[toty][totx] = 4; // City
+      }
+    }
+
     // re color players to be a bit more distinct
     // leave previous value as place holder (random color)
     this.players.forEach((e,i)=>{
@@ -183,8 +220,6 @@ class Game {
     if (typeof this.map.owner[celly] === 'undefined') return 'edge';
     if (typeof this.map.owner[celly][cellx] === 'undefined') return 'edge';
 
-    if (this.map.owner[celly][cellx] == -2) return 'solid';
-
     if (this.map.owner[celly][cellx] == -1) {
       let emptyneig = 1;
 
@@ -205,7 +240,7 @@ class Game {
       return emptyneig;
     }
 
-    return 'processed';
+    return 'solid';
   }
 
   static mapGOL(){// game of life to rearrange the solid blocks
@@ -274,6 +309,16 @@ class Game {
         }
       }
     }
+    // City
+    if(this.loopcount % 2 == 0){// once every 2 loops
+      for(let y=0; y<this.maptotalsize; y++){
+        for(let x=0; x<this.maptotalsize; x++){
+          if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === 4){
+            this.map.units[y][x]++;
+          }
+        }
+      }
+    }
     // Owned Cells
     if(this.loopcount % 30 == 0){// once every 30 loops
       for(let y=0; y<this.maptotalsize; y++){
@@ -332,7 +377,7 @@ class Game {
 
           // validate move
           if(Game.map.owner[y][x] !== e.pid) return false;
-          if(Game.map.units[y][x] < 1) return false;
+          if(Game.map.units[y][x] < 2) return false; // Min 1 unit to move
           if(percent > 100 || percent < 0) return false;
           if(direction > 3 || direction < 0) return false;
 
