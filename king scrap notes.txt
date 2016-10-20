@@ -187,9 +187,18 @@
   kingz and cities game
   ==in game leaderboard will have to move to server for fog of war
   ==leaderboard from server
+  ==movelock
+
+  build units
+  upgrade units
+  send client mods to allow build/upgrade popup
+  send buildable things and the cost
+
+  send types of units and their move range/style & token image
+
+  tutorial that follows mouse?
 
   a.i.
-  movelock
 
  // on live server
   npm install --save bufferutil

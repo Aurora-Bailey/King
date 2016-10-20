@@ -19,6 +19,7 @@
 
   map.token:
   1 == 'king'
+  2 == 'fallen king
 
   map.units:
   0+ == number of units
@@ -297,7 +298,7 @@ class Game {
                 // this counts for +1 delay.
                 // no delay = mak move on first tick
                 // 0 = make move on second tick
-                e.makemove.unshift([x, y, percent, tox, toy, 4]);// push move back into queue
+                e.makemove.unshift([x, y, percent, tox, toy, 0]);// push move back into queue
                 return false; // exit move logic
               } else if (delay <= 0) {
                 // let the move past
@@ -341,11 +342,17 @@ class Game {
             Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
 
+            Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
+            Game.map.token[y][x] = 0;
+
           }else if(Game.map.owner[moveto.y][moveto.x] === -1){
             // empty cell
             Game.map.owner[moveto.y][moveto.x] = e.pid;
             Game.map.units[moveto.y][moveto.x] += amount;
             Game.map.units[y][x] -= amount;
+
+            Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
+            Game.map.token[y][x] = 0;
 
           }else{
             // enemy cell
@@ -359,6 +366,9 @@ class Game {
               Game.map.owner[moveto.y][moveto.x] = e.pid;
               Game.map.units[moveto.y][moveto.x] = myunintsleft;
               Game.map.units[y][x] -= amount;
+
+              Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
+              Game.map.token[y][x] = 0;
 
               // take over player
               if(Game.map.token[moveto.y][moveto.x] === 1){
@@ -486,7 +496,7 @@ class Game {
         // player owns this block
         if (this.map.owner[k][m] === player.pid) {
           let view = 1;
-          if (this.map.token[k][m] === 1) view = 3;
+          if (this.map.token[k][m] === 1) view = 2;
 
           // loop through visible map
           for (var r = -Math.abs(view); r <= Math.abs(view); r++) {
