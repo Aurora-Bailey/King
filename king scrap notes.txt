@@ -71,9 +71,13 @@
 	==show move percent on move_help
 	==sound on game start
 	==update deadscreen
+	==no spectate button
 
   add about, help, contact pages
 	remove ugly time notice at some point.
+	make time notice dynamic and built in
+	dont make scrollhome center all the way if player is on the edge
+	prevent negitive count down
 
 // both
   ==queue count on play button
@@ -187,17 +191,13 @@
   ==in game leaderboard will have to move to server for fog of war
   ==leaderboard from server
   ==movelock
+  ==no kill server timeout
+  ==on game over push request to update ranks to server nodes
 
-  build units
-  upgrade units
-  send client mods to allow build/upgrade popup
-  send buildable things and the cost
 
-  send types of units and their move range/style & token image
-
-  tutorial that follows mouse?
-
-  a.i.
+  vote to start
+  ?auto path queue
+  save bytes sent/recieved on server too
 
  // on live server
   npm install --save bufferutil
@@ -205,6 +205,8 @@
   index: cookie id gid points
   MongoDB Cloud Manager
   copy ready.mp3 from /static/static/sound to /static/sound
+  npm install
+  switch beta.kingz.io to ws.kingz.io in Data.js
 
 
 

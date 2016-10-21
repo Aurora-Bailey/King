@@ -216,12 +216,26 @@ function sendPlayerRank(ws, game_type) {
   // make sure logged in btw
   // validate game type
   if (typeof Q[game_type] === 'undefined') return false;
-  let _points = typeof ws.data.points[game_type] === 'undefined' ? 0 : ws.data.points[game_type];
-  let _find = {};
-  _find['points.' + game_type] = {$gt: _points}
-  db.collection('players').find(_find).count({}, function (err, count) {
-    // +1 to account for yourself
-    ws.sendObj({m: 'myrank', rank: count + 1, points: _points});
+
+  // Get the latest points
+  db.collection('players').find({id: ws.uid}, {_id: 0, points: 1, totaltime: 1}).limit(1).toArray(function(err, docs) {
+    if (err) {
+      log('err', 'Error with mongodb sendPlayerRank');
+      console.log(err);
+    } else if (docs.length != 0) {
+      //Reset user data
+      ws.data.points = docs[0].points;
+      ws.data.totaltime = docs[0].totaltime;
+
+      // Send to player
+      let _points = typeof ws.data.points[game_type] === 'undefined' ? 0 : ws.data.points[game_type];
+      let _find = {};
+      _find['points.' + game_type] = {$gt: _points}
+      db.collection('players').find(_find).count({}, function (err, count) {
+        // +1 to account for yourself
+        ws.sendObj({m: 'myrank', rank: count + 1, points: _points});
+      });
+    }
   });
 }
 function sendTimeoutPing() {
@@ -266,6 +280,7 @@ function handleMessage(ws, d) {// websocket client messages
         } else if (docs.length != 0) {
           //User WAS found
           ws.data = docs[0];
+          ws.uid = ws.data.id;
 
           // Set login stuff
           sendPlayerStats(ws);
@@ -335,6 +350,7 @@ function handleMessage(ws, d) {// websocket client messages
       Q[d.type].addPlayer(ws);
     }else if (d.m === 'getranks' && ws.loggedin) {
       if (typeof d.game === 'undefined') return false;
+      ws.viewgametype = d.game;
       sendLeaderboard(ws, d.game);
       sendPlayerRank(ws, d.game);
     }else if (d.m === 'canceljoin' && ws.loggedin) {
@@ -421,6 +437,13 @@ module.exports.setup = function (p) {
         log('err', 'I failed to send stats to god.');
         console.log(err);
       }
+    }else if (m.m === 'rerank'){
+      wss.clients.forEach(function each(client) {
+        if(client.uid === m.uid) {
+          sendLeaderboard(client, client.viewgametype);
+          sendPlayerRank(client, client.viewgametype);
+        }
+      });
     }
   });
 
@@ -431,6 +454,7 @@ module.exports.setup = function (p) {
 
     // don't use ws.domain or ws.extensions
     ws.connectedtime = Date.now(); // connect time
+    ws.uid = 'user_id';
     ws.numplays = {};
     ws.timeout = false;
     ws.connected = true;
@@ -440,6 +464,7 @@ module.exports.setup = function (p) {
     ws.waiting = false;
     ws.inqueue = false;
     ws.lastenterqueue = 0;
+    ws.viewgametype = 'type_of_game';
     ws.ipaddress = ws._socket.remoteAddress;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;

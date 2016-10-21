@@ -604,6 +604,9 @@ class Game {
               if(err){
                 log('err', 'Error setting player points to new points.');
                 console.log(err);
+              }else{
+                // Send message to server to resend points to player.
+                process.send({m: 'pass', to: 'server', data: {m: 'rerank', uid: player.uid}});
               }
             });
 
