@@ -17,7 +17,7 @@ export default {
     rank: 0,
     microversion: 'v2000',
     notes: [
-      {title: 'Notice', text: 'For more players check back at the following times \n\n 6:00 AM/PM GMT \n 12:00 AM/PM GMT \n Friday 8:00 PM GMT'}
+      {title: 'Update 10/21', text: 'New game mode! \n New ranking system! \n (and other stuff)'}
     ]
   },
   leaderboard: [],
