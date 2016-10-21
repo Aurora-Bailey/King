@@ -4,7 +4,7 @@
     <div class="time">Time alive: {{deadscreen.playtime}}</div>
     <div class="kills">Kills: {{deadscreen.kills}}</div>
     <div class="place">Finish place: {{deadscreen.place}}</div>
-    <button class="spectate" v-on:click="deadscreen.spectate = true">Spectate</button>
+    <button class="spectate" v-on:click="deadscreen.spectate = true" v-show="false">Spectate</button>
     <button class="leave" v-on:click="leaveRoom()">Leave Room</button>
   </div>
 </template>
@@ -37,14 +37,16 @@
     margin: auto;
     padding: 5vh;
     background-color: black;
-    opacity: 0.9;
+    opacity: 0.8;
     font-size: 2.4vh;
+    pointer-events: none;
 
     top: 50%;
     transform: translateY(-50%);
   }
 
   .spectate, .leave {
+    pointer-events: auto;
     @include bigbutton(6vh);
   }
 
