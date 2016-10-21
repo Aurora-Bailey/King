@@ -466,11 +466,15 @@ module.exports.setup = function (p) {
     ws.lastenterqueue = 0;
     ws.viewgametype = 'type_of_game';
     ws.ipaddress = ws._socket.remoteAddress;
+    ws.sentBytes = 0;
+    ws.recieveBytes = 0;
     ws.sendObj = function (obj) {
       if(!ws.connected) return false;
 
       try {
-        ws.send(JSON.stringify(obj));
+        let sending = JSON.stringify(obj)
+        ws.send(sending);
+        ws.sentBytes += sending.length;
       } catch (err) {
         log('wsout', 'I failed to send a message.');
       }
@@ -480,6 +484,7 @@ module.exports.setup = function (p) {
 
       try{
         ws.send(data, {binary: true});
+        ws.sentBytes += data.byteLength;
       }catch(err){
         log('wsout', 'I failed to send binary a message.');
       }
@@ -488,9 +493,11 @@ module.exports.setup = function (p) {
       try {
         if (typeof data === 'string') {
           handleMessage(ws, JSON.parse(data))
+          ws.recieveBytes += data.length;
         } else {
           var buf = new Buffer(data, 'binary')
           handleMessage(ws, Schema.unpack(buf))
+          ws.recieveBytes += data.byteLength;
         }
       }
       catch (err) {
@@ -502,11 +509,11 @@ module.exports.setup = function (p) {
 
     ws.on('close', function () {
       ws.connected = false;
-      log('player', 'Player disconnected. Total: ' + wss.clients.length + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
+      log('player', 'Player disconnected. Total: ' + wss.clients.length + ' Bytes: ' + ws.sentBytes + '|' + ws.recieveBytes + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
       if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
 
       db.collection('players').updateOne({id: ws.data.id},
-        {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {enter: ws.connectedtime, ip: ws.ipaddress, plays: ws.numplays, exit: Date.now()}}}, function(err, result){
+        {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {enter: ws.connectedtime, ip: ws.ipaddress, plays: ws.numplays, up: ws.recieveBytes, down: ws.sentBytes, exit: Date.now()}}}, function(err, result){
         if (err) {
           log('err', 'Mongodb update session.');
           console.log(err);
