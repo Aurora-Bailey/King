@@ -242,23 +242,43 @@ function handleMessage (d) {
     }
   } else if (d.m === 'scrollhome') {
     // Call this only when the map is loaded
-    let w = window.innerWidth
-    let h = window.innerHeight
-    let kingloc = {x: Math.floor(Data.game.map.length / 2), y: Math.floor(Data.game.map[0].length / 2)}
 
+    let client = {}
+    client.w = window.innerWidth
+    client.h = window.innerHeight
+
+    let map = {}
+    map.w = Data.game.map[0].length * 50
+    map.h = Data.game.map.length * 50
+
+    let king = {}
+    king.x = map.w / 2
+    king.y = map.h / 2
     for (let y = 0; y < Data.game.map.length; y++) {
       for (let x = 0; x < Data.game.map[y].length; x++) {
         if (Data.game.map[y][x].owner === Data.game.myid && Data.game.map[y][x].token === 1) {
-          kingloc.x = x
-          kingloc.y = y
+          king.x = (x + 1) * 50
+          king.y = (y + 1) * 50
         }
       }
     }
 
-    Data.game.scroll.x = (kingloc.x * 50) - (w / 2) + 25
-    Data.game.scroll.x = -Data.game.scroll.x
-    Data.game.scroll.y = (kingloc.y * 50) - (h / 2) + 25
-    Data.game.scroll.y = -Data.game.scroll.y
+    let scroll = {}
+    scroll.w = (client.w / 2) - (map.w / 2)
+    if (map.w > client.w) {
+      scroll.w = (client.w / 2) - king.x + 25
+      if (scroll.w > 0) scroll.w = 0
+      if (scroll.w < client.w - map.w) scroll.w = client.w - map.w
+    }
+    scroll.h = (client.h / 2) - (map.h / 2)
+    if (map.h > client.h) {
+      scroll.h = (client.h / 2) - king.y + 25
+      if (scroll.h > 0) scroll.h = 0
+      if (scroll.h < client.h - map.h) scroll.h = client.h - map.h
+    }
+
+    Data.game.scroll.x = scroll.w
+    Data.game.scroll.y = scroll.h
   }
 
   if (typeof d.page !== 'undefined') {
