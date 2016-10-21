@@ -193,11 +193,11 @@
   ==movelock
   ==no kill server timeout
   ==on game over push request to update ranks to server nodes
+  ==save bytes sent/recieved on server too
 
 
   vote to start
   ?auto path queue
-  save bytes sent/recieved on server too
 
  // on live server
   npm install --save bufferutil

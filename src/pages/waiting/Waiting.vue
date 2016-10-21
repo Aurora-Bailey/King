@@ -40,11 +40,8 @@
         let time = this.waiting.timeout - this.now
         time /= 1000 // convert from miliseconds to seconds
         let minutes = Math.floor(time / 60)
-        let sec = Math.floor(time % 60)
-        if (sec < 10) {
-          sec = '0' + sec
-        }
-        return minutes + ':' + sec
+        let sec = Math.abs(Math.floor(time % 60))
+        return (minutes < 0 ? minutes + 1 : minutes) + ':' + (sec < 10 ? '0' : '') + sec
       }
     },
     mounted: function () {
