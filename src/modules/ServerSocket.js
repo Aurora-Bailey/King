@@ -110,6 +110,7 @@ function handleMessage (d) {
     }
   } else if (d.m === 'joinupdate') {
     Data.waiting.players = d.players
+    Data.waiting.force = d.force
     Data.waiting.timeout = d.timeout
     if (d.note === 'full') Data.popup.show('All rooms are full', 'Please wait a minute for a new room to open up.')
   } else if (d.m === 'canceljoin') {

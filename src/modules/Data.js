@@ -23,6 +23,7 @@ export default {
   leaderboard: [],
   waiting: {
     players: 9000,
+    force: 0,
     timeout: Date.now(),
     inqueue: false,
     maxplayer: 100,

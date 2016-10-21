@@ -6,6 +6,7 @@
       <div class="players">{{waiting.players}} out of {{waiting.maxplayers}}</div>
       <div class="timeout" v-show="waiting.players>=waiting.minplayers">Starting in {{seconds}}</div>
       <div class="timeoutplacholder" v-show="waiting.players<waiting.minplayers">({{waiting.minplayers}} players minimum)</div>
+      <button class="force" v-on:click="force()" v-show="waiting.players>=waiting.minplayers">Force Start {{waiting.force}}/{{waiting.players}}</button>
       <button class="cancel" v-on:click="cancel()">Cancel</button>
 
       <div class="tips">
@@ -33,6 +34,9 @@
     methods: {
       cancel: function () {
         SS.sendObj({m: 'canceljoin'})
+      },
+      force: function () {
+        SS.sendObj({m: 'forcestart'})
       }
     },
     computed: {
@@ -103,7 +107,7 @@
       padding: 1.5vh 0;
     }
 
-    .cancel {
+    .cancel, .force {
       @include bigbutton(6vh);
       margin: 2vh auto 0;
       width: 30vh;
