@@ -68,6 +68,7 @@ class Queue {
     ws.inqueue = this.gametype;
     ws.waiting = true;
     ws.sendObj({m: 'join', v: true, maxplayers: this.maxplayers, minplayers: this.minplayers});
+    if (this.numPlayers() === this.minplayers) this.resetTimer();
     this.updatePlayers();
     this.updateHomePage();
     if(this.numPlayers() >= this.maxplayers && this.starting === false){
