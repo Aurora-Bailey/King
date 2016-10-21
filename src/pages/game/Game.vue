@@ -343,6 +343,7 @@
       }
 
       .units {
+        opacity: 0.9;
         position: absolute;
         top: 0;
         left: 0;
