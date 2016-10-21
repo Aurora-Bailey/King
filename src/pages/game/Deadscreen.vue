@@ -42,6 +42,7 @@
     pointer-events: none;
 
     top: 50%;
+    -webkit-transform: translateY(-50%);
     transform: translateY(-50%);
   }
 

@@ -89,6 +89,7 @@
       left: 0;
       right: 0;
       top: 50%;
+      -webkit-transform: translateY(-50%);
       transform: translateY(-50%);
     }
 
