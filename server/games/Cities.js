@@ -438,10 +438,10 @@ class Game {
                 // you are the only one alive
                 if(this.playersalive == 1){
                   broadcastChat('Game', this.players[e.pid].name + ' is the winner!!!!');
-                  broadcastChat('Server', 'Server will close in 2 minutes.')
+                  // broadcastChat('Server', 'Server will close in 2 minutes.')
                   setTimeout(()=>{this.playerDead(e.pid, 'Server', -1);}, 100);// kill the winner
-                  clearTimeout(this.forceclose);
-                  this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
+                  // clearTimeout(this.forceclose);
+                  // this.forceclose = setTimeout(()=>{this.endgame();}, 120000);
                 }
               }
             }else{
