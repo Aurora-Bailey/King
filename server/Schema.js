@@ -14,13 +14,22 @@ const wrapper = avro.parse({
   name: 'Message',
   type: 'record',
   fields: [
-    {name: 'schema', type: {name: 'Schema', type: 'enum', symbols: ['map', 'mapbit', 'move', 'leaderboard', 'movedone']}},
+    {name: 'schema', type: {name: 'Schema', type: 'enum', symbols: [
+      'map',
+      'mapbit',
+      'move',
+      'leaderboard',
+      'movedone',
+      'q',
+      'joinupdate'
+    ]}},
     {name: 'data', type: 'bytes'}
   ]
 });
 
 const type = {};
 
+// Game
 type.map = avro.parse({
   name: 'Map',
   type: 'record',
@@ -68,6 +77,28 @@ type.movedone = avro.parse({
     {name: 'm', type: {name: 'M', type: 'enum', symbols: ['movedone']}},
     {name: 'x',type: 'int'},
     {name: 'y',type: 'int'}
+  ]
+});
+
+// Server
+type.q = avro.parse({
+  name: 'Q',
+  type: 'record',
+  fields: [
+    {name: 'm', type: {name: 'M', type: 'enum', symbols: ['q']}},
+    {name: 'type',type: 'string'},
+    {name: 'n',type: 'int'}
+  ]
+});
+type.joinupdate = avro.parse({
+  name: 'Joinupdate',
+  type: 'record',
+  fields: [
+    {name: 'm', type: {name: 'M', type: 'enum', symbols: ['joinupdate']}},
+    {name: 'players',type: 'int'},
+    {name: 'force',type: 'int'},
+    {name: 'timeout',type: 'long'},
+    {name: 'note',type: 'string'}
   ]
 });
 // add name to wrapper enum for each new type

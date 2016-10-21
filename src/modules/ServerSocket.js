@@ -99,7 +99,7 @@ function handleMessage (d) {
       Data.page = 'waiting'
       Data.waiting.inqueue = true
       Data.waiting.players = 0
-      Data.waiting.timeout = d.timeout
+      Data.waiting.timeout = Date.now() + 5000
       Data.waiting.maxplayers = d.maxplayers
       Data.waiting.minplayers = d.minplayers
     } else {
@@ -111,9 +111,7 @@ function handleMessage (d) {
   } else if (d.m === 'joinupdate') {
     Data.waiting.players = d.players
     Data.waiting.timeout = d.timeout
-    if (typeof d.note !== 'undefined') {
-      if (d.note === 'full') Data.popup.show('All rooms are full', 'Please wait a minute for a new room to open up.')
-    }
+    if (d.note === 'full') Data.popup.show('All rooms are full', 'Please wait a minute for a new room to open up.')
   } else if (d.m === 'canceljoin') {
     if (d.v) { // value is true or false
       Data.waiting.inqueue = false

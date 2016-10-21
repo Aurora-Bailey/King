@@ -67,7 +67,7 @@ class Queue {
     this.players[ws.data.id] = ws;
     ws.inqueue = this.gametype;
     ws.waiting = true;
-    ws.sendObj({m: 'join', v: true, timeout: this.timeout, maxplayers: this.maxplayers, minplayers: this.minplayers});
+    ws.sendObj({m: 'join', v: true, maxplayers: this.maxplayers, minplayers: this.minplayers});
     this.updatePlayers();
     this.updateHomePage();
     if(this.numPlayers() >= this.maxplayers && this.starting === false){
@@ -93,10 +93,10 @@ class Queue {
 
   updatePlayers(note = ''){
     let keys = Object.keys(this.players);
-    let sendObj = {m: 'joinupdate', players: keys.length, timeout: this.timeout}
-    if (note !== '') sendObj.note = note;
+    let sendObj = {m: 'joinupdate', players: keys.length, force: 0, timeout: parseInt(this.timeout), note: note}
+    let binary = Schema.pack('joinupdate', sendObj);
     keys.forEach((e,i)=>{
-      this.players[e].sendObj(sendObj);
+      this.players[e].sendBinary(binary);
     });
     // log('queueupdate', this.gametype + ' ' + keys.length + '/' + this.maxplayers + ' in queue. Timeout: ' + Lib.humanTimeDiff(Date.now(), this.timeout) + (note === '' ? '':' Note: ' + note));
   }
@@ -104,10 +104,11 @@ class Queue {
   updateHomePage(){
     // disable this when more players come
     let numPlayers = this.numPlayers();
+    let binary = Schema.pack('q', {m: 'q', type: this.gametype, n: numPlayers});
     wss.clients.forEach((client, index)=>{
       // send to EVERYONE for now
       // if(client.inqueue === false && !client.playing) { // client on homepage
-      client.sendObj({m: 'q', type: this.gametype, n: numPlayers});
+      client.sendBinary(binary);
       //}
     })
   }
@@ -402,8 +403,8 @@ module.exports.setup = function (p) {
 
   // update for dev server
   if (NODE_ENV === 'development') {
-    GV.game['game_classic'].queue.maxwait = 15000; // set wait time to 15 seconds
-    GV.game['game_cities'].queue.maxwait = 15000; // set wait time to 15 seconds
+    GV.game['game_classic'].queue.maxwait = 1500000; // set wait time to 15 seconds
+    GV.game['game_cities'].queue.maxwait = 1500000; // set wait time to 15 seconds
   }
 
   Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name
