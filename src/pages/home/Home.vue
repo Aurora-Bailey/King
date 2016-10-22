@@ -13,10 +13,9 @@
         <div class="notice_title">{{note.title}}</div>
         <div class="notice_text">{{note.text}}</div>
       </div>
+
+      <div class="twitter"><div class="twitter_bird"></div><div class="twitter_handle"><a target="_blank" href="https://twitter.com/Kingz_io">@Kingz_io</a></div></div>
     </div>
-
-    <div class="twitter"><div class="twitter_bird"></div><div class="twitter_handle"><a target="_blank" href="https://twitter.com/Kingz_io">@Kingz_io</a> <a target="_blank" href="https://twitter.com/hashtag/KingzioGame">#KingzioGame</a></div></div>
-
 
     <div class="microversion">{{user.microversion}}</div>
     <div class="contain_width">
@@ -96,10 +95,8 @@
     text-align: center;
 
     .twitter {
-      position: absolute;
-      bottom: 1.5vh;
-      left: 1.5vh;
-      z-index: 180;
+      padding: 2vh;
+      margin-bottom: 2vh;
 
       .twitter_handle {
         display: inline-block;
@@ -189,6 +186,9 @@
           display: inline-block;
           width: 30vh;
           margin: 0 2vh;
+        }
+        .twitter {
+          display: none;
         }
       }
     }
