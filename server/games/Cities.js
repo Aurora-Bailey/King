@@ -184,7 +184,7 @@ class Game {
           numempty = this.getMapNumEmpty(totx, toty);
         }
 
-        this.map.units[toty][totx] = Math.floor(Math.random() * 100) + 20;
+        this.map.units[toty][totx] = Math.floor(Math.random() * 60) + 60;
         this.map.owner[toty][totx] = -4;
         this.map.token[toty][totx] = 4; // City
       }
@@ -310,15 +310,15 @@ class Game {
       }
     }
     // City
-    if(this.loopcount % 2 == 0){// once every 2 loops
-      for(let y=0; y<this.maptotalsize; y++){
-        for(let x=0; x<this.maptotalsize; x++){
-          if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === 4){
-            this.map.units[y][x]++;
-          }
+    //if(this.loopcount % 2 == 0){// once every 2 loops
+    for(let y=0; y<this.maptotalsize; y++){
+      for(let x=0; x<this.maptotalsize; x++){
+        if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === 4){
+          this.map.units[y][x]++;
         }
       }
     }
+    //}
     // Owned Cells
     if(this.loopcount % 30 == 0){// once every 30 loops
       for(let y=0; y<this.maptotalsize; y++){
@@ -421,7 +421,7 @@ class Game {
 
               // take over player
               if(Game.map.token[moveto.y][moveto.x] === 1){
-                Game.map.token[moveto.y][moveto.x] = 2;
+                Game.map.token[moveto.y][moveto.x] = 4;
                 this.playerDead(enemyid, e.name, e.pid);
                 this.players[e.pid].kills++;
 
