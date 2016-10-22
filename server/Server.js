@@ -539,17 +539,24 @@ module.exports.setup = function (p) {
     });
 
     ws.on('close', function () {
-      ws.connected = false;
-      log('player', 'Player disconnected. Total: ' + wss.clients.length + ' Bytes: ' + ws.sentBytes + '|' + ws.recieveBytes + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
-      if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
+      try {
+        ws.connected = false;
+        log('player', 'Player disconnected. Total: ' + wss.clients.length + ' Bytes: ' + ws.sentBytes + '|' + ws.recieveBytes + ' Stayed: ' + Lib.humanTimeDiff(ws.connectedtime, Date.now()));
+        if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
 
-      db.collection('players').updateOne({id: ws.data.id},
-        {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {enter: ws.connectedtime, ip: ws.ipaddress, plays: ws.numplays, up: ws.recieveBytes, down: ws.sentBytes, exit: Date.now()}}}, function(err, result){
-        if (err) {
-          log('err', 'Mongodb update session.');
-          console.log(err);
-        }
-      });
+        if (!ws.loggedin) return false;
+        db.collection('players').updateOne({id: ws.data.id},
+          {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {enter: ws.connectedtime, ip: ws.ipaddress, plays: ws.numplays, up: ws.recieveBytes, down: ws.sentBytes, exit: Date.now()}}}, function(err, result){
+            if (err) {
+              log('err', 'Mongodb update session.');
+              console.log(err);
+            }
+          });
+      }catch(err){
+        log('err', 'Error with ws.on close.')
+        console.log(err);
+      }
+
     });
 
     ws.sendObj({m: 'hi'});
