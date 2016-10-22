@@ -394,7 +394,7 @@
       }
       .citytoken {
         display: block;
-        background-image: url('../../assets/city.png');
+        background-image: url('../../assets/home.png');
         background-size: contain;
         background-position: center;
       }

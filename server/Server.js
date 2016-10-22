@@ -432,8 +432,8 @@ module.exports.setup = function (p) {
 
   // update for dev server
   if (NODE_ENV === 'development') {
-    GV.game['game_classic'].queue.maxwait = 1500000; // set wait time to 15 seconds
-    GV.game['game_cities'].queue.maxwait = 1500000; // set wait time to 15 seconds
+    GV.game['game_classic'].queue.maxwait = 15000; // set wait time to 15 seconds
+    GV.game['game_cities'].queue.maxwait = 15000; // set wait time to 15 seconds
   }
 
   Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name

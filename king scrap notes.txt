@@ -197,9 +197,8 @@
   ==no kill server timeout
   ==on game over push request to update ranks to server nodes
   ==save bytes sent/recieved on server too
+  ==vote to start
 
-
-  vote to start
   ?auto path queue
 
  // on live server
