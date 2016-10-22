@@ -6,7 +6,9 @@
       <div class="players">{{waiting.players}} out of {{waiting.maxplayers}}</div>
       <div class="timeout" v-show="waiting.players>=waiting.minplayers">Starting in {{seconds}}</div>
       <div class="timeoutplacholder" v-show="waiting.players<waiting.minplayers">({{waiting.minplayers}} players minimum)</div>
-      <button class="force" v-on:click="force()" v-show="waiting.players>=waiting.minplayers">Force Start {{waiting.force}}/{{waiting.players}}</button>
+      <button class="force" v-on:click="force()"
+              v-bind:class="{forcing: waiting.forcestate === true}"
+              v-show="waiting.players>=waiting.minplayers">Force Start {{waiting.force}}/{{waiting.players}}</button>
       <button class="cancel" v-on:click="cancel()">Cancel</button>
 
       <div class="tips">
@@ -111,6 +113,13 @@
       @include bigbutton(6vh);
       margin: 2vh auto 0;
       width: 30vh;
+    }
+
+    .forcing {
+      background-color: darken($primary, 20%);
+      &:hover {
+        background-color: darken($primary, 15%);
+      }
     }
 
   }

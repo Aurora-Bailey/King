@@ -28,6 +28,7 @@ class Queue {
     this.ProperName = ProperName;
     this.maxplayers = GV.game[this.gametype].queue.maxplayers;
     this.minplayers = GV.game[this.gametype].queue.minplayers;
+    this.playersforcing = 0;
     this.resetTimer();
     process.send({m: 'getroom', type: this.gametype});
   }
@@ -66,6 +67,7 @@ class Queue {
     // player is eligible
     this.players[ws.data.id] = ws;
     ws.inqueue = this.gametype;
+    ws.forcestart = false;
     ws.waiting = true;
     ws.sendObj({m: 'join', v: true, maxplayers: this.maxplayers, minplayers: this.minplayers});
     if (this.numPlayers() === this.minplayers) this.resetTimer();
@@ -82,8 +84,29 @@ class Queue {
       this.players[ws.data.id].waiting = false;
       if (this.players[ws.data.id].connected) this.players[ws.data.id].sendObj({m: 'canceljoin', v: true});
       delete this.players[ws.data.id];
+      this.forceUpdate();
       this.updatePlayers();
       this.updateHomePage();
+      if (this.numPlayers() === this.playersforcing){
+        this.startGame();
+      }
+    }
+  }
+
+  forceUpdate(){
+    let fstart = 0;
+    let keys = Object.keys(this.players);
+    keys.forEach((k)=>{
+      if (this.players[k].forcestart) fstart++;
+    });
+    this.playersforcing = fstart;
+  }
+
+  forceStart(){
+    this.forceUpdate();
+    this.updatePlayers();
+    if (this.numPlayers() === this.playersforcing){
+      this.startGame();
     }
   }
 
@@ -94,7 +117,7 @@ class Queue {
 
   updatePlayers(note = ''){
     let keys = Object.keys(this.players);
-    let sendObj = {m: 'joinupdate', players: keys.length, force: 0, timeout: parseInt(this.timeout), note: note}
+    let sendObj = {m: 'joinupdate', players: keys.length, force: this.playersforcing, timeout: parseInt(this.timeout), note: note}
     let binary = Schema.pack('joinupdate', sendObj);
     keys.forEach((e,i)=>{
       this.players[e].sendBinary(binary);
@@ -174,6 +197,7 @@ class Queue {
     this.starting = false;
     this.resetTimer();
 
+    this.forceUpdate();
     this.updatePlayers();
     this.updateHomePage();
 
@@ -350,6 +374,10 @@ function handleMessage(ws, d) {// websocket client messages
       if (typeof d.type === 'undefined') return false;
       if (typeof Q[d.type] === 'undefined') return false;
       Q[d.type].addPlayer(ws);
+    }else if (d.m === 'forcestart' && ws.inqueue !== false) {
+      ws.forcestart = !ws.forcestart;
+      Q[ws.inqueue].forceStart();
+      ws.sendObj({m: 'forcestate', v: ws.forcestart});
     }else if (d.m === 'getranks' && ws.loggedin) {
       if (typeof d.game === 'undefined') return false;
       ws.viewgametype = d.game;
@@ -465,6 +493,7 @@ module.exports.setup = function (p) {
     ws.playing = false;
     ws.waiting = false;
     ws.inqueue = false;
+    ws.forcestart = false;
     ws.lastenterqueue = 0;
     ws.viewgametype = 'type_of_game';
     ws.ipaddress = ws._socket.remoteAddress;

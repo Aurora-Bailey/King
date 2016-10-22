@@ -24,6 +24,7 @@ export default {
   waiting: {
     players: 9000,
     force: 0,
+    forcestate: false,
     timeout: Date.now(),
     inqueue: false,
     maxplayer: 100,

@@ -102,6 +102,7 @@ function handleMessage (d) {
       Data.waiting.timeout = Date.now() + 5000
       Data.waiting.maxplayers = d.maxplayers
       Data.waiting.minplayers = d.minplayers
+      Data.waiting.forcestate = false
     } else {
       if (typeof d.msg !== 'undefined') {
         console.warn(d.msg)
@@ -125,6 +126,8 @@ function handleMessage (d) {
     } else {
       GS.start({port: d.port, secret: d.secret})
     }
+  } else if (d.m === 'forcestate') {
+    Data.waiting.forcestate = d.v
   } else if (d.m === 'popup') {
     Data.popup.show(d.title, d.msg)
   } else if (d.m === 'gamelist') {
