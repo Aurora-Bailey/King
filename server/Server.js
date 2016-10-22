@@ -220,7 +220,7 @@ function sendLeaderboard(ws, game_type) {
 
   let _sort = {};
   _sort['points.' + game_type] = -1;
-  db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*30)}}, {_id: 0, name: 1, points: 1}).sort(_sort).limit(10).toArray(function(err, docs) {
+  db.collection('players').find({lastlogin: {$gt: Date.now() - (1000*60*60*24*365)}}, {_id: 0, name: 1, points: 1}).sort(_sort).limit(10).toArray(function(err, docs) {
     if (err) {
       log('err', 'Error with mongodb leaderboard request');
       console.log(err);
