@@ -17,7 +17,7 @@ export default {
     rank: 0,
     microversion: 'v2000',
     notes: [
-      {title: 'Update 10/21', text: 'New game mode! \n New ranking system! \n (and other stuff)'}
+      {title: 'Update 10/22', text: 'New game mode! \n New ranking system! \n (and other stuff)'}
     ]
   },
   leaderboard: [],
