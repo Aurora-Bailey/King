@@ -15,7 +15,7 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v2000',
+    microversion: 'v2001',
     notes: [
       {title: 'Update 10/22', text: 'New game mode! \n New ranking system! \n (and other stuff)'}
     ]

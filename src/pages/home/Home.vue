@@ -34,10 +34,12 @@
             {{game.name}} {{game.cur > 0 ? '' + game.cur + '/' + game.max +'':''}}
           </button>
         </div>
+
+        <a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a>
       </div>
       <div class="instructions" v-show="false">instructions</div>
-      <div class="footer" v-show="false">About | Help | Contact</div>
     </div>
+    <div class="footer" v-show="false"><a href="about.html">About</a> | <a href="help.html">Help</a> | <a href="contact.html">Contact</a></div>
   </div>
 </template>
 
@@ -174,9 +176,10 @@
 
       @media screen and (orientation: portrait) {
         width: 100vw;
-        height: 35vh;
+        height: 33vh;
+        overflow: hidden;
         top: auto;
-        bottom: 0vh;
+        bottom: 3vh;
         left: 0;
         right: 0;
         white-space: nowrap;
@@ -286,6 +289,10 @@
       background-color: lighten($base, 10%);
       color: $base-alt;
       white-space: normal;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
 
       .game_options_title {
         font-size: 4vh;
@@ -294,6 +301,10 @@
       .play {
         width: 90%;
       }
+    }
+
+    .more_io_games {
+      @include bigbutton(4vh);
     }
 
     .instructions {
@@ -305,10 +316,11 @@
       font-size: 2vh;
       padding: 1vh 0;
       position: absolute;
+      background-color: $base;
       bottom: 0;
       right: 0;
       left: 0;
-      z-index: 110;
+      z-index: 250;
     }
 
     .contain_width {
