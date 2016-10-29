@@ -12,7 +12,7 @@ x.game.game_classic.maxmovequeue = 30; // max number of moves you can queue up
 x.game.game_classic.queue = {};
 x.game.game_classic.queue.minplayers = 2;
 x.game.game_classic.queue.maxplayers = 16; // 4x4
-x.game.game_classic.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
+x.game.game_classic.queue.maxwait = 1000*60*2; // 2 minutes in miliseconds
 
 
 x.game.game_cities = {};
@@ -22,7 +22,7 @@ x.game.game_cities.maxmovequeue = 30; // max number of moves you can queue up
 x.game.game_cities.queue = {};
 x.game.game_cities.queue.minplayers = 2;
 x.game.game_cities.queue.maxplayers = 9; // 3x3
-x.game.game_cities.queue.maxwait = 1000*60*5; // 5 minutes in miliseconds
+x.game.game_cities.queue.maxwait = 1000*60*2; // 2 minutes in miliseconds
 
 x.mainGame = 'game_cities';
 
