@@ -201,7 +201,7 @@
 
   ?auto path queue
   ==game status of room open to identify locked out rooms.
-  status of lastEnd game
+  ==status of lastEnd game
   prevent infinite loop on room start.
   command to kill/reset server after next game or instant
 

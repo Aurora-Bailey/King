@@ -128,6 +128,8 @@ class Game {
 
         let numempty = this.getMapNumEmpty(totx, toty);
 
+        let numWhileLoop = 0;
+        let blocksBroken = 0;
         while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
           randcellx = Math.floor(Math.random() * this.mapcellsize);
           randcelly = Math.floor(Math.random() * this.mapcellsize);
@@ -138,8 +140,27 @@ class Game {
           totx = offsetx + randcellx;
           toty = offsety + randcelly;
 
+          // If infinite loop, start breaking solid blocks
+          if (numWhileLoop >= 50 && this.map.owner[toty][totx] === -2) {
+            this.map.owner[toty][totx] = -1;
+            blocksBroken++;
+          }
+          // start breaking all the blocks
+          if (numWhileLoop >= 100) {
+            let randCell = {x: Math.floor(Math.random() * this.maptotalsize), y: Math.floor(Math.random() * this.maptotalsize)}
+            if (this.map.owner[randCell.y][randCell.x] === -2) {
+              this.map.owner[randCell.y][randCell.x] = -1;
+              blocksBroken++;
+            }
+          }
+          // Still no luck? then just place the player
+          if (numWhileLoop >= 500 && this.map.owner[toty][totx] === -1) break;
+
           numempty = this.getMapNumEmpty(totx, toty);
+          numWhileLoop++;
         }
+
+        if (numWhileLoop >= 50) log('placeplayer', 'While looped ' + numWhileLoop + ' times.');
 
 
         if (pindexarr.length === 0) continue;
@@ -171,6 +192,8 @@ class Game {
 
         let numempty = this.getMapNumEmpty(totx, toty);
 
+        let numWhileLoop = 0;
+        let blocksBroken = 0;
         while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
           randcellx = Math.floor(Math.random() * this.mapcellsize);
           randcelly = Math.floor(Math.random() * this.mapcellsize);
@@ -181,8 +204,27 @@ class Game {
           totx = offsetx + randcellx;
           toty = offsety + randcelly;
 
+          // If infinite loop, start breaking solid blocks
+          if (numWhileLoop >= 50 && this.map.owner[toty][totx] === -2) {
+            this.map.owner[toty][totx] = -1;
+            blocksBroken++;
+          }
+          // start breaking all the blocks
+          if (numWhileLoop >= 100) {
+            let randCell = {x: Math.floor(Math.random() * this.maptotalsize), y: Math.floor(Math.random() * this.maptotalsize)}
+            if (this.map.owner[randCell.y][randCell.x] === -2) {
+              this.map.owner[randCell.y][randCell.x] = -1;
+              blocksBroken++;
+            }
+          }
+          // Still no luck? then just place the player
+          if (numWhileLoop >= 500 && this.map.owner[toty][totx] === -1) break;
+
           numempty = this.getMapNumEmpty(totx, toty);
+          numWhileLoop++;
         }
+
+        if (numWhileLoop >= 50) log('placeplayer', '[City] While looped ' + numWhileLoop + ' times. ' + blocksBroken + ' blocks broken.');
 
         this.map.units[toty][totx] = Math.floor(Math.random() * 60) + 60;
         this.map.owner[toty][totx] = -4;
