@@ -96,6 +96,19 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
+        // kill
+        if (query[0] === 'kill') {
+
+          // Second word
+          if (typeof query[1] !== 'undefined') {
+            ws.sendObj({m: 'output', msg: '=== Killing ' + query[1] + ' ==='});
+            process.send({m: 'pass', to: 'master', data: {m: 'kill', worker: query[1], rid: WORKER_INDEX, sid: ws.sid}});
+          } else {
+            // No arguments
+            ws.sendObj({m: 'output', msg: '=== Arguments required ==='});
+          }
+        }
+
         // masterstats
         if (query[0] === 'masterstats') {
           ws.sendObj({m: 'output', msg: '=== Pulling stats from Master ==='});
@@ -238,12 +251,17 @@ function handleMessage(ws, d) {// websocket client messages
 
 /* General */
 function log(cat, msg){
-  if(typeof msg === 'object') {
-    msg = JSON.stringify(msg);
-  }
+  try {
+    if(typeof msg === 'object') {
+      msg = JSON.stringify(msg);
+    }
 
-  let x = {cat: cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
-  process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
+    let x = {cat: cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
+    process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
+
+  }catch(err){
+    console.log(err);
+  }
 }
 
 /* Setup */

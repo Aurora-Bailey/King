@@ -773,11 +773,16 @@ function handleMessage(ws, d) {// websocket client messages
 
 /* General */
 function log(cat, msg){
-  if(typeof msg === 'object') {
-    msg = JSON.stringify(msg);
+  try {
+    if(typeof msg === 'object') {
+      msg = JSON.stringify(msg);
+    }
+    let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
+    process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
+
+  }catch(err){
+    console.log(err);
   }
-  let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
-  process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
 }
 
 /* Setup */

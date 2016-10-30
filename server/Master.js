@@ -89,16 +89,32 @@ function workerMessage(worker, message, handle) {
       worker.send({m: 'getroom', port: room.port, name: room.name, id: room.wid, type: message.type});
     }
   }else if(message.m === 'pass') { // to: id || type || 'all'
-    workers.forEach((e, i)=> {
-      if (e.type === message.to || e.wid == message.to || 'all' === message.to) {// Make sure type id and all are distinct
-        if(e.ready) e.send(message.data);
-        else setTimeout(()=>{e.send(message.data)}, 1000);// give a second of not ready
-      }
-    });
+    try {
+      workers.forEach((e, i)=> {
+        if (e.type === message.to || e.wid == message.to || 'all' === message.to) {// Make sure type id and all are distinct
+          if(e.ready) e.send(message.data);
+          else setTimeout(()=>{e.send(message.data)}, 1000);// give a second of not ready
+        }
+      });
 
-    // Loop a copy back to master
-    if (message.to === 'master' || message.to === 'all') {
-      workerMessage(worker, message.data, handle)
+      // Loop a copy back to master
+      if (message.to === 'master' || message.to === 'all') {
+        workerMessage(worker, message.data, handle)
+      }
+    }catch(err){
+      log('err', 'Failed to pass message to worker!');
+      console.log(err);
+    }
+  }else if(message.m === 'kill') {
+    try {
+      workers.forEach((e, i)=> {
+        if (e.type === message.worker || e.wid == message.worker || 'all' === message.worker) {// Make sure type id and all are distinct
+          e.kill('SIGKILL');
+        }
+      });
+    }catch(err){
+      log('err', 'Failed kill worker!');
+      console.log(err);
     }
   }
 }
@@ -128,14 +144,18 @@ function makeWorker(id, type, port) {
 }
 
 function log(cat, msg){
-  if(typeof msg === 'object') {
-    msg = JSON.stringify(msg);
+  try {
+    if(typeof msg === 'object') {
+      msg = JSON.stringify(msg);
+    }
+
+    let x = {cat, time: Date.now(), room: 'master', msg: msg}
+
+    // force message through the same way nodes do.
+    if (!workers[0].isDead()) workerMessage(workers[0], {m: 'pass', to: 'god', data: {m: 'godlog', data: x}}, 'handle?');
+  }catch(err){
+    console.log(err);
   }
-
-  let x = {cat, time: Date.now(), room: 'master', msg: msg}
-
-  // force message through the same way nodes do.
-  workerMessage(workers[0], {m: 'pass', to: 'god', data: {m: 'godlog', data: x}}, 'handle?');
 }
 
 module.exports.setup = function (c) {
