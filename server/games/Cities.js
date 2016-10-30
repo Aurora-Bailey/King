@@ -160,7 +160,7 @@ class Game {
           numWhileLoop++;
         }
 
-        if (numWhileLoop >= 50) log('placeplayer', 'While looped ' + numWhileLoop + ' times.');
+        if (numWhileLoop >= 50) log('placeplayer', 'While looped ' + numWhileLoop + ' times. ' + blocksBroken + ' blocks broken.');
 
 
         if (pindexarr.length === 0) continue;
