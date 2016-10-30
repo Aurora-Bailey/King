@@ -231,6 +231,7 @@ function handleMessage(ws, d) {// websocket client messages
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
           ws.sendObj({m: 'output', msg: 'masterstats - Status of workers'});
+          ws.sendObj({m: 'output', msg: 'kill [id/type/all] - Make node reset, double kill to force. [god,server,game_xxxx]'});
           ws.sendObj({m: 'output', msg: 'logs - Past 10 logs in each category'});
           ws.sendObj({m: 'output', msg: 'logs on/off - Turn on/off live logs'});
           ws.sendObj({m: 'output', msg: 'mongologs cat [hours] - Pull logs of a category from database, time opt default 24.'});
