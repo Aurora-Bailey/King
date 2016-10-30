@@ -399,12 +399,16 @@ function handleMessage(ws, d) {// websocket client messages
 
 /* General */
 function log(cat, msg){
-  if(typeof msg === 'object') {
-    msg = JSON.stringify(msg);
-  }
+  try {
+    if(typeof msg === 'object') {
+      msg = JSON.stringify(msg);
+    }
 
-  let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
-  process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
+    let x = {cat, time: Date.now(), room: WORKER_INDEX + '-' + WORKER_NAME + ' ' + WORKER_TYPE, msg: msg}
+    process.send({m: 'pass', to: 'god', data: {m: 'godlog', data: x}});
+  }catch(err){
+    console.log(err);
+  }
 }
 function getGameList(){
   let qKeys = Object.keys(Q);
@@ -459,7 +463,7 @@ module.exports.setup = function (p) {
           data: {
             m: 'godmsg',
             s: m.sid,
-            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
+            msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' mv:' + GV.mv + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) +
             ' Clients:' + wss.clients.length
           }
         });

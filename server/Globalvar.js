@@ -1,5 +1,6 @@
 var x = {};
 x.version = 'FH9M2'; // This version converts from single game to multi game
+x.mv = 'v2156'; // Micro Version
 x.microversion = 'v2000';
 x.maxnamelength = 15;
 

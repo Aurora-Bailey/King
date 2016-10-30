@@ -31,7 +31,7 @@ function workerMessage(worker, message, handle) {
         data: {
           m: 'godmsg',
           s: message.sid,
-          msg: '[master] Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Nodes:' + JSON.stringify(numObj)
+          msg: '[master] mv:' + GV.mv + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Nodes:' + JSON.stringify(numObj)
         }
       }, handle);
     } catch(err) {
