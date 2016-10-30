@@ -432,7 +432,7 @@ module.exports.setup = function (p) {
   WORKER_NAME = process.env.WORKER_NAME;
   WORKER_TYPE = process.env.WORKER_TYPE;
   NODE_ENV = process.env.NODE_ENV;
-  log('startnode', 'Starting [' + NODE_ENV + '] [' + GV.version + ']');
+  log('startnode', 'Starting [' + NODE_ENV + '] [' + GV.version + '] [' + GV.mv + ']');
 
   // update for dev server
   if (NODE_ENV === 'development') {
