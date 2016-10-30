@@ -786,6 +786,7 @@ class Game {
 
     // reset the server
     this.setup();
+    this.lastend = Date.now();
     // mark as open
     process.send({m: 'open'});
   }
@@ -904,7 +905,8 @@ module.exports.setup = function (p) {
             s: m.sid,
             msg: '[' + WORKER_INDEX + '-' + WORKER_NAME + '] [' + WORKER_TYPE + ']' + ' Uptime:' + Lib.humanTimeDiff(uptime, Date.now()) + ' Clients:' + wss.clients.length +
             ' Players:' + Game.players.length + ' Playing:' + Game.running +
-            ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh')
+            ' LastStart:' + (typeof Game.starttime !== 'undefined' ? Lib.humanTimeDiff(Game.starttime, Date.now()) : 'Fresh') +
+            ' LastEnd:' + (typeof Game.lastend !== 'undefined' ? Lib.humanTimeDiff(Game.lastend, Date.now()) : 'Fresh')
           }
         });
       } catch(err) {
