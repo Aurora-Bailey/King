@@ -39,6 +39,24 @@ function workerMessage(worker, message, handle) {
       console.log(err);
     }
   }
+  if (message.m === "masterstats"){
+    try {
+      workers.forEach((e, i)=>{
+        workerMessage(worker, {
+          m: 'pass',
+          to: message.rid,
+          data: {
+            m: 'godmsg',
+            s: message.sid,
+            msg: 'ID: ' + e.wid + ' Name: ' + e.name + ' Type: ' + e.type + ' Port: ' + e.port + ' Ready: ' + e.ready + ' Open: ' + e.open
+          }
+        }, handle);
+      });
+    } catch(err) {
+      log('err', 'I failed to send master stats to god.');
+      console.log(err);
+    }
+  }
   // End god commands
 
   if(message.m === 'ready'){

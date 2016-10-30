@@ -96,6 +96,12 @@ function handleMessage(ws, d) {// websocket client messages
           }
         }
 
+        // masterstats
+        if (query[0] === 'masterstats') {
+          ws.sendObj({m: 'output', msg: '=== Pulling stats from Master ==='});
+          process.send({m: 'pass', to: 'master', data: {m: 'masterstats', rid: WORKER_INDEX, sid: ws.sid}});
+        }
+
         // Log stuff
         if (query[0] === 'logs') {
 
@@ -211,6 +217,7 @@ function handleMessage(ws, d) {// websocket client messages
         // help
         if (query[0] === 'help') {
           ws.sendObj({m: 'output', msg: 'status [id/type/all] - Status of every node. Options specific node/s'});
+          ws.sendObj({m: 'output', msg: 'masterstats - Status of workers'});
           ws.sendObj({m: 'output', msg: 'logs - Past 10 logs in each category'});
           ws.sendObj({m: 'output', msg: 'logs on/off - Turn on/off live logs'});
           ws.sendObj({m: 'output', msg: 'mongologs cat [hours] - Pull logs of a category from database, time opt default 24.'});
