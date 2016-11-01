@@ -13,7 +13,7 @@
 
       <div class="tips">
         <div class="tiptitle">
-          Tips from the worlds best Kingz.io player
+          Tips
         </div>
         <div class="actualtip" v-for="tip in waiting.tips">
           {{tip}}

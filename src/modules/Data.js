@@ -17,7 +17,7 @@ export default {
     rank: 0,
     microversion: 'v2020',
     notes: [
-      {title: 'Update 10/22', text: 'New game mode! \n New ranking system! \n (and other stuff)'}
+      {title: 'Update 11/1', text: 'Try Click & Drag to move units faster! \n\n Moving the camera is now done with Right Click only.'}
     ]
   },
   leaderboard: [],
@@ -29,7 +29,7 @@ export default {
     inqueue: false,
     maxplayer: 100,
     minplayers: 1,
-    tips: ['Double click to split your units', 'Hold click to move camera', 'And protect your king :)']
+    tips: ['Click & Drag to move units faster', 'Double Click to split your units', 'Right Click & Drag to move the camera', 'And protect your king :)']
   },
   game: {
     playing: false,
