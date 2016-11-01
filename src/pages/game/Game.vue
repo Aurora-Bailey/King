@@ -21,6 +21,7 @@
         <div v-for="y in game.map" class="row">
           <div v-for="x in y" class="cell"
                v-on:mousemove="quickmove($event, x.loc.x, x.loc.y)"
+               v-on:touchmove="quickmove($event, x.loc.x, x.loc.y)"
                v-on:mouseup="quickmoveoff"
                v-on:touchend="quickmoveoff"
                v-on:mousedown="movestart($event, x.loc.x, x.loc.y)"
