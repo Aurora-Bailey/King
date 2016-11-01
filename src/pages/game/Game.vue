@@ -14,13 +14,17 @@
          v-bind:class="{mute: audio_level === 0, low: audio_level === 1, full: audio_level === 2}"
          v-on:click="audio_level = (audio_level + 1) % 3"></div>
     <div class="gamescroll"
+         oncontextmenu="return false"
          v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
          v-on:touchstart.stop.prevent="startscroll" v-on:touchmove.stop.prevent="mousemove" v-on:touchend.stop.prevent="endscroll">
       <div class="gamemap" v-bind:style="{ marginLeft: game.scroll.x + 'px', marginTop: game.scroll.y + 'px' }" v-bind:class="{hq_textures: graphics_hq}">
         <div v-for="y in game.map" class="row">
           <div v-for="x in y" class="cell"
-               v-on:mousedown="movestart(x.loc.x, x.loc.y)"
-               v-on:touchstart="movestart(x.loc.x, x.loc.y)"
+               v-on:mousemove="quickmove($event, x.loc.x, x.loc.y)"
+               v-on:mouseup="quickmoveoff"
+               v-on:touchend="quickmoveoff"
+               v-on:mousedown="movestart($event, x.loc.x, x.loc.y)"
+               v-on:touchstart="movestart($event, x.loc.x, x.loc.y)"
                v-bind:class="{player: x.owner >= 0, solid: x.owner === -2, fog: x.owner === -3, city: x.owner === -4, empty: x.owner === -1, me: x.owner === game.myid, highlight: x.highlight, moving: x.moving}"
                v-bind:style="{ backgroundColor: x.color }">
             <div class="tint"></div>
@@ -58,6 +62,7 @@
           percent: 0,
           to: {x: 0, y: 0}
         },
+        quickmove_on: false,
         scrolling: {
           mousedown: false,
           scroll: {x: 0, y: 0},
@@ -96,7 +101,11 @@
       },
       mousemove: function (e) {
         if (typeof e.touches !== 'undefined') {
-          e = e.touches[0]
+          if (typeof e.touches[1] !== 'undefined') {
+            e = e.touches[1]
+          } else {
+            return false
+          }
         }
         if (!this.scrolling.mousedown) return false
         this.scrolling.to.x = e.clientX
@@ -110,7 +119,13 @@
       },
       startscroll: function (e) {
         if (typeof e.touches !== 'undefined') {
-          e = e.touches[0]
+          if (typeof e.touches[1] !== 'undefined') {
+            e = e.touches[1]
+          } else {
+            return false
+          }
+        } else if (e.button !== 2) {
+          return false
         }
         this.scrolling.mousedown = true
 
@@ -125,14 +140,48 @@
       },
       endscroll: function (e) {
         if (typeof e.touches !== 'undefined') {
-          e = e.touches[0]
+          if (typeof e.touches[1] !== 'undefined') {
+            e = e.touches[1]
+          } else {
+            return false
+          }
         }
         this.scrolling.mousedown = false
       },
       scrollhome: function () {
         GS.shortObj({m: 'scrollhome'})
       },
-      movestart: function (x, y) {
+      quickmove: function (e, x, y) {
+        if (this.quickmove_on === false) return false
+        if (this.game.map[y][x].move_help !== 0) return false
+        if (this.game.map[y][x].highlight) {
+          this.movestart(e, x, y)
+          this.movestart(e, x, y)
+        }
+      },
+      quickmoveoff: function (e) {
+        if (typeof e.touches !== 'undefined') {
+          if (typeof e.touches[1] === 'undefined') {
+            e = e.touches[0]
+          } else {
+            return false
+          }
+        } else if (e.button !== 0) {
+          return false
+        }
+        this.quickmove_on = false
+      },
+      movestart: function (e, x, y) {
+        this.quickmove_on = true
+        if (typeof e.touches !== 'undefined') {
+          if (typeof e.touches[1] === 'undefined') {
+            e = e.touches[0]
+          } else {
+            return false
+          }
+        } else if (e.button !== 0) {
+          return false
+        }
         // if you click on different cell during move
         if (this.move.inprogress && this.move.loc.x !== x || this.move.inprogress && this.move.loc.y !== y) {
           // if its highlighted its probably a legal move
@@ -428,7 +477,7 @@
       }
       &.moving {
         .tint {
-          background-color: white;
+          background-color: black;
         }
       }
     }
