@@ -15,7 +15,7 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v2020',
+    microversion: 'v2021',
     notes: [
       {title: 'Update 11/1', text: 'Try Click & Drag to move units faster! \n\n Moving the camera is now done with Right Click only.'}
     ]
