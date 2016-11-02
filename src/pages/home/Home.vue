@@ -17,7 +17,8 @@
 
     <div class="social_media">
       <div class="fb-like" data-href="http://kingz.io" data-layout="button" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
-      <br><a href="https://twitter.com/kingz_io" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false">Follow @kingz_io</a>
+      <br><a href="https://twitter.com/kingz_io" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false"></a>
+      <br><a href="https://www.reddit.com/r/Kingzio" target="_blank" class="button-reddit"><i class="icon-reddit"></i><span class="text-reddit">r/Kingzio</span></a>
     </div>
 
     <div class="microversion">{{user.microversion}}</div>
@@ -105,6 +106,41 @@
       right: 1.5vh;
       text-align: left;
       z-index: 250;
+
+      .button-reddit {
+        position: relative;
+        display: inline-block;
+        vertical-align: text-top;
+        height: 20px;
+        padding: 1px 8px 1px 6px;
+        border-radius: 3px;
+        font-weight: bold;
+        background-color: white;
+        color: #777;
+
+        &:hover {
+          background-color: #DDD;
+        }
+      }
+      .icon-reddit {
+        vertical-align: text-top;
+        position: relative;
+        top: 2px;
+        width: 16px;
+        height: 14px;
+        margin-right: 3px;
+        display: inline-block;
+        background-image: url("../../assets/reddit_logo.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+      }
+      .text-reddit {
+        vertical-align: text-top;
+        display: inline-block;
+        line-height: 18px;
+        font-size: 12px;
+      }
 
       .fb-like {
         margin-bottom: 5px;
