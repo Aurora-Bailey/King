@@ -21,6 +21,7 @@ body {
   background-color: $base;
   color: $base-alt;
   position: relative;
+  overflow: hidden;
 }
 
 button, input, select, textarea {
