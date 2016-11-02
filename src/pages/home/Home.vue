@@ -13,8 +13,11 @@
         <div class="notice_title">{{note.title}}</div>
         <div class="notice_text">{{note.text}}</div>
       </div>
+    </div>
 
-      <div class="twitter"><div class="twitter_bird"></div><div class="twitter_handle"><a target="_blank" href="https://twitter.com/Kingz_io">@Kingz_io</a></div></div>
+    <div class="social_media">
+      <div class="fb-like" data-href="http://kingz.io" data-layout="button" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+      <br><a href="https://twitter.com/kingz_io" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false">Follow @kingz_io</a>
     </div>
 
     <div class="microversion">{{user.microversion}}</div>
@@ -96,26 +99,15 @@
     overflow: auto;
     text-align: center;
 
-    .twitter {
-      padding: 2vh;
-      margin-bottom: 2vh;
+    .social_media {
+      position: absolute;
+      top: 1.5vh;
+      right: 1.5vh;
+      text-align: left;
+      z-index: 250;
 
-      .twitter_handle {
-        display: inline-block;
-        vertical-align: text-top;
-        font-size: 2vh;
-        line-height: 3vh;
-      }
-      .twitter_bird {
-        vertical-align: text-top;
-        display: inline-block;
-        width: 2.5vh;
-        height: 2.5vh;
-        margin: 0.25vh 1.25vh 0.25vh 0.25vh;
-        background-image: url('../../assets/twitter.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
+      .fb-like {
+        margin-bottom: 5px;
       }
     }
 
@@ -189,9 +181,6 @@
           display: inline-block;
           width: 30vh;
           margin: 0 2vh;
-        }
-        .twitter {
-          display: none;
         }
       }
     }
