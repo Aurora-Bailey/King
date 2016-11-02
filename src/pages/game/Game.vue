@@ -64,6 +64,7 @@
           to: {x: 0, y: 0}
         },
         quickmove_on: false,
+        quickmove_used: false,
         scrolling: {
           mousedown: false,
           scroll: {x: 0, y: 0},
@@ -156,6 +157,7 @@
         if (this.quickmove_on === false) return false
         if (this.game.map[y][x].move_help !== 0) return false
         if (this.game.map[y][x].highlight) {
+          this.quickmove_used = true
           this.movestart(e, x, y)
           this.movestart(e, x, y)
         }
@@ -171,6 +173,10 @@
           return false
         }
         this.quickmove_on = false
+        if (this.quickmove_used) {
+          this.cancelmove()
+          this.quickmove_used = false
+        }
       },
       movestart: function (e, x, y) {
         this.quickmove_on = true
