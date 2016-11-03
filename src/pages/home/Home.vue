@@ -43,7 +43,7 @@
       </div>
       <div class="instructions" v-show="false">instructions</div>
     </div>
-    <div class="footer" v-show="false"><a href="about.html">About</a> | <a href="help.html">Help</a> | <a href="contact.html">Contact</a></div>
+    <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a></div>
   </div>
 </template>
 
