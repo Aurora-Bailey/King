@@ -21,7 +21,6 @@
       <br><a href="https://www.reddit.com/r/Kingzio" target="_blank" class="button-reddit"><i class="icon-reddit"></i><span class="text-reddit">r/Kingzio</span></a>
     </div>
 
-    <div class="microversion">{{user.microversion}}</div>
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
       <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span><span class="show_points">Points ★ {{user.points}} ★</span></div>
