@@ -43,7 +43,7 @@
       </div>
       <div class="instructions" v-show="false">instructions</div>
     </div>
-    <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a></div>
+    <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a><div class="microversion">{{user.microversion}}</div></div>
   </div>
 </template>
 
@@ -183,9 +183,7 @@
     }
 
     .microversion {
-      position: absolute;
-      bottom: 1.5vh;
-      right: 1.5vh;
+      float: right;
       font-size: 2vh;
       color: lighten($base, 15%)
     }
@@ -339,8 +337,9 @@
 
     .footer {
       font-size: 2vh;
-      padding: 1vh 0;
+      padding: 1vh 2vh 0;
       position: absolute;
+      text-align: left;
       background-color: $base;
       bottom: 0;
       right: 0;
