@@ -14,6 +14,8 @@ window.addEventListener('keydown', (e) => {
     setTimeout(() => {
       window.document.getElementById('asdf').focus()
     }, 1)
+  } else if (Data.god.show && e.keyCode === 27) {
+    Data.god.show = false
   }
 }, false)
 
