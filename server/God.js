@@ -61,7 +61,7 @@ function handleMessage(ws, d) {// websocket client messages
           if (typeof docs[0].mod !== 'undefined') ws.mod = docs[0].mod;
           else ws.mod = 'peasant';
 
-          ws.sendObj({m: 'output', msg: 'Welcome ' + ws.mod.toUpperCase() + ' ' + ws.name});
+          ws.sendObj({m: 'output', msg: 'Welcome ' + ws.mod.toUpperCase() + ' ' + ws.name + '! Press [escape] to exit'});
         } else {
           ws.sendObj({m: 'output', msg: 'Bad Cookie!'});
         }
