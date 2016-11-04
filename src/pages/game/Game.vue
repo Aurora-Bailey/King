@@ -5,14 +5,15 @@
     <chat :chat="game.chat"></chat>
     <leaderboard :leaderboard="game.leaderboard"></leaderboard>
     <deadscreen :deadscreen="game.deadscreen" v-show="game.dead && !game.deadscreen.spectate"></deadscreen>
-    <div class="scrollhomebutton" v-on:click="scrollhome()"
-         v-bind:style="{ backgroundColor: typeof game.players === 'undefined' || typeof game.myid === 'undefined' || typeof game.players[game.myid] === 'undefined' ? 'white' : 'hsl(' + game.players[game.myid].color + ',100%, 50%)' }"></div>
-    <div class="graphics_toggle"
+    <div class="graphics_toggle gamesidebutton"
          v-bind:class="{on: graphics_hq}"
-         v-on:click="graphics_hq = !graphics_hq"><span class="hq">HQ</span><span class="lq">LQ</span>
-    </div><div class="audio_toggle"
+         v-on:click="graphics_hq = !graphics_hq"><span class="hq">HQ</span><span class="lq">LQ</span><div class="gamebutton_tooltip">Graphics settings</div></div>
+    <div class="audio_toggle gamesidebutton"
          v-bind:class="{mute: audio_level === 0, low: audio_level === 1, full: audio_level === 2}"
-         v-on:click="audio_level = (audio_level + 1) % 3"></div>
+         v-on:click="audio_level = (audio_level + 1) % 3"><div class="gamebutton_tooltip">Game volume</div></div>
+    <div class="scrollhomebutton gamesidebutton" v-on:click="scrollhome()"
+         v-bind:style="{ backgroundColor: typeof game.players === 'undefined' || typeof game.myid === 'undefined' || typeof game.players[game.myid] === 'undefined' ? 'white' : 'hsl(' + game.players[game.myid].color + ',100%, 50%)' }"><div class="gamebutton_tooltip">Center map on my King</div></div>
+    <div class="cancelqueuebutton gamesidebutton" v-on:click="cancelmovequeue()"><div class="gamebutton_tooltip">Cancel move queue</div></div>
     <div class="gamescroll"
          oncontextmenu="return false"
          v-on:mousedown.stop.prevent="startscroll" v-on:mousemove.stop.prevent="mousemove" v-on:mouseup.stop.prevent="endscroll"
@@ -153,6 +154,9 @@
       scrollhome: function () {
         GS.shortObj({m: 'scrollhome'})
       },
+      cancelmovequeue: function () {
+        GS.sendObj({m: 'cancelmovequeue'})
+      },
       quickmove: function (e, x, y) {
         if (this.quickmove_on === false) return false
         if (this.game.map[y][x].move_help !== 0) return false
@@ -262,31 +266,66 @@
     text-align: left;
     background-color: $base;
 
-    .scrollhomebutton {
+    .gamesidebutton {
       position: absolute;
       top: 15vh;
       left: 1vh;
       z-index: 22000;
       height: 6vh;
       width: 6vh;
+      border-radius: 1.25vh;
+      border: 0.4vh solid black;
+      cursor: pointer;
+
+      .gamebutton_tooltip {
+        display: none;
+        background-color: $base-alt;
+        color: $base;
+        position: absolute;
+        top: 0;
+        left: 7vh;
+        font-weight: normal;
+        font-size: 2.5vh;
+        line-height: 3vh;
+        padding: 0.5vh 2vh;
+        margin: auto;
+        white-space: nowrap;
+        -webkit-box-shadow: 0.5vh 0.5vh 0.5vh 0 rgba(0,0,0,0.75);
+        -moz-box-shadow: 0.5vh 0.5vh 0.5vh 0 rgba(0,0,0,0.75);
+        box-shadow: 0.5vh 0.5vh 0.5vh 0 rgba(0,0,0,0.75);
+
+        &::after {
+          content: " ";
+          position: absolute;
+          top: 50%;
+          right: 100%; /* To the left of the tooltip */
+          margin-top: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: transparent $base-alt transparent transparent;
+        }
+      }
+
+      &:hover {
+        .gamebutton_tooltip {
+          display: block;
+        }
+      }
+
+
+    }
+
+    .scrollhomebutton {
+      top: 15vh;
+      left: 1vh;
       background-image: url('../../assets/crown.png');
       background-size: contain;
       background-position: center;
-      border-radius: 1.25vh;
-      border: 0.4vh solid black;
-      cursor: pointer;
       background-color: $primary;
     }
     .graphics_toggle {
-      position: absolute;
       top: 1vh;
       left: 1vh;
-      z-index: 22000;
-      height: 6vh;
-      width: 6vh;
-      border-radius: 1.25vh;
-      border: 0.4vh solid black;
-      cursor: pointer;
       background-color: $base-alt;
       color: $base;
       font-size: 2.5vh;
@@ -310,15 +349,8 @@
       }
     }
     .audio_toggle {
-      position: absolute;
       top: 8vh;
       left: 1vh;
-      z-index: 22000;
-      height: 6vh;
-      width: 6vh;
-      border-radius: 1.25vh;
-      border: 0.4vh solid black;
-      cursor: pointer;
       background-color: $base-alt;
       color: $base;
       font-size: 2.5vh;
@@ -337,6 +369,15 @@
       &.mute {
         background-image: url('../../assets/audio_mute_b.png');
       }
+    }
+
+    .cancelqueuebutton {
+      top: 22vh;
+      left: 1vh;
+      background-color: $base-alt;
+      background-image: url('../../assets/cancel.png');
+      background-size: contain;
+      background-position: center;
     }
 
     .gamescroll {
