@@ -747,6 +747,12 @@ function handleMessage(ws, d) {// websocket client messages
     }else if (d.m === 'move' && ws.playing) {
       if(Game.players[ws.pid].makemove.length > GV.game[WORKER_TYPE].maxmovequeue) return false;
       Game.players[ws.pid].makemove.push(d.move.slice(0, 5));// Make sure a move only has 5 elements
+    }else if (d.m === 'cancelmovequeue' && ws.playing) {
+      if(typeof Game.players[ws.pid] === 'undefined') return false;
+      while(Game.players[ws.pid].makemove.length > 0) {
+        let move = Game.players[ws.pid].makemove.shift();
+        ws.sendBinary(Schema.pack('movedone', {m: 'movedone', x: move[0], y: move[1]}));
+      }
     }else if (d.m === 'chat' && ws.playing){
       if(ws.lastchat < Date.now() - 1000){// longer than 1 second ago
         d.message = '' + d.message; // force string
