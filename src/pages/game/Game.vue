@@ -407,7 +407,10 @@
           background-size: cover;
         }
         .player {
-          border: 2px solid grey;
+          border: 2px solid black;
+        }
+        .me {
+          border: 2px solid white;
         }
 
         .cell:not(.player){
@@ -426,7 +429,7 @@
       height: 50px;
       white-space: nowrap;
       position: relative;
-      border: 1px solid #ccc;
+      border: 2px solid #ccc;
       overflow: visible;
       text-align: center;
       background-color: white; // default cell color
@@ -496,21 +499,12 @@
         background-position: center;
       }
 
+      &.player {
+        border: 2px solid black;
+      }
       &.me {
-        @keyframes example {
-          0% {border-color: red;}
-          16% {border-color: orange;}
-          32% {border-color: yellow;}
-          48% {border-color: lime;}
-          64% {border-color: cyan;}
-          80% {border-color: mediumpurple;}
-          100% {border-color: red;}
-        }
-        border: 3px solid black;
+        border: 2px solid white;
         cursor: pointer;
-        animation-name: example;
-        animation-duration: 6s;
-        animation-iteration-count: infinite;
 
         .kingtoken {
           // my king
