@@ -642,7 +642,7 @@ class Game {
         }
       });
     } catch (err){
-      log('err', 'Failed to update player points!');
+      log('pointerr', 'Failed to update player points!');
       console.log(err);
     }
 
@@ -843,7 +843,7 @@ module.exports.setup = function (p) {
   });
 
   wss.on('connection', function connection(ws) {
-    ws.on('error', function(e) { log('err', 'Got a ws error'); console.log(e); return false; });
+    ws.on('error', function(e) { log('wserr', 'Got a ws error'); console.log(e); return false; });
 
     ws.connected = true;
     ws.connecttime = Date.now();
