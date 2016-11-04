@@ -130,7 +130,7 @@ class Game {
 
         let numWhileLoop = 0;
         let blocksBroken = 0;
-        while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
+        while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid" || this.kingNearMe(totx, toty)) {
           randcellx = Math.floor(Math.random() * this.mapcellsize);
           randcelly = Math.floor(Math.random() * this.mapcellsize);
 
@@ -256,6 +256,25 @@ class Game {
     }
 
     return ret;
+  }
+
+  static kingNearMe(cellx, celly) {
+    let view = 2;
+
+    // loop through visible map
+    for (var r = -Math.abs(view); r <= Math.abs(view); r++) {
+      for (var s = -Math.abs(view); s <= Math.abs(view); s++) {
+
+        if (typeof this.map.owner[celly+r] !== 'undefined' && typeof this.map.owner[celly+r][cellx+s] !== 'undefined'){
+          if (this.map.token[celly+r][cellx+s] === 1) {
+            log('kinginview', ' x:' + cellx + ' y:' + celly + ' to-x:' + (cellx+s) + ' to-y:' + (celly+r) + ' ');
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   static mapNumEmpty(cellx, celly){
