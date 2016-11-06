@@ -27,7 +27,6 @@
 
         <a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a>
       </div>
-      <div class="instructions" v-show="false">instructions</div>
     </div>
     <div class="footer-ads">
       <iframe src="/static/chitika.html" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
@@ -148,7 +147,7 @@
 
     .logo {
       font-size: 12vh;
-      padding: 4vh 0;
+      padding: 1vh 0;
 
       font-family: 'Oleo Script', cursive;
       // color: $primary;
@@ -158,7 +157,7 @@
     .rank {
       font-size: 3vh;
       line-height: 3.5vh;
-      padding: 1.5vh 0;
+      padding: 0;
       text-align: left;
       cursor: default;
 
@@ -180,7 +179,7 @@
     }
 
     .enter_name {
-      padding:2vh 0;
+      padding:1vh 0;
 
       input[type="text"]{
         @include biginput(8vh);
@@ -237,11 +236,6 @@
 
     .more_io_games {
       @include bigbutton(4vh);
-    }
-
-    .instructions {
-      font-size: 2vh;
-      padding: 1vh 0;
     }
 
     .footer-ads {
