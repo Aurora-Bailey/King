@@ -1,11 +1,21 @@
 <template>
   <div id="app">
-    <home :user="user" :gamelist="gamelist" :leaderboard="leaderboard" v-show="page=='home'"></home>
-    <waiting :waiting="waiting" v-show="page=='waiting'"></waiting>
-    <game :game="game" v-show="page=='game'"></game>
+    <transition name="slide-fade">
+      <home :user="user" :gamelist="gamelist" :leaderboard="leaderboard" v-show="page=='home'"></home>
+    </transition>
+    <transition name="slide-fade">
+      <waiting :waiting="waiting" v-show="page=='waiting'"></waiting>
+    </transition>
+    <transition name="slide-fade">
+      <game :game="game" v-show="page=='game'"></game>
+    </transition>
 
-    <god-console :god="god" v-show="god.show"></god-console>
-    <soft-popup :popup.sync="popup" v-show="popup.active"></soft-popup>
+    <transition name="slide-fade">
+      <god-console :god="god" v-show="god.show"></god-console>
+    </transition>
+    <transition name="slide-fade">
+      <soft-popup :popup.sync="popup" v-show="popup.active"></soft-popup>
+    </transition>
   </div>
 </template>
 
@@ -32,6 +42,9 @@
     },
     data () {
       return Data
+    },
+    mounted: function () {
+      Data.page = 'home'
     }
   }
 </script>

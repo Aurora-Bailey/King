@@ -71,7 +71,6 @@
     margin: auto;
     z-index: 40000;
     background-color: rgba(0,0,0,1);
-    opacity: 0.9;
     font-size: 2vh;
 
     .godout {

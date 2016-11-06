@@ -1,19 +1,8 @@
 <template>
   <div id="home">
-    <div class=sidebar>
-      <div class="leaderboard">
-        <div class="leaderboardtitle">Leaderboard</div>
-        <div class="rankedplayer" v-for="(leader, index) in leaderboard">
-          <span class="lead_name">#{{leader.rank}} {{leader.name}}</span>
-          <span class="lead_points">★ {{leader.points}} ★</span>
-        </div>
-      </div>
-
-      <div class="notice" v-for="note in user.notes">
-        <div class="notice_title">{{note.title}}</div>
-        <div class="notice_text">{{note.text}}</div>
-      </div>
-    </div>
+    <transition name="slide-fade">
+      <ranks :user="user" :leaderboard="leaderboard" :game="gamelist[gamemode]"></ranks>
+    </transition>
 
     <div class="social_media">
       <div class="fb-like" data-href="http://kingz.io" data-layout="button" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
@@ -42,15 +31,22 @@
       </div>
       <div class="instructions" v-show="false">instructions</div>
     </div>
+    <div class="footer-ads">
+      <iframe src="/static/chitika.html" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
+    </div>
     <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a><div class="microversion">{{user.microversion}}</div></div>
   </div>
 </template>
 
 <script>
   import SS from '../../modules/ServerSocket'
+  import Ranks from './Ranks'
 
   export default {
     props: ['user', 'leaderboard', 'gamelist'],
+    components: {
+      Ranks
+    },
     data () {
       return {
         name: '', // local version of name bound to the input box
@@ -96,13 +92,13 @@
     right: 0;
     bottom: 0;
     z-index: 100;
-    overflow: auto;
+    overflow: hidden;
     text-align: center;
 
     .social_media {
       position: absolute;
-      top: 1.5vh;
-      right: 1.5vh;
+      top: 1vh;
+      left: 1vh;
       text-align: left;
       z-index: 250;
 
@@ -146,94 +142,10 @@
       }
     }
 
-    .leaderboard {
-      text-align: center;
-      margin-bottom: 4vh;
-
-      .leaderboardtitle {
-        font-size: 3vh;
-        font-weight: bold;
-        padding: 1vh;
-      }
-
-      .lead_name {
-        display: inline-block;
-      }
-      .lead_points {
-        display: none;
-      }
-
-      .rankedplayer {
-        font-size: 2vh;
-        line-height: 2.4vh;
-        padding: 0 1vh;
-        cursor: default;
-
-        &:hover {
-
-          .lead_name {
-            display: none;
-          }
-          .lead_points {
-            display: inline-block;
-          }
-        }
-      }
-    }
-
     .microversion {
       float: right;
       font-size: 2vh;
-      color: lighten($base, 15%)
-    }
-
-    .sidebar {
-      width: 30vh;
-      height: 100vh;
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      z-index: 150;
-      overflow: auto;
-      padding: 1vh;
-      opacity: 0.8;
-
-      @media screen and (orientation: portrait) {
-        width: 100vw;
-        height: 33vh;
-        overflow: hidden;
-        top: auto;
-        bottom: 3vh;
-        left: 0;
-        right: 0;
-        white-space: nowrap;
-        .notice, .leaderboard {
-          white-space: normal;
-          vertical-align: text-top;
-          display: inline-block;
-          width: 30vh;
-          margin: 0 2vh;
-        }
-      }
-    }
-
-    .notice {
-      text-align: center;
-      margin-bottom: 2vh;
-      padding: 2vh;
-      background-color: darken($base, 15%);
-      box-shadow: 0 0.25em 0.5em 0 rgba(0,0,0,0.1);
-
-      .notice_title {
-        font-size: 2.5vh;
-        padding: 1vh;
-      }
-      .notice_text {
-        white-space: pre-wrap;
-        font-size: 1.8vh;
-        padding: 1vh;
-      }
+      color: lighten($base, 5%)
     }
 
     .logo {
@@ -334,9 +246,15 @@
       padding: 1vh 0;
     }
 
+    .footer-ads {
+      height: 35vh;
+      width: 100vw;
+      margin-top: 1vh;
+    }
+
     .footer {
       font-size: 2vh;
-      padding: 1vh 2vh 0;
+      padding: 1vh;
       position: absolute;
       text-align: left;
       background-color: $base;

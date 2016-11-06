@@ -70,7 +70,7 @@
     right: 0;
     bottom: 0;
     z-index: 100;
-    overflow: auto;
+    overflow: hidden;
     text-align: center;
 
     .tips {

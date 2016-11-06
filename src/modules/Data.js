@@ -6,7 +6,7 @@ export default {
     port: '7777'
   },
   server: 'ws.kingz.io',
-  page: 'home',
+  page: 'init',
   gamelist: [],
   user: {
     id: 0,
@@ -15,7 +15,7 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v2025',
+    microversion: 'v2060',
     notes: [
       {title: 'Update 11/1', text: 'Try Click & Drag to move units faster! \n\n Moving the camera is now done with Right Click only.'}
     ]
