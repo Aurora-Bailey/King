@@ -59,6 +59,7 @@
       left: 0;
       opacity: 0.2;
       transition: opacity .5s ease;
+      pointer-events: none;
     }
 
     .leaderboard {

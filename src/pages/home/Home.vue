@@ -10,7 +10,7 @@
 
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
-      <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span><span class="show_points">Points ★{{user.points}}</span></div>
+      <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span> <div class="about-rank">? <div class="about-rank-tooltip">You recieve or lose points based on the place that you take <br> at the end of a game and the relative points of your opponents. <br> (Multiplayer ELO rating system)</div></div> <span class="show_points">Points ★{{user.points}}</span></div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" v-on:keydown.enter="justBlur" /></div>
       <div class="play_wrapper">
         <button class="play" v-on:click="join(typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].type)">
@@ -91,6 +91,58 @@
     z-index: 100;
     overflow: hidden;
     text-align: center;
+
+    .about-rank {
+      position: relative;
+      vertical-align: middle;
+      display: inline-block;
+      background-color: $base-alt;
+      color: $base;
+      font-weight: bold;
+      font-size: 1.8vh;
+      line-height: 2.5vh;
+      width: 2.5vh;
+      height: 2.5vh;
+      margin: .5vh;
+      text-align: center;
+      border-radius: 2vh;
+      cursor: default;
+      float: right;
+
+
+      .about-rank-tooltip {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 4vh;
+        background-color: $base-alt;
+        color: $base;
+        padding: 0.5vh 2vh;
+        margin: auto;
+        white-space: nowrap;
+        -webkit-box-shadow: 0.5vh 0.5vh 0.5vh 0 rgba(0,0,0,0.75);
+        -moz-box-shadow: 0.5vh 0.5vh 0.5vh 0 rgba(0,0,0,0.75);
+        box-shadow: 0.5vh 0.5vh 0.5vh 0 rgba(0,0,0,0.75);
+
+        &::after {
+          content: " ";
+          position: absolute;
+          top: 50%;
+          left: 100%; /* To the right of the tooltip */
+          margin-top: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: transparent transparent transparent white;
+        }
+      }
+      &:hover {
+        .about-rank-tooltip {
+          display: inline-block;
+        }
+      }
+
+
+    }
 
     .social_media {
       position: absolute;
