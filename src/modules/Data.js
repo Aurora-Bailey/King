@@ -28,8 +28,7 @@ export default {
     timeout: Date.now(),
     inqueue: false,
     maxplayer: 100,
-    minplayers: 1,
-    tips: ['Click & Drag to move units faster', 'Double Click to split your units', 'Right Click & Drag to move the camera', 'And protect your king :)']
+    minplayers: 1
   },
   game: {
     playing: false,
