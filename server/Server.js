@@ -254,7 +254,7 @@ function sendPlayerRank(ws, game_type) {
       ws.data.totaltime = docs[0].totaltime;
 
       // Send to player
-      let _points = typeof ws.data.points[game_type] === 'undefined' ? 0 : ws.data.points[game_type];
+      let _points = typeof ws.data.points[game_type] === 'undefined' ? 15000 : ws.data.points[game_type];
       let _find = {};
       _find['points.' + game_type] = {$gt: _points}
       db.collection('players').find(_find).count({}, function (err, count) {
