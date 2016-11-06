@@ -29,7 +29,7 @@
       </div>
     </div>
     <div class="footer-ads">
-      <iframe src="/static/chitika.html" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
+
     </div>
     <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a><div class="microversion">{{user.microversion}}</div></div>
   </div>

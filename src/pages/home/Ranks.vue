@@ -2,7 +2,7 @@
   <div id="ranks" v-on:click="ranks_closed=!ranks_closed" v-bind:class="{ranks_closed: ranks_closed}">
     <div class="trophy-background"></div>
     <div class="leaderboard">
-      <div class="leaderboardtitle">{{game.name}}</div>
+      <div class="leaderboardtitle">{{typeof game !== 'undefined' ? game.name : ''}}</div>
       <div class="rankedplayer" v-for="(leader, index) in leaderboard">
         <span class="lead_name">#{{leader.rank}} {{leader.name}}</span>
         <span class="lead_points">★{{leader.points}}</span>
