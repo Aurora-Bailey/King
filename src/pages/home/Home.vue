@@ -10,7 +10,7 @@
 
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
-      <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span> <div class="about-rank">? <div class="about-rank-tooltip">You recieve or lose points based on the place that you take <br> at the end of a game and the relative points of your opponents. <br> (Multiplayer ELO rating system)</div></div> <span class="show_points">Points ★{{user.points}}</span></div>
+      <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span> <span class="show_points">Points ★{{user.points}}</span> <div class="about-rank">? <div class="about-rank-tooltip">You recieve or lose points based on the place that you take <br> at the end of a game and the relative points of your opponents. <br> (Multiplayer ELO rating system)</div></div></div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" v-on:keydown.enter="justBlur" /></div>
       <div class="play_wrapper">
         <button class="play" v-on:click="join(typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].type)">
