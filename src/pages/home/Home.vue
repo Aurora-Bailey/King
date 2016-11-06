@@ -10,7 +10,7 @@
 
     <div class="contain_width">
       <div class="logo">Kingz.io</div>
-      <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span><span class="show_points">Points ★ {{user.points}} ★</span></div>
+      <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span><span class="show_points">Points ★{{user.points}}</span></div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" v-on:keydown.enter="justBlur" /></div>
       <div class="play_wrapper">
         <button class="play" v-on:click="join(typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].type)">
@@ -157,24 +157,16 @@
     .rank {
       font-size: 3vh;
       line-height: 3.5vh;
+      height: 3.5vh;
       padding: 0;
       text-align: left;
       cursor: default;
 
       .show_rank {
-        display: inline-block;
+        float: left;
       }
       .show_points {
-        display: none;
-      }
-
-      &:hover {
-        .show_rank {
-          display: none;
-        }
-        .show_points {
-          display: inline-block;
-        }
+        float: right;
       }
     }
 
@@ -196,6 +188,7 @@
       display: inline-block;
       vertical-align: text-top;
       width: 82%;
+      margin: 1vh 0;
     }
     .play_arrow {
       height: 8vh;
@@ -203,7 +196,7 @@
       background-color: darken($primary, 10%);
       color: $primary-alt;
       display: inline-block;
-      margin: 2vh 0;
+      margin: 1vh 0;
       vertical-align: text-top;
       cursor: pointer;
       background-image: url('../../assets/arrowdown.png');
@@ -236,10 +229,11 @@
 
     .more_io_games {
       @include bigbutton(4vh);
+      margin: 1vh 0;
     }
 
     .footer-ads {
-      height: 35vh;
+      height: 47vh;
       width: 100vw;
       margin-top: 1vh;
     }

@@ -2,14 +2,30 @@
 <head>
   <title>Chitika test</title>
   <style>
-    html, body, .chitika-ad {
+    html, body{
       height: 100%;
       margin: 0;
+      overflow: auto;
+    }
+    body {
+      overflow: auto;
     }
     .chitika-ad {
       width: 300px;
       height: 250px;
       margin: auto;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: white;
+    }
+
+    @media (max-height: 250px) {
+      .chitika-ad {
+        position: relative;
+      }
     }
   </style>
 </head>
