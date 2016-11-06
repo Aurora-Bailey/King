@@ -38,7 +38,7 @@
     z-index: 300;
     overflow: hidden;
     text-align: center;
-    width: 30vh;
+    width: 35vh;
     height: 100vh;
     margin: auto;
     font-size: 2vh;
@@ -75,14 +75,28 @@
         padding-bottom: 1vh;
       }
       .rankedplayer {
-        line-height: 2.4vh;
-        height: 2.4vh;
+        line-height: 2.3vh;
+        height: 2.3vh;
+        position: relative;
+
+        &:hover {
+          background-color: $primary;
+        }
       }
       .lead_name {
-        float: left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        max-width: 23vh;
+        overflow: hidden;
+        white-space: nowrap;
       }
       .lead_points {
-        float: right;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
       }
     }
 

@@ -93,7 +93,10 @@
     text-align: center;
 
     .about-rank {
-      position: relative;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
       vertical-align: middle;
       display: inline-block;
       background-color: $base-alt;
@@ -107,7 +110,6 @@
       text-align: center;
       border-radius: 2vh;
       cursor: default;
-      float: right;
 
 
       .about-rank-tooltip {
@@ -213,12 +215,19 @@
       padding: 0;
       text-align: left;
       cursor: default;
+      position: relative;
 
       .show_rank {
-        float: left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
       }
       .show_points {
-        float: right;
+        position: absolute;
+        top: 0;
+        right: 4vh;
+        bottom: 0;
       }
     }
 
