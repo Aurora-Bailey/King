@@ -1,8 +1,6 @@
 <template>
   <div id="home">
-    <transition name="slide-fade">
-      <ranks :user="user" :leaderboard="leaderboard" :game="gamelist[gamemode]"></ranks>
-    </transition>
+    <ranks :user="user" :leaderboard="leaderboard" :game="gamelist[gamemode]"></ranks>
 
     <div class="social_media">
       <div class="fb-like" data-href="http://kingz.io" data-layout="button" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
