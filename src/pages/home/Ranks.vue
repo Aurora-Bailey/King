@@ -44,6 +44,8 @@
     font-size: 2vh;
     transition: all .5s ease;
     cursor: pointer;
+    border: 0.3vh solid darken($base, 5%);
+    border-radius: 0;
 
     .trophy-background {
       background-image: url("../../assets/trophy.png");
@@ -90,6 +92,8 @@
       height: 8vh;
       font-size: 0;
       background-color: transparent;
+      border-radius: 8vh;
+      border: 0.3vh solid $base-alt;
       .leaderboard {
         opacity: 0;
       }
