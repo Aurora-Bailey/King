@@ -13,25 +13,17 @@
       <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span> <span class="show_points">Points ★{{user.points}}</span> <div class="about-rank">? <div class="about-rank-tooltip">You recieve or lose points based on the place that you take <br> at the end of a game and the relative points of your opponents. <br> (Multiplayer ELO rating system)</div></div></div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" v-on:keydown.enter="justBlur" /></div>
       <div class="play_wrapper">
-        <button class="play" v-on:click="join(typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].type)">
-          {{typeof gamelist[gamemode] === 'undefined' ? 'Offline':gamelist[gamemode].name}}
-          {{typeof gamelist[gamemode] !== 'undefined' && gamelist[gamemode].cur > 0 ? '' + gamelist[gamemode].cur + '/' + gamelist[gamemode].max +'':''}}
-        </button><div class="play_arrow" v-on:click="showGameOptions=!showGameOptions"></div>
-
-        <div class="game_options" v-show="showGameOptions">
-          <div class="game_options_title">Games modes</div>
-          <button v-for="(game,index) in gamelist" class="play" v-on:click="gamemode=index; showGameOptions=!showGameOptions">
-            {{game.name}} {{game.cur > 0 ? '' + game.cur + '/' + game.max +'':''}}
-          </button>
-        </div>
-
-        <a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a>
+        <button v-for="(game,index) in gamelist" class="play" v-on:click="join(gamelist[index].type)">
+          {{gamelist[index].name}}
+          {{gamelist[index].cur > 0 ? '' + gamelist[index].cur + '/' + gamelist[index].max +'':''}}
+        </button>
       </div>
+
     </div>
     <div class="footer-ads">
       <iframe :src="ad" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
     </div>
-    <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a><div class="microversion">{{user.microversion}}</div></div>
+    <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a><a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a><div class="microversion">{{user.microversion}}</div></div>
   </div>
 </template>
 
@@ -47,7 +39,6 @@
     data () {
       return {
         name: '', // local version of name bound to the input box
-        showGameOptions: false,
         gamemode: 0
       }
     },
@@ -193,12 +184,6 @@
       }
     }
 
-    .microversion {
-      float: right;
-      font-size: 2vh;
-      color: lighten($base, 5%)
-    }
-
     .logo {
       font-size: 12vh;
       padding: 1vh 0;
@@ -241,56 +226,14 @@
 
     .play_wrapper {
       position: relative;
-      white-space: nowrap;
     }
     .play {
-      @include bigbutton(8vh);
+      @include bigbutton(4.5vh);
 
       display: inline-block;
       vertical-align: text-top;
-      width: 82%;
-      margin: 1vh 0;
-    }
-    .play_arrow {
-      height: 8vh;
-      width: 18%;
-      background-color: darken($primary, 10%);
-      color: $primary-alt;
-      display: inline-block;
-      margin: 1vh 0;
-      vertical-align: text-top;
-      cursor: pointer;
-      background-image: url('../../assets/arrowdown.png');
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-
-      &:hover {
-        background-color: darken($primary, 20%);
-        color: $primary-alt;
-      }
-    }
-    .game_options {
-      background-color: lighten($base, 10%);
-      color: $base-alt;
-      white-space: normal;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-
-      .game_options_title {
-        font-size: 4vh;
-        padding: 2vh;
-      }
-      .play {
-        width: 90%;
-      }
-    }
-
-    .more_io_games {
-      @include bigbutton(4vh);
-      margin: 1vh 0;
+      width: 23vh;
+      margin: 0.5vh;
     }
 
     .footer-ads {
@@ -299,12 +242,29 @@
       margin-top: 1vh;
     }
 
+    .more_io_games {
+      @include bigbutton(20px);
+      display: inline-block;
+      width: 110px;
+      text-align: center;
+      margin: 0 5px;
+      vertical-align: top;
+    }
+
+    .microversion {
+      float: right;
+      font-size: 16px;
+      line-height: 20px;
+      color: $base;
+    }
+
     .footer {
-      font-size: 2vh;
-      padding: 1vh;
+      font-size: 16px;
+      padding: 5px;
+      height: 30px;
       position: absolute;
       text-align: left;
-      background-color: $base;
+      background-color: lighten($base, 5%);
       bottom: 0;
       right: 0;
       left: 0;
