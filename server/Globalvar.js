@@ -25,12 +25,12 @@ x.game.game_cities.queue.maxplayers = 9; // 3x3
 x.game.game_cities.queue.maxwait = 1000*60*2; // 2 minutes in miliseconds
 
 x.game.game_exp_large_map = {};
-x.game.game_exp_large_map.areaperplayer = 150;// will be rounded to the closest square root number
+x.game.game_exp_large_map.areaperplayer = 100;// will be rounded to the closest square root number
 x.game.game_exp_large_map.loopdelay = 1000; // one tick per second
 x.game.game_exp_large_map.maxmovequeue = 600; // max number of moves you can queue up
 x.game.game_exp_large_map.queue = {};
 x.game.game_exp_large_map.queue.minplayers = 2;
-x.game.game_exp_large_map.queue.maxplayers = 25; // 5x5
+x.game.game_exp_large_map.queue.maxplayers = 9; // 3x3
 x.game.game_exp_large_map.queue.maxwait = 1000*60*2; // 2 minutes in miliseconds
 
 //x.mainGame = 'game_cities';
