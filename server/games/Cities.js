@@ -53,15 +53,18 @@ var now = require("performance-now");
 var unitType = {}; // AKA token
 unitType.basic = {};
 unitType.king = {};
+unitType.deadking = {};
 unitType.city = {};
 
 unitType.basic.id = 0;
 unitType.king.id = 1;
+unitType.deadking.id = 2;
 unitType.city.id = 4;
 
 unitType.basic.view = 1;
 unitType.king.view = 2;
-unitType.city.view = 2;
+unitType.deadking.view = 0;
+unitType.city.view = 1;
 
 class Game {
   static setup(){
