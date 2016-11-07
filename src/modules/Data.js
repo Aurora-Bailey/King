@@ -19,7 +19,7 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v2060'
+    microversion: 'v2084'
   },
   leaderboard: [],
   waiting: {
