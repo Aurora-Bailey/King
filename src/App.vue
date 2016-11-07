@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition name="slide-fade">
-      <home :user="user" :gamelist="gamelist" :leaderboard="leaderboard" v-show="page=='home'"></home>
+      <home :ad="ad" :user="user" :gamelist="gamelist" :leaderboard="leaderboard" v-show="page=='home'"></home>
     </transition>
     <transition name="slide-fade">
       <waiting :waiting="waiting" v-show="page=='waiting'"></waiting>

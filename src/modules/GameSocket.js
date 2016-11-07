@@ -40,6 +40,17 @@ function start (obj) {
     Vue.set(Data.game, 'map', [])
     Vue.set(Data.game, 'leaderboard', [])
     SS.sendObj({m: 'gameover'})
+
+    // Ad
+    let windowHeight = window.innerHeight
+    Data.ad = ''
+    setTimeout(() => {
+      if (windowHeight < Data.adMobileHeight) {
+        Data.ad = Data.adMobileURL
+      } else {
+        Data.ad = Data.adURL
+      }
+    }, 100)
   }
   ws.onmessage = (e) => {
     if (typeof e.data === 'string') {
