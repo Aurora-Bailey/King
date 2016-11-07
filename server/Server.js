@@ -434,9 +434,9 @@ module.exports.setup = function (p) {
   NODE_ENV = process.env.NODE_ENV;
   log('startnode', 'Starting [' + NODE_ENV + '] [' + GV.version + '] [' + GV.mv + ']');
 
-  Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name
   Q['game_cities'] = new Queue('game_cities', 'Kingz & Cities');
-  Q['game_exp_large_map'] = new Queue('game_exp_large_map', 'Experiment 00');
+  Q['game_exp_large_map'] = new Queue('game_exp_large_map', 'Experiment');
+  Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){

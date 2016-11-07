@@ -13,7 +13,7 @@
       <div class="rank"><span class="show_rank">Rank #{{user.rank}}</span> <span class="show_points">Points ★{{user.points}}</span> <div class="about-rank">? <div class="about-rank-tooltip">You recieve or lose points based on the place that you take <br> at the end of a game and the relative points of your opponents. <br> (Multiplayer ELO rating system)</div></div></div>
       <div class="enter_name"><input type="text" v-bind:placeholder="user.name" v-model="name" maxlength="15" v-on:blur="setName()" v-on:keydown.enter="justBlur" /></div>
       <div class="play_wrapper">
-        <button v-for="(game,index) in gamelist" class="play" v-on:click="join(gamelist[index].type)">
+        <button v-for="(game,index) in gamelist" v-bind:class="{selected: index === gamemode}" class="play" v-on:click="join(gamelist[index].type); gamemode = index">
           {{gamelist[index].name}}
           {{gamelist[index].cur > 0 ? '' + gamelist[index].cur + '/' + gamelist[index].max +'':''}}
         </button>
@@ -234,6 +234,10 @@
       vertical-align: text-top;
       width: 23vh;
       margin: 0.5vh;
+
+      &.selected {
+        background-color: darken($primary, 15%);
+      }
     }
 
     .footer-ads {
