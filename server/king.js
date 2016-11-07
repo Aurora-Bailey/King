@@ -23,6 +23,9 @@ if (cluster.isMaster) {
       }else if(process.env.WORKER_TYPE == 'game_cities'){
         var Cities = require('./games/Cities');
         Cities.setup(process);
+      }else if(process.env.WORKER_TYPE == 'game_exp_large_map'){
+        var Cities = require('./games/CityLargeMap');
+        Cities.setup(process);
       }else if(process.env.WORKER_TYPE == 'god'){
         var God = require('./God');
         God.setup(process);

@@ -50,6 +50,19 @@ var http = require('http'),
 
 var now = require("performance-now");
 
+var unitType = {}; // AKA token
+unitType.basic = {};
+unitType.king = {};
+unitType.city = {};
+
+unitType.basic.id = 0;
+unitType.king.id = 1;
+unitType.city.id = 4;
+
+unitType.basic.view = 1;
+unitType.king.view = 2;
+unitType.city.view = 2;
+
 class Game {
   static setup(){
     // set or reset game room
@@ -103,7 +116,7 @@ class Game {
       for(let x=0; x<this.maptotalsize; x++){
         this.map.units[y][x] = 0;
         this.map.owner[y][x] = -1 - Math.round(Math.random());
-        this.map.token[y][x] = 0;
+        this.map.token[y][x] = unitType.basic.id;
       }
     }
     // rearrange solid blocks
@@ -172,7 +185,7 @@ class Game {
         if(typeof this.players[pindex] !== 'undefined'){
           this.map.units[toty][totx] = 2;
           this.map.owner[toty][totx] = pindex;
-          this.map.token[toty][totx] = 1; // king
+          this.map.token[toty][totx] = unitType.king.id; // king
         }
       }
     }
@@ -181,54 +194,57 @@ class Game {
     for(let y=0; y<this.mapusersize; y++){
       for(let x=0; x<this.mapusersize; x++){
 
-        let randcellx = Math.floor(Math.random() * this.mapcellsize);
-        let randcelly = Math.floor(Math.random() * this.mapcellsize);
+        for(let howMany = 2; howMany > 0; howMany--){
+          let randcellx = Math.floor(Math.random() * this.mapcellsize);
+          let randcelly = Math.floor(Math.random() * this.mapcellsize);
 
-        let offsetx = x * this.mapcellsize;
-        let offsety = y * this.mapcellsize;
+          let offsetx = x * this.mapcellsize;
+          let offsety = y * this.mapcellsize;
 
-        let totx = offsetx + randcellx;
-        let toty = offsety + randcelly;
+          let totx = offsetx + randcellx;
+          let toty = offsety + randcelly;
 
-        let numempty = this.getMapNumEmpty(totx, toty);
+          let numempty = this.getMapNumEmpty(totx, toty);
 
-        let numWhileLoop = 0;
-        let blocksBroken = 0;
-        while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
-          randcellx = Math.floor(Math.random() * this.mapcellsize);
-          randcelly = Math.floor(Math.random() * this.mapcellsize);
+          let numWhileLoop = 0;
+          let blocksBroken = 0;
+          while(numempty < this.maptotalsize * this.maptotalsize / 4 || numempty === "solid") {
+            randcellx = Math.floor(Math.random() * this.mapcellsize);
+            randcelly = Math.floor(Math.random() * this.mapcellsize);
 
-          offsetx = x * this.mapcellsize;
-          offsety = y * this.mapcellsize;
+            offsetx = x * this.mapcellsize;
+            offsety = y * this.mapcellsize;
 
-          totx = offsetx + randcellx;
-          toty = offsety + randcelly;
+            totx = offsetx + randcellx;
+            toty = offsety + randcelly;
 
-          // If infinite loop, start breaking solid blocks
-          if (numWhileLoop >= 50 && this.map.owner[toty][totx] === -2) {
-            this.map.owner[toty][totx] = -1;
-            blocksBroken++;
-          }
-          // start breaking all the blocks
-          if (numWhileLoop >= 100) {
-            let randCell = {x: Math.floor(Math.random() * this.maptotalsize), y: Math.floor(Math.random() * this.maptotalsize)}
-            if (this.map.owner[randCell.y][randCell.x] === -2) {
-              this.map.owner[randCell.y][randCell.x] = -1;
+            // If infinite loop, start breaking solid blocks
+            if (numWhileLoop >= 50 && this.map.owner[toty][totx] === -2) {
+              this.map.owner[toty][totx] = -1;
               blocksBroken++;
             }
+            // start breaking all the blocks
+            if (numWhileLoop >= 100) {
+              let randCell = {x: Math.floor(Math.random() * this.maptotalsize), y: Math.floor(Math.random() * this.maptotalsize)}
+              if (this.map.owner[randCell.y][randCell.x] === -2) {
+                this.map.owner[randCell.y][randCell.x] = -1;
+                blocksBroken++;
+              }
+            }
+            // Still no luck? then just place the player
+            if (numWhileLoop >= 500 && this.map.owner[toty][totx] === -1) break;
+
+            numempty = this.getMapNumEmpty(totx, toty);
+            numWhileLoop++;
           }
-          // Still no luck? then just place the player
-          if (numWhileLoop >= 500 && this.map.owner[toty][totx] === -1) break;
 
-          numempty = this.getMapNumEmpty(totx, toty);
-          numWhileLoop++;
+          if (numWhileLoop >= 50) log('placeplayer', '[City] While looped ' + numWhileLoop + ' times. ' + blocksBroken + ' blocks broken.');
+
+          this.map.units[toty][totx] = Math.floor(Math.random() * 60) + 60;
+          this.map.owner[toty][totx] = -4;
+          this.map.token[toty][totx] = unitType.city.id; // City
         }
-
-        if (numWhileLoop >= 50) log('placeplayer', '[City] While looped ' + numWhileLoop + ' times. ' + blocksBroken + ' blocks broken.');
-
-        this.map.units[toty][totx] = Math.floor(Math.random() * 60) + 60;
-        this.map.owner[toty][totx] = -4;
-        this.map.token[toty][totx] = 4; // City
+        // end how many
       }
     }
 
@@ -259,14 +275,14 @@ class Game {
   }
 
   static kingNearMe(cellx, celly) {
-    let view = 2;
+    let view = unitType.king.view;
 
     // loop through visible map
     for (var r = -Math.abs(view); r <= Math.abs(view); r++) {
       for (var s = -Math.abs(view); s <= Math.abs(view); s++) {
 
         if (typeof this.map.owner[celly+r] !== 'undefined' && typeof this.map.owner[celly+r][cellx+s] !== 'undefined'){
-          if (this.map.token[celly+r][cellx+s] === 1) {
+          if (this.map.token[celly+r][cellx+s] === unitType.king.id) {
             log('kinginview', ' x:' + cellx + ' y:' + celly + ' to-x:' + (cellx+s) + ' to-y:' + (celly+r) + ' ');
             return true;
           }
@@ -365,7 +381,7 @@ class Game {
     // King
     for(let y=0; y<this.maptotalsize; y++){
       for(let x=0; x<this.maptotalsize; x++){
-        if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === 1){
+        if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === unitType.king.id){
           this.map.units[y][x]++;
         }
       }
@@ -374,7 +390,7 @@ class Game {
     //if(this.loopcount % 2 == 0){// once every 2 loops
     for(let y=0; y<this.maptotalsize; y++){
       for(let x=0; x<this.maptotalsize; x++){
-        if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === 4){
+        if(this.map.owner[y][x] >= 0 && this.map.token[y][x] === unitType.city.id){
           this.map.units[y][x]++;
         }
       }
@@ -409,7 +425,7 @@ class Game {
           if (Game.map.owner[y][x] === e.pid) {
 
             // trying to move king
-            if (Game.map.token[y][x] === 1) {
+            if (Game.map.token[y][x] === unitType.king.id) {
               // set delay
               if (typeof delay === 'undefined') {
                 // this counts for +1 delay.
@@ -481,8 +497,8 @@ class Game {
               Game.map.units[y][x] -= amount;
 
               // take over player
-              if(Game.map.token[moveto.y][moveto.x] === 1){
-                Game.map.token[moveto.y][moveto.x] = 4;
+              if(Game.map.token[moveto.y][moveto.x] === unitType.king.id){
+                Game.map.token[moveto.y][moveto.x] = unitType.city.id;
                 this.playerDead(enemyid, e.name, e.pid);
                 this.players[e.pid].kills++;
 
@@ -514,11 +530,11 @@ class Game {
 
           // Move token (this won't trigger because you can't move all your units)
           if(Game.map.units[y][x] === 0){
-            if (Game.map.token[moveto.y][moveto.x] === 0) { // move to non token cell
+            if (Game.map.token[moveto.y][moveto.x] === unitType.basic.id) { // move to non token cell
               Game.map.token[moveto.y][moveto.x] = Game.map.token[y][x];
-              Game.map.token[y][x] = 0;
+              Game.map.token[y][x] = unitType.basic.id;
               Game.map.owner[y][x] = -1;
-            } else if (Game.map.token[y][x] === 0) { // move to cell with token, without a token
+            } else if (Game.map.token[y][x] === unitType.basic.id) { // move to cell with token, without a token
               Game.map.owner[y][x] = -1;
             } else {
               // move with token to a cell with a token
@@ -589,7 +605,7 @@ class Game {
       for (let m = 0; m < this.map.owner[k].length; m++) {
         fog.units[k][m] = 0;
         fog.owner[k][m] = -3;
-        fog.token[k][m] = 0;
+        fog.token[k][m] = unitType.basic.id;
       }
     }
 
@@ -606,7 +622,7 @@ class Game {
         for (let m = 0; m < this.map.owner[k].length; m++) {
           player.oldfog.units[k][m] = 0;
           player.oldfog.owner[k][m] = -1; // empty
-          player.oldfog.token[k][m] = 0;
+          player.oldfog.token[k][m] = unitType.basic.id;
         }
       }
     }
@@ -616,8 +632,9 @@ class Game {
       for (let m = 0; m < this.map.owner[k].length; m++) {
         // player owns this block
         if (this.map.owner[k][m] === player.pid) {
-          let view = 1;
-          if (this.map.token[k][m] === 1) view = 2;
+          let view = unitType.basic.view;
+          if (this.map.token[k][m] === unitType.king.id) view = unitType.king.view;
+          if (this.map.token[k][m] === unitType.city.id) view = unitType.city.view;
 
           // loop through visible map
           for (var r = -Math.abs(view); r <= Math.abs(view); r++) {

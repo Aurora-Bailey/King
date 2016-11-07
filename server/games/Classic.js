@@ -5,7 +5,7 @@
   1) Make up a unique worker name ex: 'game_classic'
   2) king.js - require file and run if WORKER_TYPE == 'game_classic'
   3) Server.js - add Queue object under WORKER_TYPE Q['game_classic'] = new Queue('game_classic', 'Propper Name');
-  4) Home.vue - add button with v-on:click="join('game_classic')"
+  4) Globalvar.js - Set new variables under the new game name
  */
 
 var http = require('http'),

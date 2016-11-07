@@ -229,7 +229,7 @@ function sendLeaderboard(ws, game_type) {
       let _rebuild = [];
 
       docs.forEach((doc)=>{
-        _rebuild.push({name: doc.name, points: typeof doc.points[game_type] === 'undefined' ? 0 : doc.points[game_type]});
+        _rebuild.push({name: doc.name, points: typeof doc.points[game_type] === 'undefined' ? 15000 : doc.points[game_type]});
       });
 
       ws.sendObj({m: 'leaderboard', data: _rebuild});
@@ -434,14 +434,9 @@ module.exports.setup = function (p) {
   NODE_ENV = process.env.NODE_ENV;
   log('startnode', 'Starting [' + NODE_ENV + '] [' + GV.version + '] [' + GV.mv + ']');
 
-  // update for dev server
-  if (NODE_ENV === 'development') {
-    GV.game['game_classic'].queue.maxwait = 15000; // set wait time to 15 seconds
-    GV.game['game_cities'].queue.maxwait = 15000; // set wait time to 15 seconds
-  }
-
   Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name
   Q['game_cities'] = new Queue('game_cities', 'Kingz & Cities');
+  Q['game_exp_large_map'] = new Queue('game_exp_large_map', 'Experiment 00');
 
   process.on('message', function (m) {// process server messages
     if(m.m == 'getroom'){
