@@ -5,7 +5,9 @@
     <div class="social_media">
       <div class="fb-like" data-href="http://kingz.io" data-layout="button" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
       <br><a href="https://twitter.com/kingz_io" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false"></a> <a class="twitter-share-button" href="https://twitter.com/intent/tweet"></a>
-      <br><a href="https://www.reddit.com/r/Kingzio" target="_blank" class="button-reddit"><i class="icon-reddit"></i><span class="text-reddit">r/Kingzio</span></a>
+      <br>
+      <a href="https://www.reddit.com/r/Kingzio" target="_blank" class="button-reddit"><img class="icon-reddit" title="Reddit r/Kingzio" src="../../assets/reddit_icon.png"/></a>
+      <a href="https://discord.gg/3CxDJu7" target="_blank" class="button-discord"><img class="icon-discord" title="Discord" src="../../assets/discord_icon.png"/></a>
     </div>
 
     <div class="contain_width">
@@ -145,39 +147,14 @@
       text-align: left;
       z-index: 250;
 
-      .button-reddit {
-        position: relative;
+      .button-reddit, .button-discord {
         display: inline-block;
         vertical-align: text-top;
-        height: 20px;
-        padding: 1px 8px 1px 6px;
-        border-radius: 3px;
-        font-weight: bold;
-        background-color: white;
-        color: #777;
+        margin: 2px 1px;
 
         &:hover {
-          background-color: #DDD;
+          opacity: 0.8;
         }
-      }
-      .icon-reddit {
-        vertical-align: text-top;
-        position: relative;
-        top: 2px;
-        width: 16px;
-        height: 14px;
-        margin-right: 3px;
-        display: inline-block;
-        background-image: url("../../assets/reddit_logo.png");
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
-      }
-      .text-reddit {
-        vertical-align: text-top;
-        display: inline-block;
-        line-height: 18px;
-        font-size: 12px;
       }
 
       .fb-like {
