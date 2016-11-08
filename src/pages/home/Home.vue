@@ -21,7 +21,8 @@
 
     </div>
     <div class="footer-ads">
-      <iframe :src="ad" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
+      <!--<iframe :src="ad" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>-->
+      <iframe src="http://www.strawpoll.me/embed_1/11603726" style="width:680px;height:625px;border:0;">Loading poll...</iframe>
     </div>
     <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a><a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a><div class="microversion">{{user.microversion}}</div></div>
   </div>
@@ -241,9 +242,11 @@
     }
 
     .footer-ads {
-      height: 47vh;
-      width: 100vw;
-      margin-top: 1vh;
+      height: 51vh;
+      // width: 100vw;
+      width: 700px;
+      margin: 1vh auto 0;
+      overflow: auto;
     }
 
     .more_io_games {
@@ -267,6 +270,7 @@
       padding: 5px;
       height: 30px;
       position: absolute;
+      overflow: hidden;
       text-align: left;
       background-color: lighten($base, 5%);
       bottom: 0;
