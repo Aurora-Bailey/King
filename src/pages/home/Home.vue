@@ -218,11 +218,11 @@
     }
 
     .footer-ads {
-      height: 51vh;
+      height: 50vh;
       // width: 100vw;
-      width: 700px;
+      width: 100%;
       margin: 1vh auto 0;
-      overflow: auto;
+      overflow: hidden;
     }
 
     .more_io_games {
