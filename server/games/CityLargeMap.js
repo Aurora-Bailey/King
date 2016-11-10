@@ -197,7 +197,7 @@ class Game {
     for(let y=0; y<this.mapusersize; y++){
       for(let x=0; x<this.mapusersize; x++){
 
-        for(let howMany = 2; howMany > 0; howMany--){
+        for(let howMany = 3; howMany > 0; howMany--){
           let randcellx = Math.floor(Math.random() * this.mapcellsize);
           let randcelly = Math.floor(Math.random() * this.mapcellsize);
 

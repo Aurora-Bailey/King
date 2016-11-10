@@ -435,7 +435,7 @@ module.exports.setup = function (p) {
   log('startnode', 'Starting [' + NODE_ENV + '] [' + GV.version + '] [' + GV.mv + ']');
 
   Q['game_cities'] = new Queue('game_cities', 'Kingz & Cities');
-  Q['game_exp_large_map'] = new Queue('game_exp_large_map', 'Larger Map Test');
+  Q['game_exp_large_map'] = new Queue('game_exp_large_map', 'K&C Relaxed');
   Q['game_classic'] = new Queue('game_classic', 'Classic'); // node name, Proper name
 
   process.on('message', function (m) {// process server messages
