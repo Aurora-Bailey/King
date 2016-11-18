@@ -1,12 +1,11 @@
 /* eslint-disable */
 import Data from './Data'
-import WebSocket from './WebSocket'
+import WebSocket from './ServerSocket'
 
 // Load the SDK asynchronously
 (function (d, s, id) {
-  // console.log('asdfqwerty')
-  var js
-  var fjs = d.getElementsByTagName(s)[0]
+  let js
+  let fjs = d.getElementsByTagName(s)[0]
   if (d.getElementById(id)) return
   js = d.createElement(s)
   js.id = id
@@ -20,15 +19,13 @@ window.fbAsyncInit = () => {
     appId: '103746836756937',
     cookie: true,
     xfbml: true,
-    version: 'v2.7'
+    version: 'v2.8'
   })
   Data.state.fbsdk = true
   token()
 }
 
 function login () {
-  if (!Data.state.fbsdk) return false
-
   FB.login((response) => {
     if (response.status === 'connected') {
       WebSocket.sendObj({m: 'login', token: response.authResponse.accessToken})
@@ -37,7 +34,7 @@ function login () {
       WebSocket.sendObj({m: 'login', token: false})
       WebSocket.shortObj({m: 'login', token: false})
     }
-  }, {scope: 'public_profile,email,user_friends'})
+  }, {scope: 'public_profile'})
 }
 
 function token () {

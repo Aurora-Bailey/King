@@ -25,13 +25,20 @@
     <div class="footer-ads">
       <iframe :src="ad" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
     </div>
-    <div class="footer" ><a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-black iubenda-embed" title="Privacy Policy">Privacy Policy</a><a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a><div class="microversion">{{user.microversion}}</div></div>
+    <div class="footer" >
+      <a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-embed" title="Privacy Policy">Privacy Policy</a>
+      <a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a>
+      <div class="facebook_login" v-if="!user.facebook" v-on:click="facebookLogin()"><img src="../../assets/facebook.png" class="fb_icon" /><span class="fb_text">Login</span></div>
+      <div class="facebook_login" v-if="user.facebook" v-on:click="facebookLogout()"><img src="../../assets/facebook.png" class="fb_icon" /><span class="fb_text">Logout</span></div>
+      <div class="microversion">{{user.microversion}}</div>
+    </div>
   </div>
 </template>
 
 <script>
   import SS from '../../modules/ServerSocket'
   import Ranks from './Ranks'
+  import Facebook from '../../modules/Facebook'
 
   export default {
     props: ['ad', 'user', 'leaderboard', 'gamelist'],
@@ -56,6 +63,15 @@
       },
       justBlur: function (event) {
         event.target.blur()
+      },
+      facebookLogin: function () {
+        Facebook.login()
+      },
+      facebookToken: function () {
+        Facebook.token()
+      },
+      facebookLogout: function () {
+        Facebook.logout()
       }
     },
     watch: {
@@ -232,6 +248,34 @@
       text-align: center;
       margin: 0 5px;
       vertical-align: top;
+    }
+
+    .facebook_login {
+      height: 20px;
+      background-color: $facebook;
+      color: white;
+      display: inline-block;
+      text-align: center;
+      margin: 0 5px;
+      padding: 2px 7px 2px 5px;
+      line-height: 16px;
+      font-size: 12px;
+      font-weight: bold;
+      vertical-align: top;
+      border-radius: 2px;
+
+      .fb_icon {
+        display: inline-block;
+        vertical-align: top;
+        width: 16px;
+        height: 16px;
+        margin-right: 7px;
+      }
+
+      .fb_text {
+        display: inline-block;
+        vertical-align: top;
+      }
     }
 
     .microversion {
