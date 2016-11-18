@@ -263,6 +263,11 @@
       font-weight: bold;
       vertical-align: top;
       border-radius: 2px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: darken($facebook, 5%)
+      }
 
       .fb_icon {
         display: inline-block;
@@ -270,11 +275,13 @@
         width: 16px;
         height: 16px;
         margin-right: 7px;
+        pointer-events: none;
       }
 
       .fb_text {
         display: inline-block;
         vertical-align: top;
+        pointer-events: none;
       }
     }
 
