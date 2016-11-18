@@ -421,6 +421,10 @@ function handleMessage(ws, d) {// websocket client messages
         ws.sendObj({m: 'logoutfb', v: true});
       }
 
+    }else if (d.m === 'geoip') {
+      if (typeof d.v !== 'undefined' && JSON.stringify(d.v).length < 500) {
+        ws.geoipaddress = d.v;
+      }
     }
     // Example broadcast to all nodes
     // process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});
@@ -529,7 +533,7 @@ module.exports.setup = function (p) {
     ws.forcestart = false;
     ws.lastenterqueue = 0;
     ws.viewgametype = 'type_of_game';
-    ws.ipaddress = ws._socket.remoteAddress;
+    ws.geoipaddress = '';
     ws.sentBytes = 0;
     ws.recieveBytes = 0;
     ws.sendObj = function (obj) {
@@ -579,7 +583,7 @@ module.exports.setup = function (p) {
 
         if (!ws.loggedin) return false;
         db.collection('players').updateOne({id: ws.data.id},
-          {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {enter: ws.connectedtime, ip: ws.ipaddress, plays: ws.numplays, up: ws.recieveBytes, down: ws.sentBytes, exit: Date.now()}}}, function(err, result){
+          {$inc: {totaltime: Date.now() - ws.connectedtime}, $push: {session: {enter: ws.connectedtime, geoip: ws.geoipaddress, plays: ws.numplays, up: ws.recieveBytes, down: ws.sentBytes, exit: Date.now()}}}, function(err, result){
             if (err) {
               log('err', 'Mongodb update session.');
               console.log(err);

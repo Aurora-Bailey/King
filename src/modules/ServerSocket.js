@@ -58,6 +58,7 @@ function start () {
 function handleMessage (d) {
   if (d.m === 'version') {
     if (d.compatible) {
+      sendGeoIp()
       sendCookie()
     } else {
       console.warn('Your game is out of date! Please refresh your browser.')
@@ -172,6 +173,17 @@ function sendCookie () {
     // console.log('Cookie')
     sendObj({m: 'cookie', cookie: window.localStorage.cookie}, true)
   }
+}
+
+function sendGeoIp () {
+  let xhttp = new window.XMLHttpRequest()
+  xhttp.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      sendObj({m: 'geoip', v: JSON.parse(this.responseText)}) //
+    }
+  }
+  xhttp.open('GET', 'http://freegeoip.net/json/', true)
+  xhttp.send()
 }
 
 function sendObj (object, queue = false) {
