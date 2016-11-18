@@ -73,6 +73,15 @@ function handleMessage (d) {
     if (window.confirm('Cookie not found! Reload your browser to try again. If your cookie is still not found hit ok to make a new cookie. (Warning: You will lose access to your old account!)') === false) return false
     if (window.confirm('WARNING!!! You are about to reset the cookie that links to your account! Are you okay with this?') === false) return false
     window.localStorage.removeItem('cookie')
+    window.localStorage.removeItem('cookie_fb')
+    sendCookie()
+  } else if (d.m === 'cookiefb') {
+    window.localStorage.cookie_fb = d.v
+    Data.user.facebook = true
+    sendCookie()
+  } else if (d.m === 'logoutfb') {
+    window.localStorage.removeItem('cookie_fb')
+    Data.user.facebook = false
     sendCookie()
   } else if (d.m === 'setname') {
     // console.log('Set name? ' + d.v)
@@ -153,7 +162,10 @@ function handleMessage (d) {
 }
 
 function sendCookie () {
-  if (typeof window.localStorage.cookie === 'undefined') {
+  if (typeof window.localStorage.cookie_fb !== 'undefined') {
+    // console.log('facebook cookie')
+    sendObj({m: 'cookie', cookie: window.localStorage.cookie_fb, fb: true}, true)
+  } else if (typeof window.localStorage.cookie === 'undefined') {
     // console.log('No cookie.')
     sendObj({m: 'makecookie'}, true)
   } else {

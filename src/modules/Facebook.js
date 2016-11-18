@@ -1,5 +1,4 @@
 /* eslint-disable */
-import Data from './Data'
 import WebSocket from './ServerSocket'
 
 // Load the SDK asynchronously
@@ -27,35 +26,31 @@ function login () {
   FB.login((response) => {
     if (response.status === 'connected') {
       WebSocket.sendObj({m: 'loginfb', token: response.authResponse.accessToken})
-      WebSocket.shortObj({m: 'loginfb', token: response.authResponse.accessToken})
     } else {
       WebSocket.sendObj({m: 'loginfb', token: false})
-      WebSocket.shortObj({m: 'loginfb', token: false})
     }
   }, {scope: 'public_profile'})
 }
 
 function token () {
-  if (!Data.state.fbsdk) return false
-
   FB.getLoginStatus((response) => {
     if (response.status === 'connected') {
       WebSocket.sendObj({m: 'loginfb', token: response.authResponse.accessToken}, true)
-      WebSocket.shortObj({m: 'loginfb', token: response.authResponse.accessToken}, true)
     } else {
       WebSocket.sendObj({m: 'loginfb', token: false}, true)
-      WebSocket.shortObj({m: 'loginfb', token: false}, true)
     }
   })
 }
 
 function logout () {
-  if (!Data.state.fbsdk) return false
-
-  FB.logout((response) => {
-    WebSocket.sendObj({m: 'loginfb', token: false})
-    WebSocket.shortObj({m: 'loginfb', token: false})
+  FB.getLoginStatus((response) => {
+    if (response.status === 'connected') {
+      FB.logout((response) => {
+        // Log out of facebook client side
+      })
+    }
   })
+  WebSocket.sendObj({m: 'loginfb', token: false})
 }
 
 export default {login, token, logout}
