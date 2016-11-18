@@ -15,7 +15,7 @@ import WebSocket from './ServerSocket'
 // This is called when the sdk is fully loaded
 window.fbAsyncInit = () => {
   FB.init({
-    appId: '103746836756937',
+    appId: '938283472970850',
     cookie: true,
     xfbml: true,
     version: 'v2.8'
