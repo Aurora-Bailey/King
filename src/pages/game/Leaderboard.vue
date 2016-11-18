@@ -2,7 +2,7 @@
   <div id="leaderboard">
     <div class="leadtitle">Leaderboard</div>
     <div class="ranks" v-bind:style="{color: leader.color}" v-for="(leader, index) in leaderboard">
-      #{{parseInt(index) + 1}} {{leader.name}} - {{leader.units}} | {{leader.blocks}}
+      {{leader.units}} | {{leader.blocks}} - #{{parseInt(index) + 1}} {{leader.name}}
     </div>
   </div>
 </template>
