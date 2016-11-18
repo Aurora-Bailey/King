@@ -21,18 +21,16 @@ window.fbAsyncInit = () => {
     xfbml: true,
     version: 'v2.8'
   })
-  Data.state.fbsdk = true
-  token()
 }
 
 function login () {
   FB.login((response) => {
     if (response.status === 'connected') {
-      WebSocket.sendObj({m: 'login', token: response.authResponse.accessToken})
-      WebSocket.shortObj({m: 'login', token: response.authResponse.accessToken})
+      WebSocket.sendObj({m: 'loginfb', token: response.authResponse.accessToken})
+      WebSocket.shortObj({m: 'loginfb', token: response.authResponse.accessToken})
     } else {
-      WebSocket.sendObj({m: 'login', token: false})
-      WebSocket.shortObj({m: 'login', token: false})
+      WebSocket.sendObj({m: 'loginfb', token: false})
+      WebSocket.shortObj({m: 'loginfb', token: false})
     }
   }, {scope: 'public_profile'})
 }
@@ -42,11 +40,11 @@ function token () {
 
   FB.getLoginStatus((response) => {
     if (response.status === 'connected') {
-      WebSocket.sendObj({m: 'login', token: response.authResponse.accessToken}, true)
-      WebSocket.shortObj({m: 'login', token: response.authResponse.accessToken}, true)
+      WebSocket.sendObj({m: 'loginfb', token: response.authResponse.accessToken}, true)
+      WebSocket.shortObj({m: 'loginfb', token: response.authResponse.accessToken}, true)
     } else {
-      WebSocket.sendObj({m: 'login', token: false}, true)
-      WebSocket.shortObj({m: 'login', token: false}, true)
+      WebSocket.sendObj({m: 'loginfb', token: false}, true)
+      WebSocket.shortObj({m: 'loginfb', token: false}, true)
     }
   })
 }
@@ -55,8 +53,8 @@ function logout () {
   if (!Data.state.fbsdk) return false
 
   FB.logout((response) => {
-    WebSocket.sendObj({m: 'login', token: false})
-    WebSocket.shortObj({m: 'login', token: false})
+    WebSocket.sendObj({m: 'loginfb', token: false})
+    WebSocket.shortObj({m: 'loginfb', token: false})
   })
 }
 

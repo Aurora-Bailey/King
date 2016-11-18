@@ -8,6 +8,7 @@ var http = require('http'),
   Lib = require('./Lib'),
   GV = require('./Globalvar'),
   Schema = require('./Schema'),
+  FacebookData = require('./FacebookData'),
   wss = new WebSocketServer({server: server}),
   app = express(),
   gameRoom = {},
@@ -387,6 +388,39 @@ function handleMessage(ws, d) {// websocket client messages
       if (ws.inqueue !== false) Q[ws.inqueue].removePlayer(ws);
     }else if (d.m === 'gameover' && ws.loggedin){
       ws.playing = false;
+    }else if (d.m === 'loginfb' && ws.loggedin){
+      if (typeof d.token !== 'undefined' && d.token !== false) {
+        FacebookData.getData("me?fields=id,name,gender,picture", d.token, (obj) => {
+          // facebook data has returned
+          if (typeof obj.error === 'undefined') {
+            db.collection('players').find({facebook: obj.id}, {_id: 0, cookie: 1}).limit(1).toArray(function(err, docs) {
+              if (err) {
+                log('err', 'Error with mongodb facebook login request');
+                console.log(err);
+              } else if (docs.length === 1) {
+                // Player is linked with facebook
+                ws.sendObj({m: 'cookiefb', v: docs[0].cookie});
+              } else {
+                // First time login
+                db.collection('players').updateOne({id: ws.data.id}, {$set: {facebook: obj.id, facebookdata: obj}}, function(err, result){
+                  if (err) {
+                    log('err', 'Mongodb insert facebook login.');
+                    console.log(err);
+                  } else {
+                    ws.sendObj({m: 'cookiefb', v: ws.data.cookie}); // just return the existing cookie
+                  }
+                });
+              }
+            });
+          } else {
+            ws.sendObj({m: 'logoutfb', v: true});
+          }
+        });
+
+      } else {
+        ws.sendObj({m: 'logoutfb', v: true});
+      }
+
     }
     // Example broadcast to all nodes
     // process.send({m: 'pass', to: 'server', data: {m: 'broadcast', message: d.message, level: d.level}});
