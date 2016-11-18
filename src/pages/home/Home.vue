@@ -28,7 +28,7 @@
     <div class="footer" >
       <a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-embed" title="Privacy Policy">Privacy Policy</a>
       <a href="http://iogames.space" target="_blank" class="more_io_games">More IO Games</a>
-      <div class="facebook_login" v-if="!user.facebook" v-on:click="facebookLogin()"><img src="../../assets/facebook.png" class="fb_icon" /><span class="fb_text">Login</span></div>
+      <div class="facebook_login" v-if="!user.facebook" v-on:click="facebookLogin()"><img src="../../assets/facebook.png" class="fb_icon" /><span class="fb_text">Login with Facebook</span></div>
       <div class="facebook_login" v-if="user.facebook" v-on:click="facebookLogout()"><img src="../../assets/facebook.png" class="fb_icon" /><span class="fb_text">Logout</span></div>
       <div class="microversion">{{user.microversion}}</div>
     </div>
@@ -256,7 +256,7 @@
       color: white;
       display: inline-block;
       text-align: center;
-      margin: 0 5px;
+      margin: 0 4px;
       padding: 2px 7px 2px 5px;
       line-height: 16px;
       font-size: 12px;
