@@ -8,8 +8,8 @@ export default {
   server: 'ws.kingz.io',
   page: 'init',
   ad: '',
-  adURL: '/static/chitika.html',
-  adMobileURL: '/static/chitika-mobile.html',
+  adURL: '', // '/static/chitika.html',
+  adMobileURL: '', // '/static/chitika-mobile.html',
   adMobileHeight: 550,
   gamelist: [],
   user: {
