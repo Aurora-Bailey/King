@@ -19,7 +19,7 @@ export default {
     numplays: 0,
     points: 0,
     rank: 0,
-    microversion: 'v2098',
+    microversion: 'v2100',
     facebook: typeof window.localStorage.cookie_fb !== 'undefined'
   },
   leaderboard: [],
