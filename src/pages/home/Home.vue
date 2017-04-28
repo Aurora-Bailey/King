@@ -23,8 +23,8 @@
 
     </div>
     <div class="footer-ads">
-      <div id="chitikaAdBlock-0"></div>
-      <!-- <iframe :src="ad" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe> -->
+      <!-- <div id="chitikaAdBlock-0"></div> -->
+      <iframe :src="ad" width="100%" height="100%" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
     </div>
     <div class="footer" >
       <a href="//www.iubenda.com/privacy-policy/7946359" class="iubenda-embed" title="Privacy Policy">Privacy Policy</a>

@@ -7,9 +7,9 @@ export default {
   },
   server: 'ws.kingz.io',
   page: 'init',
-  ad: '',
-  adURL: '', // '/static/chitika.html',
-  adMobileURL: '', // '/static/chitika-mobile.html',
+  ad: '/static/chitika.html', // empty will load the ad after the first game
+  adURL: '/static/chitika.html',
+  adMobileURL: '/static/chitika-mobile.html',
   adMobileHeight: 550,
   gamelist: [],
   user: {
